@@ -1,0 +1,32 @@
+{
+  "defaultSeverity": "error",
+  "rulesDirectory": [],
+  "rules": {
+    "max-line-length": {
+      "options": [
+        140
+      ]
+    },
+    "semicolon": [
+      false,
+      "always",
+      "ignore-interfaces"
+    ],
+    "new-parens": true,
+    "no-arg": true,
+    "no-conditional-assignment": true,
+    "no-consecutive-blank-lines": false,
+    "no-console": false // Dev Only
+    // "no-console": {
+    //     "severity": "warning",
+    //     "options": [
+    //         "debug",
+    //         "info",
+    //         "log",
+    //         "time",
+    //         "timeEnd",
+    //         "trace"
+    //     ]
+    // }
+  }
+}

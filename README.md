@@ -1,1 +1,3 @@
-# seller-center
+# Autentication Server
+
+npm start
