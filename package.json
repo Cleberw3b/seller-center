@@ -17,7 +17,7 @@
     "url": "git+https://github.com/Cleberw3b/authentication-server.git"
   },
   "engines": { 
-    "node" : "14.16.1" 
+    "node" : "latest" 
   },
   "bugs": {
     "url": "https://github.com/Cleberw3b/authentication-server/issues"
@@ -33,7 +33,7 @@
   ],
   "dependencies": {
     "axios": "^0.21.1",
-    "bcrypt": "^5.0.1",
+    "bcrypt": "latest",
     "compression": "^1.7.4",
     "express": "latest",
     "helmet": "^4.6.0",
