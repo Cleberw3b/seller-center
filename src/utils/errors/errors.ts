@@ -303,6 +303,19 @@ export const invalidAgency: AppError = {
     `]
 }
 
+
+/**
+ * ERROR - Invalid Product
+ */
+export const invalidProduct: AppError = {
+    errorCode: 0x016,
+    description: 'Product is invalid.',
+    tip: 'Check your form.',
+    example: [`
+        Product invalid.
+    `]
+}
+
 /**
  * Lista com todos os erros relacionados a Client
  */

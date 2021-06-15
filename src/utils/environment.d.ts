@@ -20,6 +20,8 @@ declare global {
             EMAIL_PASSWORD: string
             PROJECT_HOST: string
             FRONT_END_URL: string
+            AWS_ACCESS_KEY: string
+            AWS_ACCESS_SECRET: string
         }
         interface Global {
         }

@@ -10,7 +10,7 @@ const router = Router()
 /**
  * GET -> Redirecionando para o health check.
  */
-router.get( '/', ( req: Request, res: Response, next: NextFunction ) => {
+router.get( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 
     return res.redirect( permanentRedirect.status, '/healthcheck' )
 

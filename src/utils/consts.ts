@@ -53,3 +53,9 @@ export const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || ''
 export const PROJECT_HOST = process.env.PROJECT_HOST || 'http://localhost'
 
 export const FRONT_END_URL = process.env.FRONT_END_URL || 'http://localhost'
+
+export const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY || ''
+
+export const AWS_ACCESS_SECRET = process.env.AWS_ACCESS_SECRET || ''
+
+export const AWS_REGION = "sa-east-1"

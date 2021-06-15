@@ -17,7 +17,7 @@ router.post( '/personalInfo', async ( req: Request, res: Response, next: NextFun
 
     const body = req.body
 
-    body.userId = req.headers.userId
+    body.userId = req.headers.user_id
 
     let errors = await isNewPersonalInfoValid( body )
 
@@ -45,7 +45,7 @@ router.post( '/address', async ( req: Request, res: Response, next: NextFunction
 
     const body = req.body
 
-    body.userId = req.headers.userId
+    body.userId = req.headers.user_id
 
     let errors = await isNewAddressValid( body )
 
@@ -73,7 +73,7 @@ router.post( '/shopInfo', async ( req: Request, res: Response, next: NextFunctio
 
     const body = req.body
 
-    body.userId = req.headers.userId
+    body.userId = req.headers.user_id
 
     let errors = await isNewShopInfoValid( body )
 
@@ -101,7 +101,7 @@ router.post( '/bankInfo', async ( req: Request, res: Response, next: NextFunctio
 
     const body = req.body
 
-    body.userId = req.headers.userId
+    body.userId = req.headers.user_id
 
     let errors = await isNewBankInfoValid( body )
 
@@ -127,7 +127,7 @@ router.post( '/bankInfo', async ( req: Request, res: Response, next: NextFunctio
  */
 router.get( '/detail', async ( req: Request, res: Response, next: NextFunction ) => {
 
-    const userId = req.headers.userId
+    const userId = req.headers.user_id
 
     const account = await getAccount( userId )
 

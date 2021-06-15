@@ -247,3 +247,24 @@ export const findShopInfoByUserID = async ( userId: string ): Promise<ShopInfo |
         return null
     }
 }
+
+/**
+ * Find shop information by user id
+ * 
+ * @param userId
+ */
+export const findShopInfoByID = async ( _id: string ): Promise<ShopInfo | null> => {
+    try {
+
+        const projection = { cnpj: 1, name: 1, userId: 1 }
+
+        const shopInfo = await shopInfoCollection.findOne( { _id: new ObjectID( _id ) }, { projection } )
+
+        return shopInfo
+
+    } catch ( error ) {
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+        return null
+    }
+}

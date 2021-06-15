@@ -3,7 +3,7 @@
 //
 
 import { Account, Address, BankInfo, PersonalInfo, ShopInfo } from "../models/account"
-import { createNewAddress, createNewBankInfo, createNewPersonalInfo, createNewShopInfo, findAddressByUserID, findBankInfoByUserID, findPersonalInfoByUserID, findShopInfoByUserID } from "../repositories/accountRepository"
+import { createNewAddress, createNewBankInfo, createNewPersonalInfo, createNewShopInfo, findAddressByUserID, findBankInfoByUserID, findPersonalInfoByUserID, findShopInfoByID, findShopInfoByUserID } from "../repositories/accountRepository"
 import { log } from "../utils/loggerUtil"
 import { formatDate, getFunctionName, parseDate } from "../utils/util"
 
@@ -113,6 +113,19 @@ export const getAccount = async ( userId: any ): Promise<Account | null> => {
     const account: Account = { bankInfo, address, personalInfo, shopInfo }
 
     return account
+}
+
+
+/**
+ * Get account by ID
+ *
+ * @param userId -
+ */
+export const findShop = async ( shopId: any ): Promise<ShopInfo | null> => {
+
+    const shopInfo = await findShopInfoByID( shopId )
+
+    return shopInfo
 }
 
 

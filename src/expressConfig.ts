@@ -38,6 +38,7 @@ app.use( authMiddleware )
 
 // Define Secure routers here
 app.use( '/account', routers.account )
+app.use( '/product', routers.product )
 
 // Middleware to catch 404 and forward to error handler
 app.use( notFountMiddleware )
