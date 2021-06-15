@@ -2,6 +2,7 @@ import jwt, { SignOptions } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { SECRET } from './consts'
 import { nowInSeconds } from './util'
+import { log } from './loggerUtil'
 
 const jwtConfig: SignOptions = {
     expiresIn: 3600 // 1 hour
@@ -30,7 +31,15 @@ export const isTokenValid = ( token: string | undefined ): boolean => {
 
     if ( !token ) return false
 
-    const decoded: any = jwt.verify( token, SECRET, {} )
+    let decoded: any
+
+    try {
+        decoded = jwt.verify( token, SECRET, {} )
+    } catch ( error ) {
+        if ( error instanceof Error )
+            log( error.message, 'EVENT', 'JWT Verification', 'ERROR' )
+        return false
+    }
 
     if ( !decoded || !decoded.exp ) return false
 

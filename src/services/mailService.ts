@@ -39,7 +39,8 @@ export const sendEmail = async ( email: string, subject: string, content: any = 
         // send mail with defined transport object
         return await transporter.sendMail( mailOptions )
     } catch ( error ) {
-        log( error.message, 'EVENT', getFunctionName(), 'ERROR' )
+        if ( error instanceof Error )
+            log( error.message, 'EVENT', getFunctionName(), 'ERROR' )
         return null
     }
 }

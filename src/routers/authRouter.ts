@@ -7,17 +7,11 @@ import { Request, Response, NextFunction } from 'express-serve-static-core'
 import { badRequest, createHttpStatus, internalServerError, ok } from '../utils/httpStatus'
 import { activateUser, createUser } from '../services/userService'
 import { invalidActivationToken, loginFail, userNotExists } from '../utils/errors/errors'
-import { isNewUserValid } from '../utils/validations/userValidation'
+import { isNewUserValid } from '../validations/userValidation'
 import { forgetPassword, isUserLoginValid, loginUser } from '../services/loginService'
+import { isTokenValid } from '../utils/cryptUtil'
 
 const router = Router()
-
-router.get( '/test', async ( req: Request, res: Response, next: NextFunction ) => {
-
-    return res
-        .status( ok.status )
-        .send( {} )
-} )
 
 /**
  * POST -> Creates an account
@@ -114,6 +108,18 @@ router.get( '/forgotPassword/:email', ( req: Request, res: Response, next: NextF
     return res
         .status( ok.status )
         .send( { data: 'Email sent to reset password' } )
+} )
+
+/**
+ * get -> Verifies if a token still valid
+ */
+router.get( '/token/:token', ( req: Request, res: Response, next: NextFunction ) => {
+
+    const result = isTokenValid( req.params.token )
+
+    return res
+        .status( ok.status )
+        .send( { isValid: result } )
 } )
 
 export { router as authRouter }

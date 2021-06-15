@@ -43,8 +43,6 @@ export const createUser = async ( email: string, password: string, role?: Role |
 
     log( `User ${ newUser.email } has been created.`, 'EVENT', getFunctionName() )
 
-    delete newUser?.password
-
     sendEmailToActiveAccount( newUser )
 
     return newUser
@@ -108,7 +106,7 @@ export const findUserByEmail = async ( email: string ): Promise<User | null> => 
  */
 export const findById = async ( _id: string ): Promise<User | null> => {
 
-    const user = await findUserById( { _id } )
+    const user = await findUserById( _id )
 
     user ? log( `User ${ _id } has been found.`, 'EVENT', getFunctionName() )
         : log( `Could not find user  ${ _id }`, 'EVENT', getFunctionName() )
@@ -130,8 +128,6 @@ export const newPassword = async ( _id: any, newPassword: string ): Promise<User
 
     user ? log( `User ${ _id } password has been updated.`, 'EVENT', getFunctionName() )
         : log( `Could not update ${ _id } password`, 'EVENT', getFunctionName() )
-
-    delete user?.password
 
     return user
 }
@@ -155,8 +151,6 @@ export const activateUser = async ( token: string ): Promise<User | null> => {
     deleteActivationToken( token )
 
     user.isActive = true
-
-    delete user.password
 
     return user
 }

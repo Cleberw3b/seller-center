@@ -1,4 +1,8 @@
 import { AxiosError } from 'axios'
+import { cpf, cnpj } from 'cpf-cnpj-validator'
+import { bancos } from '../models/listaBancosBR'
+import { isDate, isExists, parse } from 'date-fns'
+import { log } from './loggerUtil'
 
 /**
  * Call it inside an async function and it will sleep
@@ -35,7 +39,7 @@ export const formatDate = ( timestamp: number ) => {
     const year = date.getFullYear()
     const month = date.getMonth() < 10 ? '0' + ( date.getMonth() + 1 ) : date.getMonth() + 1
     const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
-    return year + '-' + month + '-' + day
+    return day + '-' + month + '-' + year
 }
 
 
@@ -63,6 +67,34 @@ export const isEmailValid = ( email: string ) => {
     const validEmailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 
     return validEmailRegex.test( email )
+}
+
+/**
+ * Verifies if a CPF (Cadastro Pessoa Física - Brazil) has all the necessary properties
+ *
+ * @param cpf
+ * @returns `true` or `false`
+ */
+export const isCPFValid = ( _cpf: string ) => {
+
+    if ( !_cpf ) return false
+
+    return cpf.isValid( _cpf )
+
+}
+
+/**
+ * Verifies if a CNPJ (Cadastro Nacional de Pessoa Jurídica - Brazil) has all the necessary properties
+ *
+ * @param _cnpj
+ * @returns `true` or `false`
+ */
+export const isCNPJValid = ( _cnpj: string ) => {
+
+    if ( !_cnpj ) return false
+
+    return cnpj.isValid( _cnpj )
+
 }
 
 /**
@@ -130,4 +162,30 @@ export const fillString = ( string: string, value: string, size: number ): strin
     }
 
     return string
+}
+
+export const isBankCodeValid = ( bankCode: string ) => {
+    return bancos.some( bank => bank.value === bankCode )
+}
+
+export const isDateValid = ( date: string ): boolean => {
+    const parsedDate = parseDate( date )
+
+    if ( !parsedDate ) return false
+
+    const exists = isExists( parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDay() )
+
+    if ( !exists ) return false
+
+    return isDate( parsedDate )
+}
+
+export const parseDate = ( date: string ) => {
+    try {
+        return parse( date, 'dd-MM-yyyy', new Date() )
+    } catch ( error ) {
+        if ( error instanceof Error )
+            log( error.message, 'EVENT', getFunctionName(), 'ERROR' )
+        return null
+    }
 }

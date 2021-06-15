@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
-import { isTokenValid } from './cryptUtil'
-import { findErrorByStatus, notFound, createHttpStatus, HttpStatusResponse, unauthorized } from './httpStatus'
+import { User } from '../models/user'
+import { decodeJWT, isTokenValid } from './cryptUtil'
+import { notFound, createHttpStatus, HttpStatusResponse, unauthorized, internalServerError } from './httpStatus'
 import { logger, log } from './loggerUtil'
 
 /**
@@ -26,8 +27,10 @@ export const errorMiddleware = ( error: HttpStatusResponse, req: Request, res: R
             .send( error )
 
     } catch ( error ) {
-        console.error( error.message )
-        log( error.message, 'EVENT', 'Error Middleware', 'CRITICAL' )
+        if ( error instanceof Error ) {
+            console.error( error.message )
+            log( error.message, 'EVENT', 'Error Middleware', 'CRITICAL' )
+        }
     }
 }
 
@@ -58,11 +61,30 @@ export const authMiddleware = async ( req: Request, res: Response, next: NextFun
     // get token from request header Authorization
     const token = req.headers.authorization
 
-    // TODO
-    // Token verification
     // Catch the JWT Expired or Invalid errors
-    if ( !isTokenValid( token ) )
+    if ( !token || !isTokenValid( token ) ) {
         next( createHttpStatus( unauthorized ) )
+        return
+    }
+
+    const userDecoded = decodeJWT( token )
+
+    if ( !userDecoded ||
+        typeof userDecoded === "string" ||
+        !userDecoded.data ||
+        typeof userDecoded.data === "string" ) {
+        next( createHttpStatus( internalServerError ) )
+        return
+    }
+
+    if ( !userDecoded.data.isActive ) {
+        next( createHttpStatus( unauthorized ) )
+        return
+    }
+
+    const { _id } = userDecoded.data
+
+    req.headers.user_id = _id
 
     // Call next middleware
     next()

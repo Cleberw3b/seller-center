@@ -2,6 +2,8 @@
 //     Global interfaces
 //
 
+import { User } from "../models/user"
+
 /**
  * Reescreve Interface `global.NodeJS.ProcessEnv`
  */

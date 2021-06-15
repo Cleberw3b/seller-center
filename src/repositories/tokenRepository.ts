@@ -2,6 +2,7 @@
 //      Activation Token Repository
 //
 
+import { MongoError } from "mongodb"
 import { ActivationToken } from "../models/token"
 import { activationTokenCollection } from "../utils/db/collections"
 import { log } from "../utils/loggerUtil"
@@ -20,7 +21,8 @@ export const createNewActivationToken = async ( activationToken: ActivationToken
         return result.ops[0] ? result.ops[0] : null
 
     } catch ( error ) {
-        log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
         return null
     }
 }
@@ -36,7 +38,8 @@ export const findActivationTokenByToken = async ( token: string ): Promise<Activ
         return await activationTokenCollection.findOne( { token } )
 
     } catch ( error ) {
-        log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
         return null
     }
 }
@@ -48,12 +51,14 @@ export const findActivationTokenByToken = async ( token: string ): Promise<Activ
  */
 export const deleteToken = async ( token: string ): Promise<boolean> => {
     try {
+
         const result = await activationTokenCollection.deleteOne( { token } )
 
         return result.result.ok === 1
 
     } catch ( error ) {
-        log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
         return false
     }
 }
