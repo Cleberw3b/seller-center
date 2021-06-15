@@ -48,7 +48,7 @@ type FindOne = {
 export const findOneUser = async ( { username, email }: FindOne ): Promise<User | null> => {
     try {
 
-        const projection = { username: 1, email: 1, password: 0, role: 1, isActive: 1 }
+        const projection = { username: 1, email: 1, password: 1, role: 1, isActive: 1 }
 
         let result = null
 
@@ -74,7 +74,7 @@ export const findOneUser = async ( { username, email }: FindOne ): Promise<User 
  */
 export const findUserById = async ( _id: string ): Promise<User | null> => {
 
-    const projection = { username: 1, email: 1, password: 0, role: 1, isActive: 1 }
+    const projection = { username: 1, email: 1, role: 1, isActive: 1 }
 
     try {
         const user = await userCollection.findOne( { _id: new ObjectID( _id ) }, { projection } )
@@ -98,9 +98,6 @@ export const disableUser = async ( _id: any ): Promise<User | null> => {
         const options = {
             "$set": {
                 isActive: false,
-            },
-            projection: {
-                username: 1, email: 1, password: 0, role: 1, isActive: 1
             }
         }
 
@@ -126,9 +123,6 @@ export const enableUser = async ( _id: any ) => {
         const options = {
             "$set": {
                 isActive: true,
-            },
-            projection: {
-                username: 1, email: 1, password: 0, role: 1, isActive: 1
             }
         }
 
@@ -174,13 +168,13 @@ export const deleteUser = async ( _id: any ): Promise<User | null> => {
 export const updatePassword = async ( _id: any, password: string ): Promise<User | null> => {
     try {
 
-        const update = {
+        const options = {
             "$set": {
                 password,
             }
         }
 
-        const result = await userCollection.findOneAndUpdate( { _id: new ObjectID( _id ) }, update )
+        const result = await userCollection.findOneAndUpdate( { _id: new ObjectID( _id ) }, options )
 
         return result.value ? result.value : null
 

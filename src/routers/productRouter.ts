@@ -12,6 +12,41 @@ import { isNewProductValid, userCanAccessShop } from '../validations/productVali
 const router = Router()
 
 const uploadMultiple = upload.array( 'images', 10 )
+
+/**
+ * POST -> Send images to S3 and return the file location
+ */
+router.post( '/upload', async ( req, res, next ) => {
+
+    const userId = req.headers.user_id
+
+    const shopId = req.headers.shop_id
+
+    if ( !await userCanAccessShop( userId, shopId ) )
+        return res
+            .status( unauthorized.status )
+            .send( createHttpStatus( unauthorized, [invalidUserReference] ) )
+
+    uploadMultiple( req, res, err => {
+        if ( err ) {
+            console.log( "UPLOAD ERROR", err )
+            next( createHttpStatus( internalServerError, err ) )
+        }
+
+        const filesLocation: string[] = []
+
+        if ( Array.isArray( req.files ) )
+            req.files.forEach( ( file: any ) => {
+                filesLocation.push( file.location )
+            } )
+
+        return res.send( {
+            message: 'Successfully uploaded ' + req.files.length + ' files!',
+            urls: filesLocation
+        } )
+    } )
+} )
+
 /**
  * POST -> cria um novo produto vinculado a loja
  */
@@ -26,46 +61,27 @@ router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
             .status( unauthorized.status )
             .send( createHttpStatus( unauthorized, [invalidUserReference] ) )
 
-    uploadMultiple( req, res, async err => {
-        if ( err ) {
+    const body = req.body
 
-            console.log( err )
+    let errors = await isNewProductValid( body )
 
-            return res
-                .status( badRequest.status )
-                .send( createHttpStatus( badRequest, err ) )
-        }
-        const body = req.body
-
-        let errors = await isNewProductValid( body )
-
-        if ( errors.length > 0 )
-            return res
-                .status( badRequest.status )
-                .send( createHttpStatus( badRequest, errors ) )
-
-        const filesLocation: string[] = []
-
-        if ( Array.isArray( req.files ) )
-            req.files.forEach( ( file: any ) => {
-                filesLocation.push( file.location )
-            } )
-
-        body.images = filesLocation
-
-        body.shopId = shopId
-
-        const product = await createProduct( body )
-
-        if ( !product )
-            return res
-                .status( internalServerError.status )
-                .send( createHttpStatus( internalServerError ) )
-
+    if ( errors.length > 0 )
         return res
-            .status( ok.status )
-            .send( product )
-    } )
+            .status( badRequest.status )
+            .send( createHttpStatus( badRequest, errors ) )
+
+    body.shopId = shopId
+
+    const product = await createProduct( body )
+
+    if ( !product )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    return res
+        .status( ok.status )
+        .send( product )
 } )
 
 /**

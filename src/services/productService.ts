@@ -6,6 +6,8 @@ import { Product } from "../models/product"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 import { createNewProduct, findProductById, findProductsByShopId } from "../repositories/productRepository"
+import productEventEmitter from "../events/product"
+import { criarProdutoHub2b } from "./hub2b"
 
 /**
  * Save a new product
@@ -15,17 +17,47 @@ import { createNewProduct, findProductById, findProductsByShopId } from "../repo
 export const createProduct = async ( body: any ): Promise<Product | null> => {
 
     const {
-        brand, category, description, images,
-        name, nationality, price, sku, variations,
-        ean, height, length, more_info,
-        price_discounted, weight, width, shopId
+        shopId,
+        images,
+        category,
+        subCategory,
+        nationality,
+        name,
+        description,
+        brand,
+        more_info,
+        ean,
+        sku,
+        gender,
+        height,
+        width,
+        length,
+        weight,
+        price,
+        price_discounted,
+        variations
     } = body
 
     const refProduct: Product = {
-        brand, category, description, images,
-        name, nationality, price, sku, variations,
-        ean, height, length, more_info,
-        price_discounted, weight, width, shopId
+        shopId,
+        images,
+        category,
+        subCategory,
+        nationality,
+        name,
+        description,
+        brand,
+        more_info,
+        ean,
+        sku,
+        gender,
+        height,
+        width,
+        length,
+        weight,
+        price,
+        price_discounted,
+        variations
     }
 
     const product = await createNewProduct( refProduct )
@@ -33,6 +65,9 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
     product
         ? log( `Product ${ product.name } has been created.`, 'EVENT', getFunctionName() )
         : log( `Product ${ product } has been created.`, 'EVENT', getFunctionName() )
+
+
+    criarProdutoHub2b( product )
 
     return product
 }

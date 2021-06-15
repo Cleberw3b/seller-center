@@ -48,6 +48,7 @@ export const upload = multer( {
     storage: multerS3( {
         s3: s3,
         bucket: 'ozllo-seller-center-photos',
+        acl: 'public-read',
         metadata: function ( req, file, cb ) {
             cb( null, { fieldName: file.fieldname } )
         },
