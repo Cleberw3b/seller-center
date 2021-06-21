@@ -2,8 +2,7 @@
 //      Rota Health Check
 //
 
-import { Router } from 'express'
-import { Request, Response, NextFunction } from 'express-serve-static-core'
+import { Router, Request, Response, NextFunction } from 'express'
 import { ok } from '../utils/httpStatus'
 const router = Router()
 

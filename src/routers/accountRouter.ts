@@ -2,11 +2,10 @@
 //      Account Router
 //
 
-import { Router } from 'express'
-import { Request, Response, NextFunction } from 'express-serve-static-core'
-import { createAddress, createBankInfo, createPersonalInfo, createShopInfo, getAccount } from '../services/accountService'
+import { Router, Request, Response, NextFunction } from 'express'
+import { createAddress, createBankInfo, createContact, createPersonalInfo, createShopInfo, getAccount } from '../services/accountService'
 import { badRequest, createHttpStatus, internalServerError, ok } from '../utils/httpStatus'
-import { isNewAddressValid, isNewBankInfoValid, isNewPersonalInfoValid, isNewShopInfoValid } from '../validations/accountValidation'
+import { isContactValid, isAddressValid, isBankInfoValid, isPersonalInfoValid, isShopInfoValid } from '../validations/accountValidation'
 
 const router = Router()
 
@@ -17,9 +16,9 @@ router.post( '/personalInfo', async ( req: Request, res: Response, next: NextFun
 
     const body = req.body
 
-    body.userId = req.headers.user_id
+    body.userId = req.user?._id
 
-    let errors = await isNewPersonalInfoValid( body )
+    let errors = await isPersonalInfoValid( body )
 
     if ( errors.length > 0 )
         return res
@@ -45,9 +44,9 @@ router.post( '/address', async ( req: Request, res: Response, next: NextFunction
 
     const body = req.body
 
-    body.userId = req.headers.user_id
+    body.userId = req.user?._id
 
-    let errors = await isNewAddressValid( body )
+    let errors = await isAddressValid( body )
 
     if ( errors.length > 0 )
         return res
@@ -73,9 +72,9 @@ router.post( '/shopInfo', async ( req: Request, res: Response, next: NextFunctio
 
     const body = req.body
 
-    body.userId = req.headers.user_id
+    body.userId = req.user?._id
 
-    let errors = await isNewShopInfoValid( body )
+    let errors = await isShopInfoValid( body )
 
     if ( errors.length > 0 )
         return res
@@ -101,9 +100,9 @@ router.post( '/bankInfo', async ( req: Request, res: Response, next: NextFunctio
 
     const body = req.body
 
-    body.userId = req.headers.user_id
+    body.userId = req.user?._id
 
-    let errors = await isNewBankInfoValid( body )
+    let errors = await isBankInfoValid( body )
 
     if ( errors.length > 0 )
         return res
@@ -122,14 +121,41 @@ router.post( '/bankInfo', async ( req: Request, res: Response, next: NextFunctio
         .send( bankInfo )
 } )
 
+
+/**
+ * Post -> Create contact for an User
+ */
+router.post( '/contact', async ( req: Request, res: Response, next: NextFunction ) => {
+
+    const body = req.body
+
+    body.userId = req.user?._id
+
+    let errors = await isContactValid( body )
+
+    if ( errors.length > 0 )
+        return res
+            .status( badRequest.status )
+            .send( createHttpStatus( badRequest, errors ) )
+
+    const contact = await createContact( body )
+
+    if ( !contact )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    return res
+        .status( ok.status )
+        .send( contact )
+} )
+
 /**
  * GET -> Account Details
  */
 router.get( '/detail', async ( req: Request, res: Response, next: NextFunction ) => {
 
-    const userId = req.headers.user_id
-
-    const account = await getAccount( userId )
+    const account = await getAccount( req.user?._id )
 
     if ( !account )
         return res

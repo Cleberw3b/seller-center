@@ -2,8 +2,7 @@
 //      Authentication Router
 //
 
-import { Router } from 'express'
-import { Request, Response, NextFunction } from 'express-serve-static-core'
+import { Router, Request, Response, NextFunction } from 'express'
 import { badRequest, createHttpStatus, internalServerError, ok } from '../utils/httpStatus'
 import { activateUser, createUser } from '../services/userService'
 import { invalidActivationToken, loginFail, userNotExists } from '../utils/errors/errors'

@@ -4,8 +4,8 @@
 
 import { ObjectID } from "bson"
 import { MongoError } from "mongodb"
-import { PersonalInfo, Address, BankInfo, ShopInfo } from "../models/account"
-import { addressCollection, bankInfoCollection, personalInfoColletion, shopInfoCollection } from "../utils/db/collections"
+import { Address, BankInfo, ShopInfo, Contact, PersonalInfo } from "../models/account"
+import { addressCollection, bankInfoCollection, contactCollection, personalInfoColletion, shopInfoCollection } from "../utils/db/collections"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 
@@ -13,11 +13,11 @@ import { getFunctionName } from "../utils/util"
 
 
 /**
- * Save new personal info
+ * Save personal info
  * 
  * @param personalInfo - the user personal information
  */
-export const createNewPersonalInfo = async ( personalInfo: PersonalInfo ): Promise<PersonalInfo | null> => {
+export const createOrUpdatePersonalInfo = async ( personalInfo: PersonalInfo ): Promise<PersonalInfo | null> => {
     try {
         const result = await personalInfoColletion.updateOne(
             { userId: personalInfo.userId },
@@ -54,7 +54,19 @@ export const createNewPersonalInfo = async ( personalInfo: PersonalInfo ): Promi
 export const findPersonalInfoByUserID = async ( userId: string ): Promise<PersonalInfo | null> => {
     try {
 
-        const projection = { firstName: 1, lastName: 1, cpf: 1, rg: 1, birthday: 1 }
+        const projectionPF = {
+            firstName: 1, lastName: 1, cpf: 1, rg: 1, birthday: 1
+
+        }
+
+        const projectionPJ = {
+            cnpj: 1, name: 1, razaoSocial: 1, inscricaoEstadual: 1, inscricaoMunicipal: 1
+        }
+
+        const projection = {
+            ...projectionPF,
+            ...projectionPJ,
+        }
 
         const personalInfo = await personalInfoColletion.findOne( { userId }, { projection } )
 
@@ -73,11 +85,11 @@ export const findPersonalInfoByUserID = async ( userId: string ): Promise<Person
 
 
 /**
- * Save new address 
+ * Save address 
  * 
  * @param address - the user address
  */
-export const createNewAddress = async ( address: Address ): Promise<Address | null> => {
+export const createOrUpdateAddress = async ( address: Address ): Promise<Address | null> => {
     try {
         const result = await addressCollection.updateOne(
             { userId: address.userId },
@@ -134,11 +146,11 @@ export const findAddressByUserID = async ( userId: string ): Promise<Address | n
 
 
 /**
- * Save new bank information
+ * Save bank information
  * 
  * @param bankInfo - the user bank information
  */
-export const createNewBankInfo = async ( bankInfo: BankInfo ): Promise<BankInfo | null> => {
+export const createOrUpdateBankInfo = async ( bankInfo: BankInfo ): Promise<BankInfo | null> => {
     try {
         const result = await bankInfoCollection.updateOne(
             { userId: bankInfo.userId },
@@ -175,7 +187,7 @@ export const createNewBankInfo = async ( bankInfo: BankInfo ): Promise<BankInfo 
 export const findBankInfoByUserID = async ( userId: string ): Promise<BankInfo | null> => {
     try {
 
-        const projection = { account: 1, agency: 1, bank: 1 }
+        const projection = { account: 1, agency: 1, bank: 1, name: 1 }
 
         const bankInfo = await bankInfoCollection.findOne( { userId }, { projection } )
 
@@ -194,11 +206,11 @@ export const findBankInfoByUserID = async ( userId: string ): Promise<BankInfo |
 
 
 /**
- * Save new shop information
+ * Save shop information
  * 
  * @param shopInfo - the user shop information
  */
-export const createNewShopInfo = async ( shopInfo: ShopInfo ): Promise<ShopInfo | null> => {
+export const createOrUpdateShopInfo = async ( shopInfo: ShopInfo ): Promise<ShopInfo | null> => {
     try {
         const result = await shopInfoCollection.updateOne(
             { userId: shopInfo.userId },
@@ -235,7 +247,7 @@ export const createNewShopInfo = async ( shopInfo: ShopInfo ): Promise<ShopInfo 
 export const findShopInfoByUserID = async ( userId: string ): Promise<ShopInfo | null> => {
     try {
 
-        const projection = { cnpj: 1, name: 1 }
+        const projection = { userId: 1, name: 1 }
 
         const shopInfo = await shopInfoCollection.findOne( { userId }, { projection } )
 
@@ -249,16 +261,75 @@ export const findShopInfoByUserID = async ( userId: string ): Promise<ShopInfo |
 }
 
 /**
- * Find shop information by user id
+ * Find shop information by id
  * 
  * @param userId
  */
 export const findShopInfoByID = async ( _id: string ): Promise<ShopInfo | null> => {
     try {
 
-        const projection = { cnpj: 1, name: 1, userId: 1 }
+        const projection = { userId: 1, name: 1 }
 
         const shopInfo = await shopInfoCollection.findOne( { _id: new ObjectID( _id ) }, { projection } )
+
+        return shopInfo
+
+    } catch ( error ) {
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+        return null
+    }
+}
+
+
+// #####################  Contact  ############################ //
+
+
+/**
+ * Save contact information
+ * 
+ * @param shopInfo - the user shop information
+ */
+export const createOrUpdateContact = async ( contact: Contact ): Promise<Contact | null> => {
+    try {
+        const result = await contactCollection.updateOne(
+            { userId: contact.userId },
+            { $set: contact },
+            { upsert: true }
+        )
+
+        let id: ObjectID | null = null
+
+        if ( result.upsertedCount )
+            id = result.upsertedId._id
+
+        if ( result.matchedCount )
+            return await findContactByUserID( contact.userId )
+
+        if ( !id ) throw new MongoError( "Não gerou id" )
+
+        contact._id = id
+
+        return contact
+
+    } catch ( error ) {
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+        return null
+    }
+}
+
+/**
+ * Find contact information by user id
+ * 
+ * @param userId
+ */
+export const findContactByUserID = async ( userId: string ): Promise<Contact | null> => {
+    try {
+
+        const projection = { userId: 1, telephone: 1, whatsapp: 1, url: 1 }
+
+        const shopInfo = await contactCollection.findOne( { userId }, { projection } )
 
         return shopInfo
 

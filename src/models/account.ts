@@ -12,8 +12,10 @@ export interface Address {
 
 export interface Contact {
     _id?: any,
-    telphone: string,
-    whatsapp: string
+    userId: any,
+    telephone: string,
+    whatsapp?: string,
+    url?: string
 }
 
 export interface BankInfo {
@@ -21,29 +23,52 @@ export interface BankInfo {
     userId: any,
     account: string,
     agency: string,
-    bank: string
+    bank: string,
+    name: string,
+    pix: string
 }
 
 export interface ShopInfo {
     _id?: any,
     userId: any,
-    cnpj: string,
     name: string
 }
 
-export interface PersonalInfo {
+export interface PessoaFisica {
     _id?: any,
     userId: any,
     firstName: string,
     lastName: string,
     cpf: string,
-    rg: string,
     birthday: number
+}
+
+export interface PessoaJuridica {
+    _id?: any,
+    userId: any,
+    cnpj: string,
+    name: string,
+    razaoSocial: string,
+    inscricaoEstadual: string,
+    inscricaoMunicipal: string,
+}
+
+export type PersonalInfo = PessoaFisica | PessoaJuridica
+
+export interface Questions {
+    howDidYoulearnAboutUs: string,
+}
+export interface UserStatus {
+    _id?: any,
+    userId: any,
+    agreeOnTermsOfUse: boolean,
+    is360: boolean,
 }
 
 export interface Account {
     personalInfo: PersonalInfo | null,
     address: Address | null,
     shopInfo: ShopInfo | null,
-    bankInfo: BankInfo | null
+    bankInfo: BankInfo | null,
+    contact: Contact | null,
 }

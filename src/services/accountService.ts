@@ -2,8 +2,8 @@
 //      Account Service
 //
 
-import { Account, Address, BankInfo, PersonalInfo, ShopInfo } from "../models/account"
-import { createNewAddress, createNewBankInfo, createNewPersonalInfo, createNewShopInfo, findAddressByUserID, findBankInfoByUserID, findPersonalInfoByUserID, findShopInfoByID, findShopInfoByUserID } from "../repositories/accountRepository"
+import { Account, Address, BankInfo, Contact, PersonalInfo, ShopInfo } from "../models/account"
+import { createOrUpdateAddress, createOrUpdateBankInfo, createOrUpdatePersonalInfo, createOrUpdateShopInfo, createOrUpdateContact, findAddressByUserID, findBankInfoByUserID, findContactByUserID, findPersonalInfoByUserID, findShopInfoByID, findShopInfoByUserID } from "../repositories/accountRepository"
 import { log } from "../utils/loggerUtil"
 import { formatDate, getFunctionName, parseDate } from "../utils/util"
 
@@ -14,15 +14,20 @@ import { formatDate, getFunctionName, parseDate } from "../utils/util"
  */
 export const createPersonalInfo = async ( body: any ): Promise<PersonalInfo | null> => {
 
-    const { userId, firstName, lastName, cpf, rg, birthday } = body
+    const { userId, firstName, lastName, cpf, birthday } = body
 
-    let _birthday: any = parseDate( birthday )
+    let _birthday: any
 
-    _birthday = formatDate( _birthday.getTime() )
+    if ( birthday ) {
 
-    const personalInfo: PersonalInfo = { userId, firstName, lastName, cpf, rg, birthday: _birthday }
+        _birthday = parseDate( birthday )
 
-    const newPersonalInfo = await createNewPersonalInfo( personalInfo )
+        _birthday = formatDate( _birthday.getTime() )
+    }
+
+    const personalInfo: PersonalInfo = { userId, firstName, lastName, cpf, birthday: _birthday }
+
+    const newPersonalInfo = await createOrUpdatePersonalInfo( personalInfo )
 
     newPersonalInfo
         ? log( `Personal information for ${ userId } added.`, 'EVENT', getFunctionName() )
@@ -42,7 +47,7 @@ export const createAddress = async ( body: any ): Promise<Address | null> => {
 
     const _address_: Address = { address, cep, city, complement, district, number, userId }
 
-    const newAddress = await createNewAddress( _address_ )
+    const newAddress = await createOrUpdateAddress( _address_ )
 
     newAddress
         ? log( `Address for ${ userId } added.`, 'EVENT', getFunctionName() )
@@ -59,11 +64,11 @@ export const createAddress = async ( body: any ): Promise<Address | null> => {
  */
 export const createShopInfo = async ( body: any ): Promise<ShopInfo | null> => {
 
-    const { cnpj, name, userId } = body
+    const { name, userId } = body
 
-    const shopInfo: ShopInfo = { cnpj, name, userId }
+    const shopInfo: ShopInfo = { name, userId }
 
-    const newShopInfo = await createNewShopInfo( shopInfo )
+    const newShopInfo = await createOrUpdateShopInfo( shopInfo )
 
     newShopInfo
         ? log( `Shop Info for ${ userId } added.`, 'EVENT', getFunctionName() )
@@ -79,11 +84,11 @@ export const createShopInfo = async ( body: any ): Promise<ShopInfo | null> => {
  */
 export const createBankInfo = async ( body: any ): Promise<BankInfo | null> => {
 
-    const { bank, account, agency, userId } = body
+    const { userId, bank, name, account, agency, pix } = body
 
-    const bankInfo: BankInfo = { bank, account, agency, userId }
+    const bankInfo: BankInfo = { userId, bank, name, account, agency, pix }
 
-    const newBankInfo = await createNewBankInfo( bankInfo )
+    const newBankInfo = await createOrUpdateBankInfo( bankInfo )
 
     newBankInfo
         ? log( `Bank information for ${ userId } added.`, 'EVENT', getFunctionName() )
@@ -92,6 +97,26 @@ export const createBankInfo = async ( body: any ): Promise<BankInfo | null> => {
     return newBankInfo
 }
 
+/**
+ * Creates new Contact
+ *
+ * @param contact -
+ */
+export const createContact = async ( body: any ): Promise<Contact | null> => {
+
+    const { userId, telephone, whatsapp, url } = body
+
+    const contact: Contact = { userId, telephone, whatsapp, url }
+
+    const newContact = await createOrUpdateContact( contact )
+
+    newContact
+        ? log( `Contact for ${ newContact.userId } added.`, 'EVENT', getFunctionName() )
+        : log( `Could not set contact for ${ userId }`, 'EVENT', getFunctionName() )
+
+    return newContact
+
+}
 
 /**
  * Get account by ID
@@ -108,16 +133,17 @@ export const getAccount = async ( userId: any ): Promise<Account | null> => {
 
     const bankInfoPromise = findBankInfoByUserID( userId )
 
-    const [personalInfo, address, shopInfo, bankInfo] = await Promise.all( [personalInfoPromise, addressPromise, shopInfoPromise, bankInfoPromise] )
+    const contactPromise = findContactByUserID( userId )
 
-    const account: Account = { bankInfo, address, personalInfo, shopInfo }
+    const [personalInfo, address, shopInfo, bankInfo, contact] = await Promise.all( [personalInfoPromise, addressPromise, shopInfoPromise, bankInfoPromise, contactPromise] )
+
+    const account: Account = { bankInfo, address, personalInfo, shopInfo, contact }
 
     return account
 }
 
-
 /**
- * Get account by ID
+ * Get Shop by ID
  *
  * @param userId -
  */
@@ -127,28 +153,3 @@ export const findShop = async ( shopId: any ): Promise<ShopInfo | null> => {
 
     return shopInfo
 }
-
-
-// ###########
-
-
-/**
- * Creates new Contact
- *
- * @param contact -
- */
-// export const createContact = async ( body: any ): Promise<Contact | null> => {
-
-//     const { telphone, whatsapp } = body
-
-//     const contact: Contact = { telphone, whatsapp, }
-
-// const newContact = await createNewContact( contact )
-
-// newContact
-//     ? log( `Address for ${ newContact.userId } added.`, 'EVENT', getFunctionName() )
-//     : log( `Could not set address for ${ userId }`, 'EVENT', getFunctionName() )
-
-// return newContact
-
-// }

@@ -2,39 +2,15 @@
 //     Product Validation
 //
 
-import { findShopInfoByUserID } from "../repositories/accountRepository"
-import { findUserById } from "../repositories/userRepository"
-import { findShop } from "../services/accountService"
 import { AppError, invalidProduct } from "../utils/errors/errors"
 
 /**
- * Verifies whether the user can update shop
+ * Verifies if the product is valid
  *
- * @param userId
- * @param shopId
- * @returns `true` if the user can access shop or `false` otherwise
- */
-export const userCanAccessShop = async ( userId: any, shopId: any ): Promise<boolean> => {
-
-    if ( !userId || !shopId ) return false
-
-    const user = await findUserById( userId )
-
-    const shop = await findShop( shopId )
-
-    if ( user?._id != shop?.userId ) return false
-
-    return true
-}
-
-/**
- * Verifies whether the new user can be created
- * 
  * @param body
- * @param headers
- * @returns `true` if new user can be created or `false` the other way around
+ * @returns a list of `AppError` containing description of errors
  */
-export const isNewProductValid = async ( body: any ): Promise<AppError[]> => {
+export const isProductValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
@@ -80,6 +56,22 @@ export const isNewProductValid = async ( body: any ): Promise<AppError[]> => {
             if ( !variation.color ) errors.push( invalidProduct )
         } )
     }
+
+    return errors
+}
+
+
+/**
+ * Verifies if the product can be patched
+ *
+ * @param body
+ * @returns a list of `AppError` containing description of errors
+ */
+export const isProductPatchValid = async ( body: any ): Promise<AppError[]> => {
+
+    const errors: AppError[] = []
+
+    if ( !body ) errors.push( invalidProduct )
 
     return errors
 }

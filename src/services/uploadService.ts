@@ -3,8 +3,6 @@
 //      Upload Service
 //
 
-
-
 import aws from 'aws-sdk'
 import multer from 'multer'
 import multerS3 from 'multer-s3'
@@ -43,7 +41,7 @@ const fileFilter = ( req: Express.Request, file: Express.Multer.File, cb: MuterC
     cb( null, true )
 }
 
-export const upload = multer( {
+export const uploadProductPicture = multer( {
     fileFilter,
     storage: multerS3( {
         s3: s3,
@@ -53,7 +51,22 @@ export const upload = multer( {
             cb( null, { fieldName: file.fieldname } )
         },
         key: function ( req, file, cb ) {
-            cb( null, Date.now().toString() + '__' + file.originalname )
+            cb( null, Date.now().toString() + '_' + req.shop_id + '_' + file.originalname )
+        },
+    } )
+} )
+
+export const uploadProfilePicture = multer( {
+    fileFilter,
+    storage: multerS3( {
+        s3: s3,
+        bucket: 'ozllo-seller-center-photos',
+        acl: 'public-read',
+        metadata: function ( req, file, cb ) {
+            cb( null, { fieldName: file.fieldname } )
+        },
+        key: function ( req, file, cb ) {
+            cb( null, Date.now().toString() + '_' + req.user?._id )
         },
     } )
 } )

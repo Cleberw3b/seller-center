@@ -2,8 +2,7 @@
 //      Rota Raiz
 //
 
-import { Router } from 'express'
-import { Request, Response, NextFunction } from 'express-serve-static-core'
+import { Router, Request, Response, NextFunction } from 'express'
 import { permanentRedirect } from '../utils/httpStatus'
 const router = Router()
 

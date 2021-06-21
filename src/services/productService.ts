@@ -17,7 +17,6 @@ import { criarProdutoHub2b } from "./hub2b"
 export const createProduct = async ( body: any ): Promise<Product | null> => {
 
     const {
-        shopId,
         images,
         category,
         subCategory,
@@ -37,6 +36,8 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
         price_discounted,
         variations
     } = body
+
+    const shopId = body.shop
 
     const refProduct: Product = {
         shopId,

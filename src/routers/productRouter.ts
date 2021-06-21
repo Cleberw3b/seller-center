@@ -2,30 +2,19 @@
 //      Rota de produtos
 //
 
-import { Router } from 'express'
-import { Request, Response, NextFunction } from 'express-serve-static-core'
+import { Router, Request, Response, NextFunction } from 'express'
 import { createProduct, findProduct, findProductsByShop } from '../services/productService'
-import { upload } from '../services/uploadService'
-import { invalidUserReference } from '../utils/errors/errors'
-import { badRequest, createHttpStatus, internalServerError, noContent, notFound, ok, unauthorized } from '../utils/httpStatus'
-import { isNewProductValid, userCanAccessShop } from '../validations/productValidation'
+import { uploadProductPicture } from '../services/uploadService'
+import { badRequest, createHttpStatus, internalServerError, noContent, notFound, ok } from '../utils/httpStatus'
+import { isProductValid } from '../validations/productValidation'
 const router = Router()
 
-const uploadMultiple = upload.array( 'images', 10 )
+const uploadMultiple = uploadProductPicture.array( 'images', 10 )
 
 /**
  * POST -> Send images to S3 and return the file location
  */
 router.post( '/upload', async ( req, res, next ) => {
-
-    const userId = req.headers.user_id
-
-    const shopId = req.headers.shop_id
-
-    if ( !await userCanAccessShop( userId, shopId ) )
-        return res
-            .status( unauthorized.status )
-            .send( createHttpStatus( unauthorized, [invalidUserReference] ) )
 
     uploadMultiple( req, res, err => {
         if ( err ) {
@@ -41,7 +30,7 @@ router.post( '/upload', async ( req, res, next ) => {
             } )
 
         return res.send( {
-            message: 'Successfully uploaded ' + req.files.length + ' files!',
+            message: 'Successfully uploaded ' + req.files?.length + ' files!',
             urls: filesLocation
         } )
     } )
@@ -52,25 +41,40 @@ router.post( '/upload', async ( req, res, next ) => {
  */
 router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 
-    const userId = req.headers.user_id
-
-    const shopId = req.headers.shop_id
-
-    if ( !await userCanAccessShop( userId, shopId ) )
-        return res
-            .status( unauthorized.status )
-            .send( createHttpStatus( unauthorized, [invalidUserReference] ) )
-
     const body = req.body
 
-    let errors = await isNewProductValid( body )
+    let errors = await isProductValid( body )
 
     if ( errors.length > 0 )
         return res
             .status( badRequest.status )
             .send( createHttpStatus( badRequest, errors ) )
 
-    body.shopId = shopId
+    const product = await createProduct( body )
+
+    if ( !product )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    return res
+        .status( ok.status )
+        .send( product )
+} )
+
+/**
+ * PATCH -> atualiza produto
+ */
+router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
+
+    const body = req.body
+
+    let errors = await isProductValid( body )
+
+    if ( errors.length > 0 )
+        return res
+            .status( badRequest.status )
+            .send( createHttpStatus( badRequest, errors ) )
 
     const product = await createProduct( body )
 
@@ -91,15 +95,6 @@ router.get( '/:product_id', async ( req: Request, res: Response, next: NextFunct
 
     const productId = req.params.product_id
 
-    const userId = req.headers.user_id
-
-    const shopId = req.headers.shop_id
-
-    if ( !await userCanAccessShop( userId, shopId ) )
-        return res
-            .status( unauthorized.status )
-            .send( createHttpStatus( unauthorized, [invalidUserReference] ) )
-
     const product = await findProduct( productId )
 
     if ( !product )
@@ -117,16 +112,7 @@ router.get( '/:product_id', async ( req: Request, res: Response, next: NextFunct
  */
 router.get( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 
-    const userId = req.headers.user_id
-
-    const shopId = req.headers.shop_id
-
-    if ( !await userCanAccessShop( userId, shopId ) )
-        return res
-            .status( unauthorized.status )
-            .send( createHttpStatus( unauthorized, [invalidUserReference] ) )
-
-    const products = await findProductsByShop( shopId )
+    const products = await findProductsByShop( req.shop_id )
 
     if ( !products )
         return res

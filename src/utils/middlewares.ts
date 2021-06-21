@@ -1,4 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
+import { findUserById } from '../repositories/userRepository'
+import { findShop } from '../services/accountService'
+import { findById } from '../services/userService'
 import { decodeJWT, isTokenValid } from './cryptUtil'
 import { notFound, createHttpStatus, HttpStatusResponse, unauthorized, internalServerError } from './httpStatus'
 import { logger, log } from './loggerUtil'
@@ -37,18 +40,17 @@ export const errorMiddleware = ( error: HttpStatusResponse, req: Request, res: R
  * Middleware function to handle authorization
  */
 export const corsMiddleware = ( req: Request, res: Response, next: NextFunction ) => {
-    // Allow Origins
+
     res.header( 'Access-Control-Allow-Origin', '*' )
-    // Allow Methods
+
     res.header( 'Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS' )
-    // Allow Headers
+
     res.header( 'Access-Control-Allow-Headers', 'Origin, Accept, Content-Type, Authorization, shop_id' )
-    // Handle preflight, it must return 200
+
     if ( req.method === 'OPTIONS' ) {
-        // Stop the middleware chain
         return res.status( 200 ).end()
     }
-    // Call next middleware 
+
     next()
 }
 
@@ -61,10 +63,8 @@ export const authMiddleware = async ( req: Request, res: Response, next: NextFun
     const token = req.headers.authorization
 
     // Catch the JWT Expired or Invalid errors
-    if ( !token || !isTokenValid( token ) ) {
-        next( createHttpStatus( unauthorized ) )
-        return
-    }
+    if ( !token || !isTokenValid( token ) )
+        return next( createHttpStatus( unauthorized ) )
 
     const userDecoded = decodeJWT( token )
 
@@ -72,20 +72,16 @@ export const authMiddleware = async ( req: Request, res: Response, next: NextFun
         typeof userDecoded === "string" ||
         !userDecoded.data ||
         typeof userDecoded.data === "string" ) {
-        next( createHttpStatus( internalServerError ) )
-        return
+        return next( createHttpStatus( internalServerError ) )
     }
 
-    if ( !userDecoded.data.isActive ) {
-        next( createHttpStatus( unauthorized ) )
-        return
-    }
+    const user = await findById( userDecoded.data._id )
 
-    const { _id } = userDecoded.data
+    if ( !user || !user.isActive )
+        return next( createHttpStatus( unauthorized ) )
 
-    req.headers.user_id = _id
+    req.user = user
 
-    // Call next middleware
     next()
 }
 
@@ -111,3 +107,29 @@ export const loggerResponse = logger( 'to :remote-addr - STATUS :status in :resp
         }
     }
 } )
+
+/**
+ * Verifies whether the user can access shop
+ *
+ * @param req.headers.shop_id
+ * @param req.user._id
+ * @returns an unauthorized response in negative case
+ */
+export const userCanAccessShop = async ( req: Request, res: Response, next: NextFunction ) => {
+
+    const shopId = req.headers.shop_id
+
+    const userId = req.user?._id
+
+    if ( !userId || !shopId ) return next( createHttpStatus( unauthorized ) )
+
+    const [user, shop] = await Promise.all( [findUserById( userId ), findShop( shopId )] )
+
+    if ( !user || !shop ) return next( createHttpStatus( unauthorized ) )
+
+    if ( !user._id.equals( shop.userId ) ) return next( createHttpStatus( unauthorized ) )
+
+    req.shop_id = shop._id
+
+    next()
+}

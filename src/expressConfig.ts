@@ -3,7 +3,7 @@ import helmet from 'helmet'
 import compression from 'compression'
 import { DEFAULT_PORT } from './utils/consts'
 import * as routers from './routers/routers'
-import { notFountMiddleware, errorMiddleware, loggerRequest, loggerResponse, authMiddleware, corsMiddleware } from './utils/middlewares'
+import { notFountMiddleware, errorMiddleware, loggerRequest, loggerResponse, authMiddleware, corsMiddleware, userCanAccessShop } from './utils/middlewares'
 
 // Create a express app
 const app = express()
@@ -38,7 +38,7 @@ app.use( authMiddleware )
 
 // Define Secure routers here
 app.use( '/account', routers.account )
-app.use( '/product', routers.product )
+app.use( '/product', userCanAccessShop, routers.product )
 
 // Middleware to catch 404 and forward to error handler
 app.use( notFountMiddleware )

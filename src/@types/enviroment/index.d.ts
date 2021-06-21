@@ -2,8 +2,6 @@
 //     Global interfaces
 //
 
-import { User } from "../models/user"
-
 /**
  * Reescreve Interface `global.NodeJS.ProcessEnv`
  */
@@ -27,6 +25,3 @@ declare global {
         }
     }
 }
-
-// convert it into a module by adding an empty export statement.
-export { }

@@ -3,23 +3,36 @@
 //
 
 import { findUserById } from "../repositories/userRepository"
-import { findById } from "../services/userService"
-import { AppError, invalidAccount, invalidAddress, invalidAddressNumber, invalidAgency, invalidBankCode, invalidBirthday, invalidCEP, invalidCity, invalidCNPJ, invalidComplement, invalidCPF, invalidDistrict, invalidFirstName, invalidLastName, invalidRG, invalidShopName, invalidUserReference } from "../utils/errors/errors"
+import { AppError, invalidAccount, invalidAddress, invalidAddressNumber, invalidAgency, invalidBankCode, invalidBirthday, invalidCEP, invalidCity, invalidCNPJ, invalidComplement, invalidCPF, invalidDistrict, invalidFirstName, invalidLastName, invalidUserReference } from "../utils/errors/errors"
 import { isBankCodeValid, isCNPJValid, isCPFValid, isDateValid } from "../utils/util"
 
 /**
- * Verifies whether the new personal information for an user can be created
- * 
- * @param email
- * @param password
- * @returns a list of `AppError` containing information in case of errors
+ * Verifies whether the Personal Information for an user is valid
+ *
+ * @param body
+ * @returns a list of `AppError` containing description of errors
  */
-export const isNewPersonalInfoValid = async ( body: any ): Promise<AppError[]> => {
+export const isPersonalInfoValid = async ( body: any ): Promise<AppError[]> => {
+
+    if ( !body.isPF && !body.isPJ ) return [invalidUserReference]
+
+    if ( body.isPF ) return isPFValid( body )
+
+    else if ( body.isPJ ) return isPJValid( body )
+
+    return []
+
+}
+
+/**
+ * Verifies whether the Pessoa Física information for an user is valid
+ *
+ * @param body
+ * @returns a list of `AppError` containing description of errors
+ */
+export const isPFValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
-
-
-    if ( !body.userId || !await findById( body.userId ) ) errors.push( invalidUserReference )
 
     if ( !body.firstName || body.firstName.length < 2 ) errors.push( invalidFirstName )
 
@@ -27,25 +40,43 @@ export const isNewPersonalInfoValid = async ( body: any ): Promise<AppError[]> =
 
     if ( !body.cpf || !isCPFValid( body.cpf ) ) errors.push( invalidCPF )
 
-    if ( !body.rg || body.rg.length < 4 ) errors.push( invalidRG )
-
     if ( !body.birthday || !isDateValid( body.birthday ) ) errors.push( invalidBirthday )
 
     return errors
 }
 
 /**
- * Verifies whether the new address information for an user can be created
- * 
- * @param email
- * @param password
- * @returns a list of `AppError` containing information in case of errors
+ * Verifies whether the Pessoa Jurídica information for an user is valid
+ *
+ * @param body
+ * @returns a list of `AppError` containing description of errors
  */
-export const isNewAddressValid = async ( body: any ): Promise<AppError[]> => {
+export const isPJValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
-    if ( !body.userId || !await findUserById( body.userId ) ) errors.push( invalidUserReference )
+    if ( !body.cnpj || !isCNPJValid( body.cnpj ) ) errors.push( invalidCNPJ )
+
+    if ( !body.name || body.name.length < 2 ) errors.push()
+
+    if ( !body.razaoSocial || body.name.length < 2 ) errors.push()
+
+    if ( body.inscricaoEstadual && body.name.length < 2 ) errors.push()
+
+    if ( body.inscricaoMunicipal && body.name.length < 2 ) errors.push()
+
+    return errors
+}
+
+/**
+ * Verifies whether the address information for an user is valid
+ * 
+ * @param body
+ * @returns a list of `AppError` containing description of errors
+ */
+export const isAddressValid = async ( body: any ): Promise<AppError[]> => {
+
+    const errors: AppError[] = []
 
     if ( !body.cep || body.cep.length != 9 ) errors.push( invalidCEP )
 
@@ -63,43 +94,50 @@ export const isNewAddressValid = async ( body: any ): Promise<AppError[]> => {
 }
 
 /**
- * Verifies whether the new shop information for an user can be created
+ * Verifies whether the shop information for an user can be created
  * 
- * @param email
- * @param password
- * @returns a list of `AppError` containing information in case of errors
+ * @param body
+ * @returns a list of `AppError` containing description of errors
  */
-export const isNewShopInfoValid = async ( body: any ): Promise<AppError[]> => {
+export const isShopInfoValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
     if ( !body.userId || !await findUserById( body.userId ) ) errors.push( invalidUserReference )
-
-    if ( !body.cnpj || body.cnpj.length < 14 || !isCNPJValid( body.cnpj ) ) errors.push( invalidCNPJ )
-
-    if ( !body.name || body.name.length < 2 ) errors.push( invalidShopName )
 
     return errors
 }
 
 /**
- * Verifies whether the new bank information for an user can be created
- * 
- * @param email
- * @param password
- * @returns a list of `AppError` containing information in case of errors
+ * Verifies whether the bank information for an user is valid
+ *
+ * @param body
+ * @returns a list of `AppError` containing description of errors
  */
-export const isNewBankInfoValid = async ( body: any ): Promise<AppError[]> => {
+export const isBankInfoValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
-
-    if ( !body.userId || !await findUserById( body.userId ) ) errors.push( invalidUserReference )
 
     if ( !body.bank || !isBankCodeValid( body.bank ) ) errors.push( invalidBankCode )
 
     if ( !body.account || body.account.length < 2 ) errors.push( invalidAccount )
 
     if ( !body.agency || body.agency.length < 2 ) errors.push( invalidAgency )
+
+    return errors
+}
+
+/**
+ * Verifies whether the contact information for an user is valid
+ *
+ * @param body
+ * @returns a list of `AppError` containing description of errors
+ */
+export const isContactValid = async ( body: any ): Promise<AppError[]> => {
+
+    const errors: AppError[] = []
+
+    if ( !body.telephone || body.telephone.length < 2 ) errors.push()
 
     return errors
 }
