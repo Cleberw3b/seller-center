@@ -1,526 +1,536 @@
-export const bancos = [
+
+export interface Bank {
+    value: string,
+    name: string
+}
+
+export const isBankCodeValid = ( bankCode: string ) => {
+    return BANKS.some( bank => bank.value === bankCode )
+}
+
+export const BANKS: Bank[] = [
     {
-        "value": "001",
-        "name": "Banco do Brasil"
+        value: "001",
+        name: "Banco do Brasil"
     },
     {
-        "value": "003",
-        "name": "Banco da Amazônia"
+        value: "003",
+        name: "Banco da Amazônia"
     },
     {
-        "value": "004",
-        "name": "Banco do Nordeste"
+        value: "004",
+        name: "Banco do Nordeste"
     },
     {
-        "value": "021",
-        "name": "Banestes"
+        value: "021",
+        name: "Banestes"
     },
     {
-        "value": "025",
-        "name": "Banco Alfa"
+        value: "025",
+        name: "Banco Alfa"
     },
     {
-        "value": "027",
-        "name": "Besc"
+        value: "027",
+        name: "Besc"
     },
     {
-        "value": "029",
-        "name": "Banerj"
+        value: "029",
+        name: "Banerj"
     },
     {
-        "value": "031",
-        "name": "Banco Beg"
+        value: "031",
+        name: "Banco Beg"
     },
     {
-        "value": "033",
-        "name": "Banco Santander Banespa"
+        value: "033",
+        name: "Banco Santander Banespa"
     },
     {
-        "value": "036",
-        "name": "Banco Bem"
+        value: "036",
+        name: "Banco Bem"
     },
     {
-        "value": "037",
-        "name": "Banpará"
+        value: "037",
+        name: "Banpará"
     },
     {
-        "value": "038",
-        "name": "Banestado"
+        value: "038",
+        name: "Banestado"
     },
     {
-        "value": "039",
-        "name": "BEP"
+        value: "039",
+        name: "BEP"
     },
     {
-        "value": "040",
-        "name": "Banco Cargill"
+        value: "040",
+        name: "Banco Cargill"
     },
     {
-        "value": "041",
-        "name": "Banrisul"
+        value: "041",
+        name: "Banrisul"
     },
     {
-        "value": "044",
-        "name": "BVA"
+        value: "044",
+        name: "BVA"
     },
     {
-        "value": "045",
-        "name": "Banco Opportunity"
+        value: "045",
+        name: "Banco Opportunity"
     },
     {
-        "value": "047",
-        "name": "Banese"
+        value: "047",
+        name: "Banese"
     },
     {
-        "value": "062",
-        "name": "Hipercard"
+        value: "062",
+        name: "Hipercard"
     },
     {
-        "value": "063",
-        "name": "Ibibank"
+        value: "063",
+        name: "Ibibank"
     },
     {
-        "value": "065",
-        "name": "Lemon Bank"
+        value: "065",
+        name: "Lemon Bank"
     },
     {
-        "value": "066",
-        "name": "Banco Morgan Stanley Dean Witter"
+        value: "066",
+        name: "Banco Morgan Stanley Dean Witter"
     },
     {
-        "value": "069",
-        "name": "BPN Brasil"
+        value: "069",
+        name: "BPN Brasil"
     },
     {
-        "value": "070",
-        "name": "Banco de Brasília – BRB"
+        value: "070",
+        name: "Banco de Brasília – BRB"
     },
     {
-        "value": "072",
-        "name": "Banco Rural"
+        value: "072",
+        name: "Banco Rural"
     },
     {
-        "value": "073",
-        "name": "Banco Popular"
+        value: "073",
+        name: "Banco Popular"
     },
     {
-        "value": "074",
-        "name": "Banco J. Safra"
+        value: "074",
+        name: "Banco J. Safra"
     },
     {
-        "value": "075",
-        "name": "Banco CR2"
+        value: "075",
+        name: "Banco CR2"
     },
     {
-        "value": "076",
-        "name": "Banco KDB"
+        value: "076",
+        name: "Banco KDB"
     },
     {
-        "value": "077",
-        "name": "Banco Inter"
+        value: "077",
+        name: "Banco Inter"
     },
     {
-        "value": "096",
-        "name": "Banco BMF"
+        value: "096",
+        name: "Banco BMF"
     },
     {
-        "value": "104",
-        "name": "Caixa Econômica Federal"
+        value: "104",
+        name: "Caixa Econômica Federal"
     },
     {
-        "value": "107",
-        "name": "Banco BBM"
+        value: "107",
+        name: "Banco BBM"
     },
     {
-        "value": "116",
-        "name": "Banco Único"
+        value: "116",
+        name: "Banco Único"
     },
     {
-        "value": "151",
-        "name": "Nossa Caixa"
+        value: "151",
+        name: "Nossa Caixa"
     },
     {
-        "value": "175",
-        "name": "Banco Finasa"
+        value: "175",
+        name: "Banco Finasa"
     },
     {
-        "value": "184",
-        "name": "Banco Itaú BBA"
+        value: "184",
+        name: "Banco Itaú BBA"
     },
     {
-        "value": "204",
-        "name": "American Express Bank"
+        value: "204",
+        name: "American Express Bank"
     },
     {
-        "value": "208",
-        "name": "Banco Pactual"
+        value: "208",
+        name: "Banco Pactual"
     },
     {
-        "value": "212",
-        "name": "Banco Matone"
+        value: "212",
+        name: "Banco Matone"
     },
     {
-        "value": "213",
-        "name": "Banco Arbi"
+        value: "213",
+        name: "Banco Arbi"
     },
     {
-        "value": "214",
-        "name": "Banco Dibens"
+        value: "214",
+        name: "Banco Dibens"
     },
     {
-        "value": "217",
-        "name": "Banco Joh Deere"
+        value: "217",
+        name: "Banco Joh Deere"
     },
     {
-        "value": "218",
-        "name": "Banco Bonsucesso"
+        value: "218",
+        name: "Banco Bonsucesso"
     },
     {
-        "value": "222",
-        "name": "Banco Calyon Brasil"
+        value: "222",
+        name: "Banco Calyon Brasil"
     },
     {
-        "value": "224",
-        "name": "Banco Fibra"
+        value: "224",
+        name: "Banco Fibra"
     },
     {
-        "value": "225",
-        "name": "Banco Brascan"
+        value: "225",
+        name: "Banco Brascan"
     },
     {
-        "value": "229",
-        "name": "Banco Cruzeiro"
+        value: "229",
+        name: "Banco Cruzeiro"
     },
     {
-        "value": "230",
-        "name": "Unicard"
+        value: "230",
+        name: "Unicard"
     },
     {
-        "value": "233",
-        "name": "Banco GE Capital"
+        value: "233",
+        name: "Banco GE Capital"
     },
     {
-        "value": "237",
-        "name": "Bradesco"
+        value: "237",
+        name: "Bradesco"
     },
     {
-        "value": "237",
-        "name": "Next"
+        value: "237",
+        name: "Next"
     },
     {
-        "value": "241",
-        "name": "Banco Clássico"
+        value: "241",
+        name: "Banco Clássico"
     },
     {
-        "value": "243",
-        "name": "Banco Stock Máxima"
+        value: "243",
+        name: "Banco Stock Máxima"
     },
     {
-        "value": "246",
-        "name": "Banco ABC Brasil"
+        value: "246",
+        name: "Banco ABC Brasil"
     },
     {
-        "value": "248",
-        "name": "Banco Boavista Interatlântico"
+        value: "248",
+        name: "Banco Boavista Interatlântico"
     },
     {
-        "value": "249",
-        "name": "Investcred Unibanco"
+        value: "249",
+        name: "Investcred Unibanco"
     },
     {
-        "value": "250",
-        "name": "Banco Schahin"
+        value: "250",
+        name: "Banco Schahin"
     },
     {
-        "value": "252",
-        "name": "Fininvest"
+        value: "252",
+        name: "Fininvest"
     },
     {
-        "value": "254",
-        "name": "Paraná Banco"
+        value: "254",
+        name: "Paraná Banco"
     },
     {
-        "value": "263",
-        "name": "Banco Cacique"
+        value: "263",
+        name: "Banco Cacique"
     },
     {
-        "value": "260",
-        "name": "Nubank"
+        value: "260",
+        name: "Nubank"
     },
     {
-        "value": "265",
-        "name": "Banco Fator"
+        value: "265",
+        name: "Banco Fator"
     },
     {
-        "value": "266",
-        "name": "Banco Cédula"
+        value: "266",
+        name: "Banco Cédula"
     },
     {
-        "value": "300",
-        "name": "Banco de la Nación Argentina"
+        value: "300",
+        name: "Banco de la Nación Argentina"
     },
     {
-        "value": "318",
-        "name": "Banco BMG"
+        value: "318",
+        name: "Banco BMG"
     },
     {
-        "value": "320",
-        "name": "Banco Industrial e Comercial"
+        value: "320",
+        name: "Banco Industrial e Comercial"
     },
     {
-        "value": "356",
-        "name": "ABN Amro Real"
+        value: "356",
+        name: "ABN Amro Real"
     },
     {
-        "value": "341",
-        "name": "Itau"
+        value: "341",
+        name: "Itau"
     },
     {
-        "value": "347",
-        "name": "Sudameris"
+        value: "347",
+        name: "Sudameris"
     },
     {
-        "value": "351",
-        "name": "Banco Santander"
+        value: "351",
+        name: "Banco Santander"
     },
     {
-        "value": "353",
-        "name": "Banco Santander Brasil"
+        value: "353",
+        name: "Banco Santander Brasil"
     },
     {
-        "value": "366",
-        "name": "Banco Societe Generale Brasil"
+        value: "366",
+        name: "Banco Societe Generale Brasil"
     },
     {
-        "value": "370",
-        "name": "Banco WestLB"
+        value: "370",
+        name: "Banco WestLB"
     },
     {
-        "value": "376",
-        "name": "JP Morgan"
+        value: "376",
+        name: "JP Morgan"
     },
     {
-        "value": "389",
-        "name": "Banco Mercantil do Brasil"
+        value: "389",
+        name: "Banco Mercantil do Brasil"
     },
     {
-        "value": "394",
-        "name": "Banco Mercantil de Crédito"
+        value: "394",
+        name: "Banco Mercantil de Crédito"
     },
     {
-        "value": "399",
-        "name": "HSBC"
+        value: "399",
+        name: "HSBC"
     },
     {
-        "value": "409",
-        "name": "Unibanco"
+        value: "409",
+        name: "Unibanco"
     },
     {
-        "value": "412",
-        "name": "Banco Capital"
+        value: "412",
+        name: "Banco Capital"
     },
     {
-        "value": "422",
-        "name": "Banco Safra"
+        value: "422",
+        name: "Banco Safra"
     },
     {
-        "value": "453",
-        "name": "Banco Rural"
+        value: "453",
+        name: "Banco Rural"
     },
     {
-        "value": "456",
-        "name": "Banco Tokyo Mitsubishi UFJ"
+        value: "456",
+        name: "Banco Tokyo Mitsubishi UFJ"
     },
     {
-        "value": "464",
-        "name": "Banco Sumitomo Mitsui Brasileiro"
+        value: "464",
+        name: "Banco Sumitomo Mitsui Brasileiro"
     },
     {
-        "value": "477",
-        "name": "Citibank"
+        value: "477",
+        name: "Citibank"
     },
     {
-        "value": "479",
-        "name": "Itaubank (antigo Bank Boston)"
+        value: "479",
+        name: "Itaubank (antigo Bank Boston)"
     },
     {
-        "value": "487",
-        "name": "Deutsche Bank"
+        value: "487",
+        name: "Deutsche Bank"
     },
     {
-        "value": "488",
-        "name": "Banco Morgan Guaranty"
+        value: "488",
+        name: "Banco Morgan Guaranty"
     },
     {
-        "value": "492",
-        "name": "Banco NMB Postbank"
+        value: "492",
+        name: "Banco NMB Postbank"
     },
     {
-        "value": "494",
-        "name": "Banco la República Oriental del Uruguay"
+        value: "494",
+        name: "Banco la República Oriental del Uruguay"
     },
     {
-        "value": "495",
-        "name": "Banco La Provincia de Buenos Aires"
+        value: "495",
+        name: "Banco La Provincia de Buenos Aires"
     },
     {
-        "value": "505",
-        "name": "Banco Credit Suisse"
+        value: "505",
+        name: "Banco Credit Suisse"
     },
     {
-        "value": "600",
-        "name": "Banco Luso Brasileiro"
+        value: "600",
+        name: "Banco Luso Brasileiro"
     },
     {
-        "value": "604",
-        "name": "Banco Industrial"
+        value: "604",
+        name: "Banco Industrial"
     },
     {
-        "value": "610",
-        "name": "Banco VR"
+        value: "610",
+        name: "Banco VR"
     },
     {
-        "value": "611",
-        "name": "Banco Paulista"
+        value: "611",
+        name: "Banco Paulista"
     },
     {
-        "value": "612",
-        "name": "Banco Guanabara"
+        value: "612",
+        name: "Banco Guanabara"
     },
     {
-        "value": "613",
-        "name": "Banco Pecunia"
+        value: "613",
+        name: "Banco Pecunia"
     },
     {
-        "value": "623",
-        "name": "Banco Panamericano"
+        value: "623",
+        name: "Banco Panamericano"
     },
     {
-        "value": "626",
-        "name": "Banco Ficsa"
+        value: "626",
+        name: "Banco Ficsa"
     },
     {
-        "value": "630",
-        "name": "Banco Intercap"
+        value: "630",
+        name: "Banco Intercap"
     },
     {
-        "value": "633",
-        "name": "Banco Rendimento"
+        value: "633",
+        name: "Banco Rendimento"
     },
     {
-        "value": "634",
-        "name": "Banco Triângulo"
+        value: "634",
+        name: "Banco Triângulo"
     },
     {
-        "value": "637",
-        "name": "Banco Sofisa"
+        value: "637",
+        name: "Banco Sofisa"
     },
     {
-        "value": "638",
-        "name": "Banco Prosper"
+        value: "638",
+        name: "Banco Prosper"
     },
     {
-        "value": "643",
-        "name": "Banco Pine"
+        value: "643",
+        name: "Banco Pine"
     },
     {
-        "value": "652",
-        "name": "Itaú Holding Financeira"
+        value: "652",
+        name: "Itaú Holding Financeira"
     },
     {
-        "value": "653",
-        "name": "Banco Indusval"
+        value: "653",
+        name: "Banco Indusval"
     },
     {
-        "value": "654",
-        "name": "Banco A.J. Renner"
+        value: "654",
+        name: "Banco A.J. Renner"
     },
     {
-        "value": "655",
-        "name": "Banco Votorantim"
+        value: "655",
+        name: "Banco Votorantim"
     },
     {
-        "value": "707",
-        "name": "Banco Daycoval"
+        value: "707",
+        name: "Banco Daycoval"
     },
     {
-        "value": "719",
-        "name": "Banif"
+        value: "719",
+        name: "Banif"
     },
     {
-        "value": "721",
-        "name": "Banco Credibel"
+        value: "721",
+        name: "Banco Credibel"
     },
     {
-        "value": "734",
-        "name": "Banco Gerdau"
+        value: "734",
+        name: "Banco Gerdau"
     },
     {
-        "value": "735",
-        "name": "Banco Neon"
+        value: "735",
+        name: "Banco Neon"
     },
     {
-        "value": "738",
-        "name": "Banco Morada"
+        value: "738",
+        name: "Banco Morada"
     },
     {
-        "value": "739",
-        "name": "Banco Galvão de Negócios"
+        value: "739",
+        name: "Banco Galvão de Negócios"
     },
     {
-        "value": "740",
-        "name": "Banco Barclays"
+        value: "740",
+        name: "Banco Barclays"
     },
     {
-        "value": "741",
-        "name": "BRP"
+        value: "741",
+        name: "BRP"
     },
     {
-        "value": "743",
-        "name": "Banco Semear"
+        value: "743",
+        name: "Banco Semear"
     },
     {
-        "value": "745",
-        "name": "Banco Citibank"
+        value: "745",
+        name: "Banco Citibank"
     },
     {
-        "value": "746",
-        "name": "Banco Modal"
+        value: "746",
+        name: "Banco Modal"
     },
     {
-        "value": "747",
-        "name": "Banco Rabobank International"
+        value: "747",
+        name: "Banco Rabobank International"
     },
     {
-        "value": "748",
-        "name": "Banco Cooperativo Sicredi"
+        value: "748",
+        name: "Banco Cooperativo Sicredi"
     },
     {
-        "value": "749",
-        "name": "Banco Simples"
+        value: "749",
+        name: "Banco Simples"
     },
     {
-        "value": "751",
-        "name": "Dresdner Bank"
+        value: "751",
+        name: "Dresdner Bank"
     },
     {
-        "value": "752",
-        "name": "BNP Paribas"
+        value: "752",
+        name: "BNP Paribas"
     },
     {
-        "value": "753",
-        "name": "Banco Comercial Uruguai"
+        value: "753",
+        name: "Banco Comercial Uruguai"
     },
     {
-        "value": "755",
-        "name": "Banco Merrill Lynch"
+        value: "755",
+        name: "Banco Merrill Lynch"
     },
     {
-        "value": "756",
-        "name": "Banco Cooperativo do Brasil"
+        value: "756",
+        name: "Banco Cooperativo do Brasil"
     },
     {
-        "value": "757",
-        "name": "KEB"
+        value: "757",
+        name: "KEB"
     }
 ]

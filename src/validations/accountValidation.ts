@@ -2,9 +2,10 @@
 //     Account Validation
 //
 
+import { isBankCodeValid } from "../models/listaBancosBR"
 import { findUserById } from "../repositories/userRepository"
 import { AppError, invalidAccount, invalidAddress, invalidAddressNumber, invalidAgency, invalidBankCode, invalidBirthday, invalidCEP, invalidCity, invalidCNPJ, invalidComplement, invalidCPF, invalidDistrict, invalidFirstName, invalidLastName, invalidUserReference } from "../utils/errors/errors"
-import { isBankCodeValid, isCNPJValid, isCPFValid, isDateValid } from "../utils/util"
+import { isCNPJValid, isCPFValid, isDateValid } from "../utils/util"
 
 /**
  * Verifies whether the Personal Information for an user is valid

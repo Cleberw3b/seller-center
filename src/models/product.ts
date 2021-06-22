@@ -18,9 +18,14 @@ export interface Product {
     weight: number,
     price: number,
     price_discounted: number,
-    variations: {
-        size: number,
-        stock: number,
-        color: number
-    }[]
+    variations: Variation[],
+    isActive: boolean
+}
+
+export interface Variation {
+    _id?: any,
+    product_id: any,
+    size: number,
+    stock: number,
+    color: number
 }

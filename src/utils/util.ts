@@ -1,6 +1,5 @@
 import { AxiosError } from 'axios'
 import { cpf, cnpj } from 'cpf-cnpj-validator'
-import { bancos } from '../models/listaBancosBR'
 import { isDate, isExists, parse } from 'date-fns'
 import { log } from './loggerUtil'
 
@@ -162,10 +161,6 @@ export const fillString = ( string: string, value: string, size: number ): strin
     }
 
     return string
-}
-
-export const isBankCodeValid = ( bankCode: string ) => {
-    return bancos.some( bank => bank.value === bankCode )
 }
 
 export const isDateValid = ( date: string ): boolean => {

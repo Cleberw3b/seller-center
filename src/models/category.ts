@@ -12,7 +12,7 @@ export interface SubCategory {
     value: string,
 }
 
-export const Categories: Category[] = [
+export const CATEGORIES: Category[] = [
     {
         code: 281,
         value: "Acessórios",
@@ -482,7 +482,7 @@ export const sub_categories_moda_pet: SubCategory[] = [
     // },
 ]
 
-export const sub_categories: SubCategory[] = [
+export const SUB_CATEGORIES: SubCategory[] = [
     ...sub_categories_accessory,
     ...sub_categories_beachwear,
     ...sub_categories_calcados,

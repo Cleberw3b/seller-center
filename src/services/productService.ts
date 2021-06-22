@@ -5,8 +5,7 @@
 import { Product } from "../models/product"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
-import { createNewProduct, findProductById, findProductsByShopId } from "../repositories/productRepository"
-import productEventEmitter from "../events/product"
+import { createNewProduct, findProductById, findProductsByShopId, updateProductById } from "../repositories/productRepository"
 import { criarProdutoHub2b } from "./hub2b"
 
 /**
@@ -58,7 +57,8 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
         weight,
         price,
         price_discounted,
-        variations
+        variations,
+        isActive: true
     }
 
     const product = await createNewProduct( refProduct )
@@ -100,6 +100,24 @@ export const findProductsByShop = async ( shopId: any ): Promise<Product[] | nul
 
     products
         ? log( `Found ${ products.length } products for shop ${ shopId }`, 'EVENT', getFunctionName() )
+        : log( `Could not find any products`, 'EVENT', getFunctionName() )
+
+    return products
+}
+
+
+
+/**
+ * Find all products for a given shop id
+ *
+ * @param shopId - shopId
+ */
+export const updateProduct = async ( body: any ): Promise<Product | null> => {
+
+    const products = await updateProductById( body )
+
+    products
+        ? log( `Found ${ products.length } products for shop ${ body._id }`, 'EVENT', getFunctionName() )
         : log( `Could not find any products`, 'EVENT', getFunctionName() )
 
     return products

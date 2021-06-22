@@ -3,10 +3,10 @@
 //
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { createProduct, findProduct, findProductsByShop } from '../services/productService'
+import { createProduct, findProduct, findProductsByShop, updateProduct } from '../services/productService'
 import { uploadProductPicture } from '../services/uploadService'
 import { badRequest, createHttpStatus, internalServerError, noContent, notFound, ok } from '../utils/httpStatus'
-import { isProductValid } from '../validations/productValidation'
+import { isProductPatchValid, isProductValid } from '../validations/productValidation'
 const router = Router()
 
 const uploadMultiple = uploadProductPicture.array( 'images', 10 )
@@ -65,18 +65,18 @@ router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 /**
  * PATCH -> atualiza produto
  */
-router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
+router.patch( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 
     const body = req.body
 
-    let errors = await isProductValid( body )
+    let errors = await isProductPatchValid( body )
 
     if ( errors.length > 0 )
         return res
             .status( badRequest.status )
             .send( createHttpStatus( badRequest, errors ) )
 
-    const product = await createProduct( body )
+    const product = await updateProduct( body )
 
     if ( !product )
         return res

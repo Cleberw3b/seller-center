@@ -71,7 +71,7 @@ export const isProductPatchValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
-    if ( !body ) errors.push( invalidProduct )
+    if ( !body._id ) errors.push( invalidProduct )
 
     return errors
 }
