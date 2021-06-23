@@ -2,9 +2,10 @@
 //      Activation Token Repository
 //
 
-import { MongoError, ObjectID } from "mongodb"
-import { Product } from "../models/product"
-import { productCollection } from "../utils/db/collections"
+import { MongoError, ObjectID, TransactionOptions } from "mongodb"
+import { Product, Variation } from "../models/product"
+import { productCollection, variationCollection } from "../utils/db/collections"
+import { getMongoSession } from "../utils/db/mongoConnector"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 
@@ -13,17 +14,52 @@ import { getFunctionName } from "../utils/util"
  * 
  * @param product - the product to be saved
  */
-export const createNewProduct = async ( product: Product ): Promise<Product | null> => {
+export const createNewProduct = async ( product: Product, variations: Variation[] ): Promise<Product | null> => {
+
+    const session = getMongoSession()
+
+    const transactionOptions: TransactionOptions = {
+        readPreference: 'primary',
+        readConcern: { level: 'local' },
+        writeConcern: { w: 'majority' }
+    }
+
+    let productResult
+
     try {
 
-        const result = await productCollection.insertOne( product )
+        const transactionResults = await session.withTransaction( async () => {
 
-        return result.ops[0] ? result.ops[0] : null
+            const productResults = await productCollection.insertOne( product, { session } )
+
+            console.log( productResults )
+
+            productResult = productResults.ops[0] ? productResults.ops[0] : null
+
+            variations.forEach( variation => variation.product_id = productResults.insertedId )
+
+            const variationResults = await variationCollection.insertMany( variations, { session } )
+
+            if ( productResult )
+                productResult.variations = variationResults.ops ? variationResults.ops : null
+
+            console.log( productResult )
+
+        }, transactionOptions )
+
+        // if ( transactionResults ) {
+        //     console.log( "The reservation was successfully created." )
+        // } else {
+        //     console.log( "The transaction was intentionally aborted." )
+        // }
+        return null
 
     } catch ( error ) {
         if ( error instanceof MongoError )
             log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
         return null
+    } finally {
+        await session.endSession()
     }
 }
 

@@ -76,3 +76,11 @@ export const loadDatabase = async ( app: Express ) => {
 export const closeConnection = () => {
     mongoClient.close()
 }
+
+
+/**
+ * Closes current mongo client connection to server
+ */
+export const getMongoSession = () => {
+    return mongoClient.startSession()
+}

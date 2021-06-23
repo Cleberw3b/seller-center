@@ -2,7 +2,7 @@ import { Collection, Db } from 'mongodb'
 import { User } from '../../models/user'
 import { ActivationToken } from '../../models/token'
 import { Address, BankInfo, Contact, PersonalInfo, ShopInfo } from '../../models/account'
-import { Product } from '../../models/product'
+import { Product, Variation } from '../../models/product'
 
 const USER_COLLECTION = 'user'
 const ACTIVATION_TOKEN_COLLECTION = 'activation_token'
@@ -12,6 +12,7 @@ const CONTACT_COLLECTION = 'contact'
 const SHOP_INFO_COLLECTION = 'shop_info'
 const BANK_INFO_COLLECTION = 'bank_info'
 const PRODUCT_COLLECTION = 'product'
+const VARIATION_COLLECTION = 'variation'
 
 let userCollection: Collection<User>
 let activationTokenCollection: Collection<ActivationToken>
@@ -21,6 +22,7 @@ let contactCollection: Collection<Contact>
 let shopInfoCollection: Collection<ShopInfo>
 let bankInfoCollection: Collection<BankInfo>
 let productCollection: Collection<Product>
+let variationCollection: Collection<Variation>
 
 export const createCollections = ( database: Db ) => {
 
@@ -32,6 +34,7 @@ export const createCollections = ( database: Db ) => {
     shopInfoCollection = database.collection<ShopInfo>( SHOP_INFO_COLLECTION )
     bankInfoCollection = database.collection<BankInfo>( BANK_INFO_COLLECTION )
     productCollection = database.collection<Product>( PRODUCT_COLLECTION )
+    variationCollection = database.collection<Variation>( VARIATION_COLLECTION )
 
 }
 
@@ -43,5 +46,6 @@ export {
     contactCollection,
     shopInfoCollection,
     bankInfoCollection,
-    productCollection
+    productCollection,
+    variationCollection
 }

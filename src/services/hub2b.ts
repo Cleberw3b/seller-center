@@ -129,7 +129,7 @@ export const criarProdutoHub2b = async ( produto: Product | null ) => {
             return { url }
         } )
 
-        produto.variations.forEach( variation => {
+        produto.variations?.forEach( variation => {
 
             const productHub2: HUB2B_Product = {
                 sku: produto._id,

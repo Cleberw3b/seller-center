@@ -18,7 +18,7 @@ export interface Product {
     weight: number,
     price: number,
     price_discounted: number,
-    variations: Variation[],
+    variations?: Variation[] | null,
     isActive: boolean
 }
 

@@ -57,11 +57,10 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
         weight,
         price,
         price_discounted,
-        variations,
         isActive: true
     }
 
-    const product = await createNewProduct( refProduct )
+    const product = await createNewProduct( refProduct, variations )
 
     product
         ? log( `Product ${ product.name } has been created.`, 'EVENT', getFunctionName() )
