@@ -13,7 +13,7 @@ export interface Address {
 export interface Contact {
     _id?: any,
     userId: any,
-    telephone: string,
+    phone: string,
     whatsapp?: string,
     url?: string
 }

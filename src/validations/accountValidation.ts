@@ -41,7 +41,7 @@ export const isPFValid = async ( body: any ): Promise<AppError[]> => {
 
     if ( !body.cpf || !isCPFValid( body.cpf ) ) errors.push( invalidCPF )
 
-    if ( !body.birthday || !isDateValid( body.birthday ) ) errors.push( invalidBirthday )
+    if ( body.birthday && !isDateValid( body.birthday ) ) errors.push( invalidBirthday )
 
     return errors
 }
@@ -58,13 +58,9 @@ export const isPJValid = async ( body: any ): Promise<AppError[]> => {
 
     if ( !body.cnpj || !isCNPJValid( body.cnpj ) ) errors.push( invalidCNPJ )
 
-    if ( !body.name || body.name.length < 2 ) errors.push()
+    if ( !body.name || body.name.length < 2 ) errors.push( invalidCNPJ )
 
-    if ( !body.razaoSocial || body.name.length < 2 ) errors.push()
-
-    if ( body.inscricaoEstadual && body.name.length < 2 ) errors.push()
-
-    if ( body.inscricaoMunicipal && body.name.length < 2 ) errors.push()
+    if ( !body.razaoSocial || body.razaoSocial.length < 2 ) errors.push( invalidCNPJ )
 
     return errors
 }
@@ -138,7 +134,7 @@ export const isContactValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
-    if ( !body.telephone || body.telephone.length < 2 ) errors.push()
+    if ( !body.phone || body.phone.length < 2 ) errors.push( invalidUserReference )
 
     return errors
 }

@@ -25,7 +25,7 @@ export interface Product {
 export interface Variation {
     _id?: any,
     product_id: any,
-    size: number,
+    size: string,
     stock: number,
-    color: number
+    color: string
 }

@@ -28,8 +28,6 @@ export const isProductValid = async ( body: any ): Promise<AppError[]> => {
 
     if ( !body.brand ) errors.push( invalidProduct )
 
-    if ( !body.more_info ) errors.push( invalidProduct )
-
     if ( !body.ean ) errors.push( invalidProduct )
 
     if ( !body.sku ) errors.push( invalidProduct )
@@ -67,11 +65,30 @@ export const isProductValid = async ( body: any ): Promise<AppError[]> => {
  * @param body
  * @returns a list of `AppError` containing description of errors
  */
-export const isProductPatchValid = async ( body: any ): Promise<AppError[]> => {
+export const isProductPatchValid = async ( product_id: any, body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
-    if ( !body._id ) errors.push( invalidProduct )
+    if ( !product_id ) errors.push( invalidProduct )
+
+    return errors
+}
+
+
+/**
+ * Verifies if the variation can be patched
+ *
+ * @param body
+ * @returns a list of `AppError` containing description of errors
+ */
+export const isVariationPatchValid = async ( product_id: any, variation_id: any, body: any ): Promise<AppError[]> => {
+
+    const errors: AppError[] = []
+
+    if ( !product_id ) errors.push( invalidProduct )
+
+    if ( !variation_id ) errors.push( invalidProduct )
+
 
     return errors
 }

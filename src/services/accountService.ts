@@ -14,18 +14,25 @@ import { formatDate, getFunctionName, parseDate } from "../utils/util"
  */
 export const createPersonalInfo = async ( body: any ): Promise<PersonalInfo | null> => {
 
-    const { userId, firstName, lastName, cpf, birthday } = body
+    let personalInfo
 
-    let _birthday: any
+    const { userId, firstName, lastName, cpf, birthday, name, cnpj, razaoSocial, inscricaoEstadual, inscricaoMunicipal } = body
 
-    if ( birthday ) {
+    if ( body.isPJ )
+        personalInfo = { userId, name, cnpj, razaoSocial, inscricaoEstadual, inscricaoMunicipal }
 
-        _birthday = parseDate( birthday )
+    else if ( body.isPF ) {
+        let _birthday: any
 
-        _birthday = formatDate( _birthday.getTime() )
-    }
+        if ( birthday ) {
 
-    const personalInfo: PersonalInfo = { userId, firstName, lastName, cpf, birthday: _birthday }
+            _birthday = parseDate( birthday )
+
+            _birthday = formatDate( _birthday.getTime() )
+        }
+        personalInfo = { userId, firstName, lastName, cpf, birthday: _birthday }
+
+    } else return null
 
     const newPersonalInfo = await createOrUpdatePersonalInfo( personalInfo )
 
@@ -104,9 +111,9 @@ export const createBankInfo = async ( body: any ): Promise<BankInfo | null> => {
  */
 export const createContact = async ( body: any ): Promise<Contact | null> => {
 
-    const { userId, telephone, whatsapp, url } = body
+    const { userId, phone, whatsapp, url } = body
 
-    const contact: Contact = { userId, telephone, whatsapp, url }
+    const contact: Contact = { userId, phone, whatsapp, url }
 
     const newContact = await createOrUpdateContact( contact )
 

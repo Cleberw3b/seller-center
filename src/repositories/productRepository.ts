@@ -4,10 +4,17 @@
 
 import { MongoError, ObjectID, TransactionOptions } from "mongodb"
 import { Product, Variation } from "../models/product"
-import { productCollection, variationCollection } from "../utils/db/collections"
+import { productCollection, variationCollection, VARIATION_COLLECTION } from "../utils/db/collections"
 import { getMongoSession } from "../utils/db/mongoConnector"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
+
+const transactionOptions: TransactionOptions = {
+    readPreference: 'primary',
+    readConcern: { level: 'local' },
+    writeConcern: { w: 'majority' }
+}
+
 
 /**
  * Create new Product
@@ -18,13 +25,7 @@ export const createNewProduct = async ( product: Product, variations: Variation[
 
     const session = getMongoSession()
 
-    const transactionOptions: TransactionOptions = {
-        readPreference: 'primary',
-        readConcern: { level: 'local' },
-        writeConcern: { w: 'majority' }
-    }
-
-    let productResult
+    let productResult: Product | null = null
 
     try {
 
@@ -32,31 +33,23 @@ export const createNewProduct = async ( product: Product, variations: Variation[
 
             const productResults = await productCollection.insertOne( product, { session } )
 
-            console.log( productResults )
-
             productResult = productResults.ops[0] ? productResults.ops[0] : null
+
+            if ( !productResult ) throw new MongoError( "Could not save product." )
 
             variations.forEach( variation => variation.product_id = productResults.insertedId )
 
             const variationResults = await variationCollection.insertMany( variations, { session } )
 
-            if ( productResult )
-                productResult.variations = variationResults.ops ? variationResults.ops : null
-
-            console.log( productResult )
+            productResult.variations = variationResults.ops ? variationResults.ops : null
 
         }, transactionOptions )
 
-        // if ( transactionResults ) {
-        //     console.log( "The reservation was successfully created." )
-        // } else {
-        //     console.log( "The transaction was intentionally aborted." )
-        // }
-        return null
+        return productResult
 
     } catch ( error ) {
         if ( error instanceof MongoError )
-            log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+            log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
         return null
     } finally {
         await session.endSession()
@@ -64,27 +57,56 @@ export const createNewProduct = async ( product: Product, variations: Variation[
 }
 
 /**
- * Create new Product
+ * Update a product
  * 
- * @param product - the product to be saved
+ * @param product 
  */
-export const updateProductById = async ( patch: any ): Promise<Product | null> => {
+export const updateProductById = async ( _id: any, patch: any ): Promise<Product | null> => {
 
     try {
 
-        const options = {
-            "$set": patch
+        const filter = { _id: new ObjectID( _id ) }
+
+        const update = {
+            $set: { ...patch }
         }
 
-        const query = { _id: new ObjectID( patch._id ) }
+        const result = await productCollection.findOneAndUpdate( filter, update )
 
-        const result = await productCollection.findOneAndUpdate( query, options )
+        if ( !result.value ) return null
 
-        return result.value ? result.value : null
+        return await findProductById( result.value._id )
 
     } catch ( error ) {
         if ( error instanceof MongoError )
-            log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+            log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+        return null
+    }
+}
+
+/**
+ * Update a variation
+ * 
+ * @param patch - 
+ */
+export const updateVariationById = async ( _id: any, patch: any ): Promise<Product | null> => {
+
+    try {
+        const options = {
+            $set: { ...patch }
+        }
+
+        const query = { _id: new ObjectID( _id ) }
+
+        const result = await variationCollection.findOneAndUpdate( query, options )
+
+        if ( !result.value ) return null
+
+        return await findProductById( result.value.product_id )
+
+    } catch ( error ) {
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
         return null
     }
 }
@@ -95,24 +117,32 @@ export const updateProductById = async ( patch: any ): Promise<Product | null> =
  * @param productId
  */
 export const findProductById = async ( productId: string ): Promise<Product | null> => {
+
+    const query = { _id: new ObjectID( productId ) }
+
     try {
+        const productsCursor = await productCollection.aggregate( [
+            {
+                $lookup:
+                {
+                    from: VARIATION_COLLECTION,
+                    localField: "_id",
+                    foreignField: "product_id",
+                    as: "variations"
+                }
+            },
+            { $match: query }
+        ] )
 
-        const projection = {
-            shopId: 1, images: 1, category: 1, subCategory: 1,
-            nationality: 1, name: 1, description: 1, brand: 1,
-            more_info: 1, ean: 1, sku: 1, gender: 1,
-            height: 1, width: 1, length: 1, weight: 1,
-            price: 1, price_discounted: 1,
-            variations: 1, isActive: 1
-        }
+        if ( !productsCursor ) throw new MongoError( "Could not retrieve product." )
 
-        const product = await productCollection.findOne( { productId }, { projection } )
+        const product = await productsCursor.toArray()
 
-        return product
+        return product[0]
 
     } catch ( error ) {
         if ( error instanceof MongoError )
-            log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+            log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
         return null
     }
 }
@@ -123,28 +153,78 @@ export const findProductById = async ( productId: string ): Promise<Product | nu
  * @param shopId
  */
 export const findProductsByShopId = async ( shopId: string ): Promise<Product[] | null> => {
+
+    const query = { shopId }
+
     try {
 
-        const query = { shopId }
+        const productsCursor = await productCollection.aggregate( [
+            {
+                $lookup:
+                {
+                    from: VARIATION_COLLECTION,
+                    localField: "_id",
+                    foreignField: "product_id",
+                    as: "variations"
+                }
+            },
+            { $match: query },
+            { $sort: { _id: -1 } }
+        ] )
 
-        const projection = {
-            images: 1, name: 1, description: 1,
-            brand: 1, price: 1, price_discounted: 1,
-            nationality: 1, category: 1, sku: 1,
-            variations: 1, isActive: 1
-        }
+        if ( !productsCursor ) throw new MongoError( "Could not retrieve product." )
 
-        const options = { sort: { _id: -1 }, projection }
+        const products = await productsCursor.toArray()
 
-        const cursor = await productCollection.find( query, options )
-
-        const result = cursor.toArray()
-
-        return result
+        return products
 
     } catch ( error ) {
         if ( error instanceof MongoError )
-            log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+            log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+        return null
+    }
+}
+
+/**
+ * Find variations by product id
+ * 
+ * @param product_id
+ */
+export const findVariationsByProductId = async ( product_id: string ): Promise<Variation[] | null> => {
+
+    const query = { product_id: new ObjectID( product_id ) }
+
+    try {
+        const variationsCursor = await variationCollection.find( query )
+
+        const variations = await variationsCursor.toArray()
+
+        return variations
+
+    } catch ( error ) {
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+        return null
+    }
+}
+
+/**
+ * Find variation by id
+ * 
+ * @param variation_id
+ */
+export const findVariationById = async ( variation_id: string ): Promise<Variation | null> => {
+
+    const query = { _id: new ObjectID( variation_id ) }
+
+    try {
+        const variation = await variationCollection.findOne( query )
+
+        return variation
+
+    } catch ( error ) {
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
         return null
     }
 }

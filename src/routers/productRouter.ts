@@ -6,7 +6,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { createProduct, findProduct, findProductsByShop, updateProduct } from '../services/productService'
 import { uploadProductPicture } from '../services/uploadService'
 import { badRequest, createHttpStatus, internalServerError, noContent, notFound, ok } from '../utils/httpStatus'
-import { isProductPatchValid, isProductValid } from '../validations/productValidation'
+import { isProductPatchValid, isProductValid, isVariationPatchValid } from '../validations/productValidation'
 const router = Router()
 
 const uploadMultiple = uploadProductPicture.array( 'images', 10 )
@@ -50,6 +50,8 @@ router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
             .status( badRequest.status )
             .send( createHttpStatus( badRequest, errors ) )
 
+    body.shop = req.shop_id
+
     const product = await createProduct( body )
 
     if ( !product )
@@ -65,18 +67,51 @@ router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 /**
  * PATCH -> atualiza produto
  */
-router.patch( '/', async ( req: Request, res: Response, next: NextFunction ) => {
+router.patch( '/:product_id', async ( req: Request, res: Response, next: NextFunction ) => {
 
     const body = req.body
 
-    let errors = await isProductPatchValid( body )
+    const product_id = req.params.product_id
+
+    let errors = await isProductPatchValid( product_id, body )
 
     if ( errors.length > 0 )
         return res
             .status( badRequest.status )
             .send( createHttpStatus( badRequest, errors ) )
 
-    const product = await updateProduct( body )
+    const product = await updateProduct( product_id, body )
+
+    if ( !product )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    return res
+        .status( ok.status )
+        .send( product )
+} )
+
+
+/**
+ * PATCH -> atualiza produto
+ */
+router.patch( '/:product_id/variation/:variation_id', async ( req: Request, res: Response, next: NextFunction ) => {
+
+    const body = req.body
+
+    const product_id = req.params.product_id
+
+    const variation_id = req.params.variation_id
+
+    let errors = await isVariationPatchValid( product_id, variation_id, body )
+
+    if ( errors.length > 0 )
+        return res
+            .status( badRequest.status )
+            .send( createHttpStatus( badRequest, errors ) )
+
+    const product = await updateProduct( product_id, body )
 
     if ( !product )
         return res

@@ -18,26 +18,23 @@ import { getFunctionName } from "../utils/util"
  * @param personalInfo - the user personal information
  */
 export const createOrUpdatePersonalInfo = async ( personalInfo: PersonalInfo ): Promise<PersonalInfo | null> => {
+
+    const query = { userId: personalInfo.userId }
+
+    const replacement = { ...personalInfo }
+
+    const options = {
+        upsert: true,
+        returnNewDocument: true
+    }
+
     try {
-        const result = await personalInfoColletion.updateOne(
-            { userId: personalInfo.userId },
-            { $set: personalInfo },
-            { upsert: true }
-        )
 
-        let id: ObjectID | null = null
+        const result = await personalInfoColletion.findOneAndReplace( query, replacement, options )
 
-        if ( result.upsertedCount )
-            id = result.upsertedId._id
+        if ( !result.value ) return null
 
-        if ( result.matchedCount )
-            return await findPersonalInfoByUserID( personalInfo.userId )
-
-        if ( !id ) throw new MongoError( "Não gerou id" )
-
-        personalInfo._id = id
-
-        return personalInfo
+        return await findPersonalInfoByUserID( result.value.userId )
 
     } catch ( error ) {
         if ( error instanceof MongoError )
@@ -56,7 +53,6 @@ export const findPersonalInfoByUserID = async ( userId: string ): Promise<Person
 
         const projectionPF = {
             firstName: 1, lastName: 1, cpf: 1, rg: 1, birthday: 1
-
         }
 
         const projectionPJ = {
@@ -69,6 +65,8 @@ export const findPersonalInfoByUserID = async ( userId: string ): Promise<Person
         }
 
         const personalInfo = await personalInfoColletion.findOne( { userId }, { projection } )
+
+        if ( !personalInfo ) return null
 
         return personalInfo
 
@@ -327,7 +325,7 @@ export const createOrUpdateContact = async ( contact: Contact ): Promise<Contact
 export const findContactByUserID = async ( userId: string ): Promise<Contact | null> => {
     try {
 
-        const projection = { userId: 1, telephone: 1, whatsapp: 1, url: 1 }
+        const projection = { userId: 1, phone: 1, whatsapp: 1, url: 1 }
 
         const shopInfo = await contactCollection.findOne( { userId }, { projection } )
 

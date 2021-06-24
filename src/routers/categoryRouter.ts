@@ -10,7 +10,7 @@ const router = Router()
 /**
  * GET -> lista de categorias 
  */
-router.get( '/list', async ( req: Request, res: Response, next: NextFunction ) => {
+router.get( '/all', async ( req: Request, res: Response, next: NextFunction ) => {
 
     return res
         .status( ok.status )

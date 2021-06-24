@@ -111,13 +111,13 @@ export const findProductsByShop = async ( shopId: any ): Promise<Product[] | nul
  *
  * @param shopId - shopId
  */
-export const updateProduct = async ( body: any ): Promise<Product | null> => {
+export const updateProduct = async ( _id: any, patch: any ): Promise<Product | null> => {
 
-    const products = await updateProductById( body )
+    const products = await updateProductById( _id, patch )
 
     products
-        ? log( `Found ${ products.length } products for shop ${ body._id }`, 'EVENT', getFunctionName() )
-        : log( `Could not find any products`, 'EVENT', getFunctionName() )
+        ? log( `Update product ${ _id }`, 'EVENT', getFunctionName() )
+        : log( `Could not update product`, 'EVENT', getFunctionName() )
 
     return products
 }
