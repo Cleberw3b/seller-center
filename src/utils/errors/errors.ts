@@ -110,10 +110,27 @@ export const invalidUserReference: AppError = {
 }
 
 /**
+ * ERROR - Invalid user type registration
+ */
+export const invalidUserTypeRegistration: AppError = {
+    errorCode: 0x008,
+    description: 'User type invalid.',
+    tip: 'The user has no reference for PJ or PF',
+    example: [
+        `{ 
+            \'isPF\': \'true\'
+        },
+        {
+            \'isPJ\': \'true\'
+        }`
+    ]
+}
+
+/**
  * ERROR - Invalid First Name
  */
 export const invalidFirstName: AppError = {
-    errorCode: 0x008,
+    errorCode: 0x009,
     description: 'First name invalid.',
     tip: 'Check first name field.',
     example: [`
@@ -125,7 +142,7 @@ export const invalidFirstName: AppError = {
  * ERROR - Invalid Last Name
  */
 export const invalidLastName: AppError = {
-    errorCode: 0x009,
+    errorCode: 0x00A,
     description: 'Last name invalid.',
     tip: 'Check last name field.',
     example: [`
@@ -137,7 +154,7 @@ export const invalidLastName: AppError = {
  * ERROR - Invalid CPF
  */
 export const invalidCPF: AppError = {
-    errorCode: 0x010,
+    errorCode: 0x00B,
     description: 'CPF invalid.',
     tip: 'Check cpf field.',
     example: [`
@@ -145,12 +162,11 @@ export const invalidCPF: AppError = {
     `]
 }
 
-
 /**
  * ERROR - Invalid Birthday
  */
 export const invalidBirthday: AppError = {
-    errorCode: 0x00A,
+    errorCode: 0x00C,
     description: 'Birthday invalid.',
     tip: 'Check birthday field.',
     example: [`
@@ -162,7 +178,7 @@ export const invalidBirthday: AppError = {
  * ERROR - Invalid CEP
  */
 export const invalidCEP: AppError = {
-    errorCode: 0x00B,
+    errorCode: 0x00D,
     description: 'CEP invalid.',
     tip: 'Check cep field.',
     example: [`
@@ -174,7 +190,7 @@ export const invalidCEP: AppError = {
  * ERROR - Invalid Address
  */
 export const invalidAddress: AppError = {
-    errorCode: 0x00C,
+    errorCode: 0x00E,
     description: 'Address invalid.',
     tip: 'Check address field.',
     example: [`
@@ -186,7 +202,7 @@ export const invalidAddress: AppError = {
  * ERROR - Invalid City
  */
 export const invalidCity: AppError = {
-    errorCode: 0x00D,
+    errorCode: 0x00F,
     description: 'City invalid.',
     tip: 'Check city field.',
     example: [`
@@ -198,7 +214,7 @@ export const invalidCity: AppError = {
  * ERROR - Invalid Complement
  */
 export const invalidComplement: AppError = {
-    errorCode: 0x00E,
+    errorCode: 0x010,
     description: 'Complement invalid.',
     tip: 'Check complement field.',
     example: [`
@@ -211,7 +227,7 @@ export const invalidComplement: AppError = {
  * ERROR - Invalid District
  */
 export const invalidDistrict: AppError = {
-    errorCode: 0x00F,
+    errorCode: 0x011,
     description: 'District is invalid.',
     tip: 'Check district field.',
     example: [`
@@ -223,7 +239,7 @@ export const invalidDistrict: AppError = {
  * ERROR - Invalid Address Number
  */
 export const invalidAddressNumber: AppError = {
-    errorCode: 0x010,
+    errorCode: 0x012,
     description: 'Address number is invalid.',
     tip: 'Check address number field.',
     example: [`
@@ -235,7 +251,7 @@ export const invalidAddressNumber: AppError = {
  * ERROR - Invalid CNPJ
  */
 export const invalidCNPJ: AppError = {
-    errorCode: 0x011,
+    errorCode: 0x013,
     description: 'CNPJ is invalid.',
     tip: 'Check cnpj field.',
     example: [`
@@ -245,14 +261,38 @@ export const invalidCNPJ: AppError = {
 }
 
 /**
+ * ERROR - Invalid company name
+ */
+export const invalidCompanyName: AppError = {
+    errorCode: 0x014,
+    description: 'Company name is invalid.',
+    tip: 'Check company name field.',
+    example: [`
+          The company name is at least 3 character long.
+    `]
+}
+
+/**
+ * ERROR - Invalid razão social
+ */
+export const invalidRazaoSocial: AppError = {
+    errorCode: 0x015,
+    description: 'Razao Social is invalid.',
+    tip: 'Check razaoSocial field.',
+    example: [`
+         The razao social is at least 1 character long.
+    `]
+}
+
+/**
  * ERROR - Invalid Shop name
  */
 export const invalidShopName: AppError = {
-    errorCode: 0x012,
+    errorCode: 0x016,
     description: 'Shop name is invalid.',
     tip: 'Check name field.',
     example: [`
-        The shop name is at least 2 characters long.
+        The shop name is at least 3 characters long.
     `]
 }
 
@@ -260,7 +300,7 @@ export const invalidShopName: AppError = {
  * ERROR - Invalid Bank Code
  */
 export const invalidBankCode: AppError = {
-    errorCode: 0x013,
+    errorCode: 0x017,
     description: 'Bank Code is invalid.',
     tip: 'Check bank field.',
     example: [`
@@ -272,7 +312,7 @@ export const invalidBankCode: AppError = {
  * ERROR - Invalid Account
  */
 export const invalidAccount: AppError = {
-    errorCode: 0x014,
+    errorCode: 0x018,
     description: 'Account is invalid.',
     tip: 'Check account field.',
     example: [`
@@ -284,7 +324,7 @@ export const invalidAccount: AppError = {
  * ERROR - Invalid Agency Number
  */
 export const invalidAgency: AppError = {
-    errorCode: 0x015,
+    errorCode: 0x019,
     description: 'Agency is invalid.',
     tip: 'Check agency field.',
     example: [`
@@ -292,12 +332,23 @@ export const invalidAgency: AppError = {
     `]
 }
 
+/**
+ * ERROR - Invalid cell phone
+ */
+export const invalidCellphone: AppError = {
+    errorCode: 0x01A,
+    description: 'Cellphone is invalid.',
+    tip: 'Check cellphone field.',
+    example: [`
+        The cellphone is at least 9 characters long.
+    `]
+}
 
 /**
  * ERROR - Invalid Product
  */
 export const invalidProduct: AppError = {
-    errorCode: 0x016,
+    errorCode: 0x01B,
     description: 'Product is invalid.',
     tip: 'Check your form.',
     example: [`
