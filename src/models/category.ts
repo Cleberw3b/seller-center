@@ -68,7 +68,7 @@ export const CATEGORIES: Category[] = [
 
 ]
 
-export const sub_categories_accessory: SubCategory[] = [
+export const subcategories_accessory: SubCategory[] = [
     {
         categoryCode: 281,
         code: 290,
@@ -131,7 +131,7 @@ export const sub_categories_accessory: SubCategory[] = [
     }
 ]
 
-export const sub_categories_beachwear: SubCategory[] = [
+export const subcategories_beachwear: SubCategory[] = [
     {
         categoryCode: 282,
         code: 303,
@@ -154,7 +154,7 @@ export const sub_categories_beachwear: SubCategory[] = [
     },
 ]
 
-export const sub_categories_calcados: SubCategory[] = [
+export const subcategories_calcados: SubCategory[] = [
     {
         categoryCode: 283,
         code: 402,
@@ -227,7 +227,7 @@ export const sub_categories_calcados: SubCategory[] = [
     },
 ]
 
-export const sub_categories_underwear: SubCategory[] = [
+export const subcategories_underwear: SubCategory[] = [
     {
         categoryCode: 284,
         code: 305,
@@ -245,7 +245,7 @@ export const sub_categories_underwear: SubCategory[] = [
     },
 ]
 
-export const sub_categories_fitness: SubCategory[] = [
+export const subcategories_fitness: SubCategory[] = [
     {
         categoryCode: 285,
         code: 307,
@@ -278,7 +278,7 @@ export const sub_categories_fitness: SubCategory[] = [
     },
 ]
 
-export const sub_categories_roupas: SubCategory[] = [
+export const subcategories_roupas: SubCategory[] = [
     {
         categoryCode: 286,
         code: 405,
@@ -371,7 +371,7 @@ export const sub_categories_roupas: SubCategory[] = [
     },
 ]
 
-export const sub_categories_home: SubCategory[] = [
+export const subcategories_home: SubCategory[] = [
     {
         categoryCode: 288,
         code: 334,
@@ -389,7 +389,7 @@ export const sub_categories_home: SubCategory[] = [
     },
 ]
 
-export const sub_categories_beauty: SubCategory[] = [
+export const subcategories_beauty: SubCategory[] = [
     {
         categoryCode: 289,
         code: 337,
@@ -417,7 +417,7 @@ export const sub_categories_beauty: SubCategory[] = [
     },
 ]
 
-export const sub_categories_kids_teen: SubCategory[] = [
+export const subcategories_kids_teen: SubCategory[] = [
     // {
     //     categoryCode: 407,
     //     code: 1,
@@ -425,7 +425,7 @@ export const sub_categories_kids_teen: SubCategory[] = [
     // },
 ]
 
-export const sub_categories_joias: SubCategory[] = [
+export const subcategories_joias: SubCategory[] = [
     {
         categoryCode: 426,
         code: 291,
@@ -453,7 +453,7 @@ export const sub_categories_joias: SubCategory[] = [
     },
 ]
 
-export const sub_categories_superfood: SubCategory[] = [
+export const subcategories_superfood: SubCategory[] = [
     // {
     //     categoryCode: 443,
     //     code: 1,
@@ -461,7 +461,7 @@ export const sub_categories_superfood: SubCategory[] = [
     // },
 ]
 
-export const sub_categories_masculino: SubCategory[] = [
+export const subcategories_masculino: SubCategory[] = [
     {
         categoryCode: 446,
         code: 448,
@@ -474,7 +474,7 @@ export const sub_categories_masculino: SubCategory[] = [
     },
 ]
 
-export const sub_categories_moda_pet: SubCategory[] = [
+export const subcategories_moda_pet: SubCategory[] = [
     // {
     //     categoryCode: 449,
     //     code: 1,
@@ -482,18 +482,18 @@ export const sub_categories_moda_pet: SubCategory[] = [
     // },
 ]
 
-export const SUB_CATEGORIES: SubCategory[] = [
-    ...sub_categories_accessory,
-    ...sub_categories_beachwear,
-    ...sub_categories_calcados,
-    ...sub_categories_underwear,
-    ...sub_categories_fitness,
-    ...sub_categories_roupas,
-    ...sub_categories_home,
-    ...sub_categories_beauty,
-    ...sub_categories_kids_teen,
-    ...sub_categories_joias,
-    ...sub_categories_superfood,
-    ...sub_categories_masculino,
-    ...sub_categories_moda_pet
+export const SUBCATEGORIES: SubCategory[] = [
+    ...subcategories_accessory,
+    ...subcategories_beachwear,
+    ...subcategories_calcados,
+    ...subcategories_underwear,
+    ...subcategories_fitness,
+    ...subcategories_roupas,
+    ...subcategories_home,
+    ...subcategories_beauty,
+    ...subcategories_kids_teen,
+    ...subcategories_joias,
+    ...subcategories_superfood,
+    ...subcategories_masculino,
+    ...subcategories_moda_pet
 ]

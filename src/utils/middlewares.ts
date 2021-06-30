@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { findUserById } from '../repositories/userRepository'
 import { findShop } from '../services/accountService'
 import { findById } from '../services/userService'
-import { decodeJWT, isTokenValid } from './cryptUtil'
+import { decodeJWT, isJWTTokenValid } from './cryptUtil'
 import { notFound, createHttpStatus, HttpStatusResponse, unauthorized, internalServerError } from './httpStatus'
 import { logger, log } from './loggerUtil'
 
@@ -63,7 +63,7 @@ export const authMiddleware = async ( req: Request, res: Response, next: NextFun
     const token = req.headers.authorization
 
     // Catch the JWT Expired or Invalid errors
-    if ( !token || !isTokenValid( token ) )
+    if ( !token || !isJWTTokenValid( token ) )
         return next( createHttpStatus( unauthorized ) )
 
     const userDecoded = decodeJWT( token )

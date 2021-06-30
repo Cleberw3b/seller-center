@@ -2,7 +2,11 @@
 //     Product Validation
 //
 
-import { AppError, invalidProduct } from "../utils/errors/errors"
+import { COLORS } from "../models/color"
+import { SIZES } from "../models/size"
+import { findProductById, findVariationById } from "../repositories/productRepository"
+import { AppError, invalidCategory, invalidEAN, invalidImageReference, invalidNationality, invalidProductBrand, invalidProductDescription, invalidProductGender, invalidProductName, invalidProductReference, invalidProductVariations, invalidSKU, invalidSubCategory, invalidVariationColor, invalidVariationHeight, invalidVariationLength, invalidVariationPrice, invalidVariationPriceDiscounted, invalidVariationReference, invalidVariationReferenceToProduct, invalidVariationSize, invalidVariationStock, invalidVariationWeight, invalidVariationWidth } from "../utils/errors/errors"
+import { isNegativeNumber, isNotNumber } from "../utils/util"
 
 /**
  * Verifies if the product is valid
@@ -14,50 +18,56 @@ export const isProductValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
-    if ( body.images && !Array.isArray( body.images ) ) errors.push( invalidProduct )
+    if ( body.images && !Array.isArray( body.images ) ) errors.push( invalidImageReference )
 
-    if ( !body.category ) errors.push( invalidProduct )
+    if ( !body.category ) errors.push( invalidCategory )
 
-    if ( !body.subCategory ) errors.push( invalidProduct )
+    if ( !body.subcategory ) errors.push( invalidSubCategory )
 
-    if ( !body.nationality ) errors.push( invalidProduct )
+    if ( !body.nationality ) errors.push( invalidNationality )
 
-    if ( !body.name ) errors.push( invalidProduct )
+    if ( !body.name || body.name.length < 2 ) errors.push( invalidProductName )
 
-    if ( !body.description ) errors.push( invalidProduct )
+    if ( !body.description || body.description.length < 2 ) errors.push( invalidProductDescription )
 
-    if ( !body.brand ) errors.push( invalidProduct )
+    if ( !body.brand || body.brand.length < 2 ) errors.push( invalidProductBrand )
 
-    if ( !body.ean ) errors.push( invalidProduct )
+    if ( body.ean && body.ean.length < 2 ) errors.push( invalidEAN )
 
-    if ( !body.sku ) errors.push( invalidProduct )
+    if ( !body.sku || body.sku.length < 2 ) errors.push( invalidSKU )
 
-    if ( !body.gender ) errors.push( invalidProduct )
+    if ( !body.gender || ( body.gender !== 'M' && body.gender !== 'F' && body.gender !== 'U' ) ) errors.push( invalidProductGender )
 
-    if ( !body.height ) errors.push( invalidProduct )
+    if ( !body.height || isNotNumber( body.height ) || isNegativeNumber( body.height ) ) errors.push( invalidVariationHeight )
 
-    if ( !body.width ) errors.push( invalidProduct )
+    if ( !body.width || isNotNumber( body.width ) || isNegativeNumber( body.width ) ) errors.push( invalidVariationWidth )
 
-    if ( !body.length ) errors.push( invalidProduct )
+    if ( !body.length || isNotNumber( body.length ) || isNegativeNumber( body.length ) ) errors.push( invalidVariationLength )
 
-    if ( !body.weight ) errors.push( invalidProduct )
+    if ( !body.weight || isNotNumber( body.weight ) || isNegativeNumber( body.weight ) ) errors.push( invalidVariationWeight )
 
-    if ( !body.price ) errors.push( invalidProduct )
+    if ( !body.price || isNotNumber( body.price ) || isNegativeNumber( body.price ) ) errors.push( invalidVariationPrice )
 
-    if ( !body.price_discounted ) errors.push( invalidProduct )
+    if ( !body.price_discounted || isNotNumber( body.price_discounted ) || isNegativeNumber( body.price_discounted ) ) errors.push( invalidVariationPriceDiscounted )
 
-    if ( !body.variations || !Array.isArray( body.variations ) ) errors.push( invalidProduct )
+    if ( !body.variations || !Array.isArray( body.variations ) ) errors.push( invalidProductVariations )
     else {
         body.variations.forEach( ( variation: any ) => {
-            if ( !variation.size ) errors.push( invalidProduct )
-            if ( !variation.stock ) errors.push( invalidProduct )
-            if ( !variation.color ) errors.push( invalidProduct )
+
+            const isSizeValid = SIZES.some( size => size === variation.size )
+
+            const isColorValid = COLORS.some( color => color === variation.color )
+
+            if ( variation.size && !isSizeValid ) errors.push( invalidVariationSize )
+
+            if ( !variation.stock || isNotNumber( variation.stock ) || isNegativeNumber( variation.stock ) ) errors.push( invalidVariationStock )
+
+            if ( variation.color && !isColorValid ) errors.push( invalidVariationColor )
         } )
     }
 
     return errors
 }
-
 
 /**
  * Verifies if the product can be patched
@@ -69,11 +79,12 @@ export const isProductPatchValid = async ( product_id: any, body: any ): Promise
 
     const errors: AppError[] = []
 
-    if ( !product_id ) errors.push( invalidProduct )
+    if ( !product_id ) errors.push( invalidProductReference )
+
+    if ( !await findProductById( product_id ) ) errors.push( invalidProductReference )
 
     return errors
 }
-
 
 /**
  * Verifies if the variation can be patched
@@ -85,10 +96,19 @@ export const isVariationPatchValid = async ( product_id: any, variation_id: any,
 
     const errors: AppError[] = []
 
-    if ( !product_id ) errors.push( invalidProduct )
+    if ( !product_id ) errors.push( invalidProductReference )
 
-    if ( !variation_id ) errors.push( invalidProduct )
+    if ( !variation_id ) errors.push( invalidVariationReference )
 
+    const product = await findProductById( product_id )
+
+    if ( !product ) errors.push( invalidProductReference )
+
+    const variation = await findVariationById( variation_id )
+
+    if ( !variation ) errors.push( invalidVariationReference )
+
+    if ( !variation?.product_id.equals( product?._id ) ) errors.push( invalidVariationReferenceToProduct )
 
     return errors
 }

@@ -152,9 +152,9 @@ export const findProductById = async ( productId: string ): Promise<Product | nu
  * 
  * @param shopId
  */
-export const findProductsByShopId = async ( shopId: string ): Promise<Product[] | null> => {
+export const findProductsByShopId = async ( shop_id: string ): Promise<Product[] | null> => {
 
-    const query = { shopId }
+    const query = { shop_id }
 
     try {
 
@@ -172,7 +172,7 @@ export const findProductsByShopId = async ( shopId: string ): Promise<Product[] 
             { $sort: { _id: -1 } }
         ] )
 
-        if ( !productsCursor ) throw new MongoError( "Could not retrieve product." )
+        if ( !productsCursor ) throw new MongoError( "Could not retrieve products." )
 
         const products = await productsCursor.toArray()
 

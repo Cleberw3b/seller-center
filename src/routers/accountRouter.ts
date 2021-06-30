@@ -153,6 +153,16 @@ router.post( '/contact', async ( req: Request, res: Response, next: NextFunction
 /**
  * GET -> Account Details
  */
+router.get( '/decode', async ( req: Request, res: Response, next: NextFunction ) => {
+
+    return res
+        .status( ok.status )
+        .send( req.user )
+} )
+
+/**
+ * GET -> Account Details
+ */
 router.get( '/detail', async ( req: Request, res: Response, next: NextFunction ) => {
 
     const account = await getAccount( req.user?._id )

@@ -20,7 +20,7 @@ router.get( '/all', async ( req: Request, res: Response, next: NextFunction ) =>
 /**
  * GET -> lista de sub categorias
  */
-router.get( '/:category_code/subcategory', async ( req: Request, res: Response, next: NextFunction ) => {
+router.get( '/:category_code/subcategories', async ( req: Request, res: Response, next: NextFunction ) => {
 
     const category_code = parseInt( req.params.category_code )
 

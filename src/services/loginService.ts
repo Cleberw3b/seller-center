@@ -3,10 +3,11 @@
 //
 
 import { User } from "../models/user"
-import { comparePassword, getToken, hashPassword } from "../utils/cryptUtil"
+import { comparePassword, getToken } from "../utils/cryptUtil"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
-import { findUser, findUserByEmail } from "./userService"
+import { sendEmailToResetPassword } from "./mailService"
+import { findUser } from "./userService"
 
 export const loginUser = async ( user: User ) => {
 
@@ -15,7 +16,6 @@ export const loginUser = async ( user: User ) => {
     const auth = true
 
     return { auth, token }
-
 }
 
 /**
@@ -42,19 +42,16 @@ export const isUserLoginValid = async ( email: string, username: string, passwor
     return user
 }
 
-
 /**
  * forgetPassword
  *
  * @param email - 
  */
-export const forgetPassword = async ( email: string ): Promise<boolean> => {
-
-    const user = findUserByEmail( email )
+export const forgetPassword = async ( user: User ): Promise<boolean> => {
 
     if ( !user ) return false
 
-    // TODO -> Generate token and send email
+    const result = await sendEmailToResetPassword( user )
 
-    return false
+    return result ? true : false
 }

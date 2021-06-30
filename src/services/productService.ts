@@ -5,7 +5,7 @@
 import { Product } from "../models/product"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
-import { createNewProduct, findProductById, findProductsByShopId, updateProductById } from "../repositories/productRepository"
+import { createNewProduct, findProductById, findProductsByShopId, updateProductById, updateVariationById } from "../repositories/productRepository"
 import { criarProdutoHub2b } from "./hub2b"
 
 /**
@@ -18,7 +18,7 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
     const {
         images,
         category,
-        subCategory,
+        subcategory,
         nationality,
         name,
         description,
@@ -36,13 +36,13 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
         variations
     } = body
 
-    const shopId = body.shop
+    const shop_id = body.shop
 
     const refProduct: Product = {
-        shopId,
+        shop_id,
         images,
         category,
-        subCategory,
+        subcategory,
         nationality,
         name,
         description,
@@ -57,7 +57,7 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
         weight,
         price,
         price_discounted,
-        isActive: true
+        is_active: true
     }
 
     const product = await createNewProduct( refProduct, variations )
@@ -104,16 +104,32 @@ export const findProductsByShop = async ( shopId: any ): Promise<Product[] | nul
     return products
 }
 
-
-
 /**
- * Find all products for a given shop id
+ * Update a product by its ID
  *
- * @param shopId - shopId
+ * @param _id - product id
  */
 export const updateProduct = async ( _id: any, patch: any ): Promise<Product | null> => {
 
     const products = await updateProductById( _id, patch )
+
+    products
+        ? log( `Update product ${ _id }`, 'EVENT', getFunctionName() )
+        : log( `Could not update product`, 'EVENT', getFunctionName() )
+
+    return products
+}
+
+
+
+/**
+ * Update a variation of product by its ID
+ *
+ * @param _id - variation id
+ */
+export const updateProductVariation = async ( _id: any, patch: any ): Promise<Product | null> => {
+
+    const products = await updateVariationById( _id, patch )
 
     products
         ? log( `Update product ${ _id }`, 'EVENT', getFunctionName() )

@@ -32,9 +32,21 @@ export const createOrUpdatePersonalInfo = async ( personalInfo: PersonalInfo ): 
 
         const result = await personalInfoColletion.findOneAndReplace( query, replacement, options )
 
-        if ( !result.value ) return null
+        if ( !result.ok ) throw new MongoError( "Erro ao salvar no banco de dados." )
 
-        return await findPersonalInfoByUserID( result.value.userId )
+        let id: ObjectID | null = null
+
+        if ( result.lastErrorObject?.upserted )
+            id = result.lastErrorObject?.upserted
+
+        if ( result.ok )
+            return await findPersonalInfoByUserID( personalInfo.userId )
+
+        if ( !id ) throw new MongoError( "Não gerou id" )
+
+        personalInfo._id = id
+
+        return personalInfo
 
     } catch ( error ) {
         if ( error instanceof MongoError )

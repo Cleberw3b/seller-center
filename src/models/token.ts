@@ -4,7 +4,7 @@
 
 export type token = string
 
-export interface ActivationToken {
+export interface AccessToken {
     _id?: any,
     token: token,
     expires_at: number,

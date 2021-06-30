@@ -138,7 +138,7 @@ export const criarProdutoHub2b = async ( produto: Product | null ) => {
                 warrantyMonths: 30,
                 handlingTime: 2,
                 stock: `${ variation.stock }`,
-                weightKg: `${ produto.weight }`,
+                weightKg: `${ produto.weight * 1000 }`,
                 url: `https://seller-center.ozllo.com.br/product/${ produto._id }`,
                 sourceId: produto._id,
                 categoryCode: `${ produto.category }`,

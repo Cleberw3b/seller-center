@@ -27,7 +27,7 @@ export const getToken = ( data: any ): string => {
     return jwt.sign( { data }, SECRET, jwtConfig )
 }
 
-export const isTokenValid = ( token: string | undefined ): boolean => {
+export const isJWTTokenValid = ( token: string | undefined ): boolean => {
 
     if ( !token ) return false
 

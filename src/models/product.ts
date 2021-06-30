@@ -1,31 +1,32 @@
 export interface Product {
     _id?: any,
-    shopId: any,
+    shop_id: any,
     images: string[],
     category: number,
-    subCategory: number,
+    subcategory: number,
     nationality: number,
     name: string,
-    description: string,
     brand: string,
-    more_info: string,
-    ean: string,
-    sku: string,
     gender: 'M' | 'F' | 'U',
+    description: string,
+    more_info: string,
     height: number,
     width: number,
     length: number,
     weight: number,
     price: number,
     price_discounted: number,
+    ean: string,
+    sku: string,
     variations?: Variation[] | null,
-    isActive: boolean
+    is_active: boolean
 }
 
 export interface Variation {
     _id?: any,
-    product_id: any,
-    size: string,
+    product_id?: any,
+    size?: string | null,
+    voltage?: string | null,
     stock: number,
-    color: string
+    color?: string,
 }

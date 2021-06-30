@@ -8,7 +8,7 @@ import { hashPassword } from "../utils/cryptUtil"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 import { sendEmailToActiveAccount } from "./mailService"
-import { deleteActivationToken, isTokenValid } from "./tokenService"
+import { removeAccessToken, isTokenValid } from "./tokenService"
 
 /**
  * Save a new user and creates account
@@ -148,7 +148,7 @@ export const activateUser = async ( token: string ): Promise<User | null> => {
 
     if ( !user ) return null
 
-    deleteActivationToken( token )
+    removeAccessToken( token )
 
     user.isActive = true
 

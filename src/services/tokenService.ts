@@ -3,8 +3,8 @@
 //
 
 import { User } from "../models/user"
-import { ActivationToken } from "../models/token"
-import { createNewActivationToken, deleteToken, findActivationTokenByToken } from "../repositories/tokenRepository"
+import { AccessToken } from "../models/token"
+import { createAccessToken, deleteAccessToken, findAccessTokenByToken, retrieveAllAccessToken } from "../repositories/tokenRepository"
 import { log } from "../utils/loggerUtil"
 import { create_UUID, getFunctionName, nowInSeconds } from "../utils/util"
 
@@ -13,7 +13,7 @@ import { create_UUID, getFunctionName, nowInSeconds } from "../utils/util"
  * 
  * @param user  `User`
  */
-export const generateNewActivationToken = async ( user: User ): Promise<ActivationToken | null> => {
+export const generateAccessToken = async ( user: User ): Promise<AccessToken | null> => {
 
     const expiration = nowInSeconds() + 86400
 
@@ -24,13 +24,13 @@ export const generateNewActivationToken = async ( user: User ): Promise<Activati
         return null
     }
 
-    const activationToken: ActivationToken = {
+    const activationToken: AccessToken = {
         token,
         user_id: user._id,
         expires_at: expiration
     }
 
-    const generatedToken = await createNewActivationToken( activationToken )
+    const generatedToken = await createAccessToken( activationToken )
 
     generatedToken
         ? log( `New activation token generated for ${ user.email } `, 'EVENT', getFunctionName() )
@@ -39,9 +39,9 @@ export const generateNewActivationToken = async ( user: User ): Promise<Activati
     return generatedToken
 }
 
-export const deleteActivationToken = async ( token: string ): Promise<boolean | null> => {
+export const removeAccessToken = async ( token: string ): Promise<boolean | null> => {
 
-    const deletedToken = await deleteToken( token )
+    const deletedToken = await deleteAccessToken( token )
 
     deletedToken
         ? log( `Token ${ token } deleted.`, 'EVENT', getFunctionName() )
@@ -51,11 +51,11 @@ export const deleteActivationToken = async ( token: string ): Promise<boolean | 
 }
 
 
-export const isTokenValid = async ( token: string ): Promise<ActivationToken | null> => {
+export const isTokenValid = async ( token: string ): Promise<AccessToken | null> => {
 
     if ( !token ) return null
 
-    const activateToken = await findActivationTokenByToken( token )
+    const activateToken = await findAccessTokenByToken( token )
 
     if ( !activateToken ) return null
 
@@ -64,3 +64,16 @@ export const isTokenValid = async ( token: string ): Promise<ActivationToken | n
     return activateToken
 
 }
+
+export const deleteAllInvalid = async () => {
+
+    const tokens = await retrieveAllAccessToken()
+
+    if ( !tokens ) return
+
+    tokens.forEach( token => {
+        if ( !isTokenValid( token.token ) ) deleteAccessToken( token.token )
+    } )
+}
+
+setTimeout( deleteAllInvalid, 2 * 60 * 1000 )

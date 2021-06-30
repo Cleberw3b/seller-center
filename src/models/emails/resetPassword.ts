@@ -1,6 +1,6 @@
-import { User } from "./user"
+import { User } from "../user"
 
-export const activationEmailContent = ( user: User, activationUrl: string ) => `
+export const resetPasswordContent = ( user: User, activationUrl: string ) => `
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -85,12 +85,12 @@ export const activationEmailContent = ( user: User, activationUrl: string ) => `
                                                                             <tbody>
                                                                                 <tr>
                                                                                     <td align="center" class="esd-block-text es-p10b">
-                                                                                        <h1>Bem vindo(a) <a style="text-decoration: none; color: #333333;">${ user.email }</a></h1>
+                                                                                        <h1>Reset sua senha <a style="text-decoration: none; color: #333333;">${ user.email }</a></h1>
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <td align="center" class="esd-block-text es-p10t es-p10b">
-                                                                                        <p>Para ativar sua conta acesse o link <a href="${ activationUrl }" target="_blank">${ activationUrl }</a></p>
+                                                                                        <p>Para criar uma nova senha acesse o link <a href="${ activationUrl }" target="_blank">${ activationUrl }</a></p>
                                                                                     </td>
                                                                                 </tr>
                                                                             </tbody>

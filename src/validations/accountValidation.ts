@@ -4,7 +4,7 @@
 
 import { isBankCodeValid } from "../models/listaBancosBR"
 import { findUserById } from "../repositories/userRepository"
-import { AppError, invalidAccount, invalidAddress, invalidAddressNumber, invalidAgency, invalidBankCode, invalidBirthday, invalidCEP, invalidCity, invalidCNPJ, invalidComplement, invalidCPF, invalidDistrict, invalidFirstName, invalidLastName, invalidUserReference } from "../utils/errors/errors"
+import { AppError, invalidAccount, invalidAddress, invalidAddressNumber, invalidAgency, invalidBankCode, invalidBirthday, invalidCellphone, invalidCEP, invalidCity, invalidCNPJ, invalidCompanyName, invalidComplement, invalidCPF, invalidDistrict, invalidFirstName, invalidLastName, invalidRazaoSocial, invalidShopName, invalidUserReference, invalidUserTypeRegistration } from "../utils/errors/errors"
 import { isCNPJValid, isCPFValid, isDateValid } from "../utils/util"
 
 /**
@@ -15,11 +15,11 @@ import { isCNPJValid, isCPFValid, isDateValid } from "../utils/util"
  */
 export const isPersonalInfoValid = async ( body: any ): Promise<AppError[]> => {
 
-    if ( !body.isPF && !body.isPJ ) return [invalidUserReference]
+    if ( !body.isPF && !body.isPJ ) return [invalidUserTypeRegistration]
 
     if ( body.isPF ) return isPFValid( body )
 
-    else if ( body.isPJ ) return isPJValid( body )
+    if ( body.isPJ ) return isPJValid( body )
 
     return []
 
@@ -58,9 +58,9 @@ export const isPJValid = async ( body: any ): Promise<AppError[]> => {
 
     if ( !body.cnpj || !isCNPJValid( body.cnpj ) ) errors.push( invalidCNPJ )
 
-    if ( !body.name || body.name.length < 2 ) errors.push( invalidCNPJ )
+    if ( !body.name || body.name.length < 3 ) errors.push( invalidCompanyName )
 
-    if ( !body.razaoSocial || body.razaoSocial.length < 2 ) errors.push( invalidCNPJ )
+    if ( !body.razaoSocial || body.razaoSocial.length < 1 ) errors.push( invalidRazaoSocial )
 
     return errors
 }
@@ -100,7 +100,7 @@ export const isShopInfoValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
-    if ( !body.userId || !await findUserById( body.userId ) ) errors.push( invalidUserReference )
+    if ( !body.name || body.name.length < 3 ) errors.push( invalidShopName )
 
     return errors
 }
@@ -134,7 +134,7 @@ export const isContactValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
-    if ( !body.phone || body.phone.length < 2 ) errors.push( invalidUserReference )
+    if ( !body.phone || body.phone.length < 9 ) errors.push( invalidCellphone )
 
     return errors
 }

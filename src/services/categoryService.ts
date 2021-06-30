@@ -2,17 +2,13 @@
 //      Token Service
 //
 
-import { User } from "../models/user"
-import { ActivationToken } from "../models/token"
-import { createNewActivationToken, deleteToken, findActivationTokenByToken } from "../repositories/tokenRepository"
 import { log } from "../utils/loggerUtil"
-import { create_UUID, getFunctionName, nowInSeconds } from "../utils/util"
-import { CATEGORIES, Category, SUB_CATEGORIES } from "../models/category"
+import { getFunctionName } from "../utils/util"
+import { CATEGORIES, Category, SUBCATEGORIES } from "../models/category"
 
 /**
  * List category
  * 
- * @param user  `User`
  */
 export const getAllCategories = async (): Promise<Category[]> => {
 
@@ -28,15 +24,48 @@ export const getAllCategories = async (): Promise<Category[]> => {
 /**
  * List subcategories from category
  * 
- * @param user  `User`
+ * @param category_code  `category_code`
  */
 export const getAllSubCategories = async ( category_code: number ): Promise<Category[]> => {
 
-    const sub_categories = SUB_CATEGORIES.filter( sub_category => sub_category.categoryCode === category_code )
+    const subcategories = SUBCATEGORIES.filter( subcategory => subcategory.categoryCode === category_code )
 
-    sub_categories
+    subcategories
         ? log( `Listing sub categories`, 'EVENT', getFunctionName() )
         : log( `Could not retrieve sub category list.`, 'EVENT', getFunctionName(), 'ERROR' )
 
-    return sub_categories
+    return subcategories
+}
+
+/**
+ * Retrieve a category that has the same code
+ * 
+ * @param code  `code`
+ */
+export const getCategory = async ( code: number ): Promise<Category[]> => {
+
+    const category = CATEGORIES.filter( category => category.code === code )
+
+    category
+        ? log( `Category ${ category } found`, 'EVENT', getFunctionName() )
+        : log( `Could not retrieve category.`, 'EVENT', getFunctionName(), 'ERROR' )
+
+    return category
+}
+
+
+/**
+ * Retrieve a subcategory that has the same code
+ * 
+ * @param code  `code`
+ */
+export const getSubCategory = async ( code: number ): Promise<Category[]> => {
+
+    const subcategory = SUBCATEGORIES.filter( subcategory => subcategory.code === code )
+
+    subcategory
+        ? log( `Subcategory ${ subcategory } found`, 'EVENT', getFunctionName() )
+        : log( `Could not retrieve subcategory.`, 'EVENT', getFunctionName(), 'ERROR' )
+
+    return subcategory
 }

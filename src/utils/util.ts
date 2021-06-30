@@ -41,7 +41,6 @@ export const formatDate = ( timestamp: number ) => {
     return day + '-' + month + '-' + year
 }
 
-
 /**
  * Verifies whether a password is secure or not
  * 
@@ -66,6 +65,19 @@ export const isEmailValid = ( email: string ) => {
     const validEmailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 
     return validEmailRegex.test( email )
+}
+
+/**
+ * Verifies whether the string has image format
+ * 
+ * @param image_name
+ * @returns `true` or `false`
+ */
+export const isImageValid = ( image_name: string ) => {
+
+    const validImageRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/g
+
+    return validImageRegex.test( image_name )
 }
 
 /**
@@ -183,4 +195,12 @@ export const parseDate = ( date: string ) => {
             log( error.message, 'EVENT', getFunctionName(), 'ERROR' )
         return null
     }
+}
+
+export const isNotNumber = ( value: any ) => {
+    return isNaN( parseFloat( value ) )
+}
+
+export const isNegativeNumber = ( value: number ) => {
+    return value < 0
 }

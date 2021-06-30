@@ -3,7 +3,7 @@
 //
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { createProduct, findProduct, findProductsByShop, updateProduct } from '../services/productService'
+import { createProduct, findProduct, findProductsByShop, updateProduct, updateProductVariation } from '../services/productService'
 import { uploadProductPicture } from '../services/uploadService'
 import { badRequest, createHttpStatus, internalServerError, noContent, notFound, ok } from '../utils/httpStatus'
 import { isProductPatchValid, isProductValid, isVariationPatchValid } from '../validations/productValidation'
@@ -17,10 +17,8 @@ const uploadMultiple = uploadProductPicture.array( 'images', 10 )
 router.post( '/upload', async ( req, res, next ) => {
 
     uploadMultiple( req, res, err => {
-        if ( err ) {
-            console.log( "UPLOAD ERROR", err )
-            next( createHttpStatus( internalServerError, err ) )
-        }
+
+        if ( err ) next( createHttpStatus( internalServerError, err ) )
 
         const filesLocation: string[] = []
 
@@ -94,7 +92,7 @@ router.patch( '/:product_id', async ( req: Request, res: Response, next: NextFun
 
 
 /**
- * PATCH -> atualiza produto
+ * PATCH -> atualiza variação do produto
  */
 router.patch( '/:product_id/variation/:variation_id', async ( req: Request, res: Response, next: NextFunction ) => {
 
@@ -111,7 +109,7 @@ router.patch( '/:product_id/variation/:variation_id', async ( req: Request, res:
             .status( badRequest.status )
             .send( createHttpStatus( badRequest, errors ) )
 
-    const product = await updateProduct( product_id, body )
+    const product = await updateProductVariation( variation_id, body )
 
     if ( !product )
         return res

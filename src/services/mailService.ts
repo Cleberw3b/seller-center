@@ -5,10 +5,11 @@
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 import nodemailer from "nodemailer"
-import { DEFAULT_PORT, EMAIL_PASSWORD, FRONT_END_URL, PROJECT_EMAIL, PROJECT_HOST, PROJECT_NAME } from "../utils/consts"
-import { activationEmailContent } from "../models/activationEmail"
+import { EMAIL_PASSWORD, FRONT_END_URL, PROJECT_EMAIL, PROJECT_NAME } from "../utils/consts"
+import { activationEmailContent } from "../models/emails/activationEmail"
 import { User } from "../models/user"
-import { generateNewActivationToken } from "./tokenService"
+import { generateAccessToken } from "./tokenService"
+import { resetPasswordContent } from "../models/emails/resetPassword"
 
 const transporter = nodemailer.createTransport( {
     service: 'gmail',
@@ -51,7 +52,7 @@ export const sendEmailToActiveAccount = async ( user: User ): Promise<void> => {
 
     const uri = FRONT_END_URL + PATH
 
-    const activationToken = await generateNewActivationToken( user )
+    const activationToken = await generateAccessToken( user )
 
     if ( !activationToken || !activationToken.token ) {
         log( `Could not send activation email to ${ user.email }`, 'EVENT', getFunctionName(), 'ERROR' )
@@ -65,4 +66,28 @@ export const sendEmailToActiveAccount = async ( user: User ): Promise<void> => {
     result
         ? log( `Activation email sent to ${ user.email }`, 'EVENT', getFunctionName() )
         : log( `Could not send activation email to ${ user.email }`, 'EVENT', getFunctionName(), 'ERROR' )
+}
+
+export const sendEmailToResetPassword = async ( user: User ): Promise<any> => {
+
+    const PATH = '/resetPassword/'
+
+    const uri = FRONT_END_URL + PATH
+
+    const activationToken = await generateAccessToken( user )
+
+    if ( !activationToken || !activationToken.token ) {
+        log( `Could not send activation email to ${ user.email }`, 'EVENT', getFunctionName(), 'ERROR' )
+        return
+    }
+
+    const content = resetPasswordContent( user, uri + activationToken.token )
+
+    const result = await sendEmail( user.email, 'Reset seu password', content )
+
+    result
+        ? log( `Reset password email sent to ${ user.email }`, 'EVENT', getFunctionName() )
+        : log( `Could not send email to ${ user.email }`, 'EVENT', getFunctionName(), 'ERROR' )
+
+    return result
 }

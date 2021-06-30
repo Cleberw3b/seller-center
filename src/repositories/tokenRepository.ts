@@ -3,8 +3,8 @@
 //
 
 import { MongoError } from "mongodb"
-import { ActivationToken } from "../models/token"
-import { activationTokenCollection } from "../utils/db/collections"
+import { AccessToken } from "../models/token"
+import { accessTokenCollection } from "../utils/db/collections"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 
@@ -13,10 +13,10 @@ import { getFunctionName } from "../utils/util"
  * 
  * @param activationToken - the token to be saved
  */
-export const createNewActivationToken = async ( activationToken: ActivationToken ): Promise<ActivationToken | null> => {
+export const createAccessToken = async ( activationToken: AccessToken ): Promise<AccessToken | null> => {
     try {
 
-        const result = await activationTokenCollection.insertOne( activationToken )
+        const result = await accessTokenCollection.insertOne( activationToken )
 
         return result.ops[0] ? result.ops[0] : null
 
@@ -32,10 +32,29 @@ export const createNewActivationToken = async ( activationToken: ActivationToken
  * 
  * @param token
  */
-export const findActivationTokenByToken = async ( token: string ): Promise<ActivationToken | null> => {
+export const findAccessTokenByToken = async ( token: string ): Promise<AccessToken | null> => {
     try {
 
-        return await activationTokenCollection.findOne( { token } )
+        return await accessTokenCollection.findOne( { token } )
+
+    } catch ( error ) {
+        if ( error instanceof MongoError )
+            log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+        return null
+    }
+}
+
+/**
+ * Retrieve all access tokens
+ * 
+ * @param token
+ */
+export const retrieveAllAccessToken = async (): Promise<AccessToken[] | null> => {
+    try {
+
+        const result = await accessTokenCollection.find()
+
+        return result.toArray()
 
     } catch ( error ) {
         if ( error instanceof MongoError )
@@ -49,10 +68,10 @@ export const findActivationTokenByToken = async ( token: string ): Promise<Activ
  * 
  * @param token
  */
-export const deleteToken = async ( token: string ): Promise<boolean> => {
+export const deleteAccessToken = async ( token: string ): Promise<boolean> => {
     try {
 
-        const result = await activationTokenCollection.deleteOne( { token } )
+        const result = await accessTokenCollection.deleteOne( { token } )
 
         return result.result.ok === 1
 
