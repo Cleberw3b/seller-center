@@ -1,4 +1,4 @@
-import { criarProdutoHub2b, generateAccessTokenV2 } from "./services/hub2b"
+import { criarProdutoHub2b, generateAccessTokenV2, listOrders } from "./services/hub2b"
 
 /**
  * This function is called when the application starts
@@ -6,4 +6,6 @@ import { criarProdutoHub2b, generateAccessTokenV2 } from "./services/hub2b"
 export const init = async () => {
 
     await generateAccessTokenV2()
+    await listOrders()
+
 }

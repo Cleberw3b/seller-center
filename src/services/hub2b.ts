@@ -3,7 +3,9 @@
 //
 
 import axios from "axios"
+import { HUB2B_Product, productExample } from "../models/hub2b"
 import { Product } from "../models/product"
+import { PROJECT_HOST } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 
@@ -14,7 +16,7 @@ const headers = {
 
 // API v1 -- Integração de produtos e categorias
 const URL_V1 = "https://eb-api.plataformahub.com.br/RestServiceImpl.svc"
-const IdTenant = 2032
+const idTenant = 2032
 const TokenDeAcesso = "EZpH53QWxMPAI09O9fUu"
 const headersV1 = {
     ...headers,
@@ -36,140 +38,102 @@ let credentials = {
     token_type: 'bearer'
 }
 
-const productExample = {
-    "sku": "testeWithTemplate2",
-    "parentSKU": "",
-    "ean13": "6669996669990",
-    "warrantyMonths": 30,
-    "handlingTime": 2,
-    "stock": "7",
-    "weightKg": "5.2",
-    "url": "http://testes.com",
-    "sourceId": "999",
-    "categoryCode": "123",
-    "name": "product testeWithTemplate2 teste 84",
-    "sourceDescription": "product testeWithTemplate2 Base desc",
-    "description": "product testeWithTemplate2",
-    "brand": "marca teste",
-    "videoURL": "http://videourl.com",
-    "ncm": "",
-    "idProductType": 1,
-    "idTypeCondition": 1,
-    "shippingType": "me1;me2",
-    "height_m": "1",
-    "width_m": "0.1",
-    "length_m": "1",
-    "priceBase": "357.64",
-    "priceSale": "357.64",
-    "images": [
-        {
-            "url": "http://www.images.com/teste"
-        }, {
-            "url": "http://www.images.com/2/teste"
-        }
-    ],
-    "specifications": [
-        {
-            "name": "Garantia",
-            "value": "30 dias",
-            "type": 2
-        }, {
-            "name": "Especificações",
-            "value": "é teste!",
-            "type": 2
-        }
-    ]
+export const setupIntegration = async () => {
+
+    const SETUP_URL = URL_V2 + "/Setup/integration"
+
+    const body = {
+        system: "ERPOrdersNotification",
+        idTenant,
+        responsibilities: [
+            {
+                type: "Orders",
+                flow: "HubTo"
+            }
+        ],
+        apiKeys: [
+            {
+                key: "URL_ERPOrdersNotification",
+                value: PROJECT_HOST + "/order"
+            },
+            {
+                key: "authToken_ERPOrdersNotification",
+                value: "Bearer dslfkskdjhfjkhsakdhkjsdavsdn64567sdvjdf"
+            },
+            {
+                key: "AuthKey_ERPOrdersNotification",
+                value: "ApiKey"
+            },
+            {
+                key: "HUB_ID_ERPOrdersNotification",
+                value: "2032"
+            }
+        ]
+    }
+
+    try {
+        const response = await axios.post( SETUP_URL, body, { headers } )
+
+        const setup = response.data
+
+        setup
+            ? log( "Setup realizado com sucesso", "EVENT", getFunctionName() )
+            : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
+
+    } catch ( error ) {
+        if ( error instanceof Error )
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
+        return null
+    }
 }
 
-interface HUB2B_Product {
-    sku: any,
-    parentSKU: string,
-    ean13: string | undefined,
-    warrantyMonths: number,
-    handlingTime: number,
-    stock: string,
-    weightKg: string | undefined,
-    url: string,
-    sourceId: string,
-    categoryCode: string,
-    name: string,
-    sourceDescription: string,
-    description: string,
-    brand: string,
-    videoURL?: string,
-    ncm: string,
-    idProductType: number,
-    idTypeCondition: number,
-    shippingType: string,
-    height_m: string | undefined,
-    width_m: string | undefined,
-    length_m: string | undefined,
-    priceBase: string,
-    priceSale: string,
-    images: {
-        url: string
-    }[],
-    specifications: {
-        name: string,
-        value: string,
-        type: number
-    }[]
-}[]
+export const criarProdutoHub2b = async ( produto: Product ) => {
 
-export const criarProdutoHub2b = async ( produto: Product | null ) => {
-
-
-    const URL = URL_V1 + "/setsku/" + IdTenant
+    const URL = URL_V1 + "/setsku/" + idTenant
 
     let hub2productList: HUB2B_Product[] = []
 
-    if ( produto ) {
+    const imageList = produto.images.map( url => {
+        return { url }
+    } )
 
-        const imageList = produto.images.map( url => {
-            return { url }
-        } )
+    produto.variations?.forEach( variation => {
 
-        produto.variations?.forEach( variation => {
+        const productHub2: HUB2B_Product = {
+            sku: produto._id,
+            parentSKU: produto.sku,
+            ean13: produto.ean,
+            warrantyMonths: 30,
+            handlingTime: 2,
+            stock: `${ variation.stock }`,
+            weightKg: `${ produto.weight * 1000 }`,
+            url: `${ PROJECT_HOST }/product/${ produto._id }`,
+            sourceId: produto._id,
+            categoryCode: `${ produto.category }`,
+            name: produto.name,
+            sourceDescription: produto.description,
+            description: produto.description,
+            brand: produto.brand,
+            videoURL: "",
+            ncm: "",
+            idProductType: 1,
+            idTypeCondition: 1,
+            shippingType: "me1;me2",
+            height_m: `${ produto.height }`,
+            width_m: `${ produto.width }`,
+            length_m: `${ produto.length }`,
+            priceBase: `${ produto.price }`,
+            priceSale: `${ produto.price - ( produto.price_discounted ? produto.price_discounted : 0 ) }`,
+            images: imageList,
+            specifications: [{
+                name: "Garantia",
+                value: "30 dias",
+                type: 2
+            }]
+        }
 
-            const productHub2: HUB2B_Product = {
-                sku: produto._id,
-                parentSKU: produto.sku,
-                ean13: produto.ean,
-                warrantyMonths: 30,
-                handlingTime: 2,
-                stock: `${ variation.stock }`,
-                weightKg: `${ produto.weight * 1000 }`,
-                url: `https://seller-center.ozllo.com.br/product/${ produto._id }`,
-                sourceId: produto._id,
-                categoryCode: `${ produto.category }`,
-                name: produto.name,
-                sourceDescription: produto.description,
-                description: produto.description,
-                brand: produto.brand,
-                videoURL: "",
-                ncm: "",
-                idProductType: 1.,
-                idTypeCondition: 1,
-                shippingType: "me1;me2",
-                height_m: `${ produto.height }`,
-                width_m: `${ produto.width }`,
-                length_m: `${ produto.length }`,
-                priceBase: `${ produto.price }`,
-                priceSale: `${ produto.price - ( produto.price_discounted ? produto.price_discounted : 0 ) }`,
-                images: imageList,
-                specifications: [{
-                    name: "Garantia",
-                    value: "30 dias",
-                    type: 2
-                }]
-            }
-
-            hub2productList.push( productHub2 )
-
-        } )
-    } else {
-        hub2productList.push( productExample )
-    }
+        hub2productList.push( productHub2 )
+    } )
 
     try {
 
@@ -178,14 +142,14 @@ export const criarProdutoHub2b = async ( produto: Product | null ) => {
         const sku = response
 
         sku
-            ? log( "Produto cadastrado com sucesso no HUB2B", "EVENT", getFunctionName(), "INFO" )
+            ? log( "Produto cadastrado com sucesso no HUB2B", "EVENT", getFunctionName() )
             : log( "Não foi possível cadastrar produto no HUB2B", "EVENT", getFunctionName(), "WARN" )
 
         return sku
 
     } catch ( error ) {
         if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "WARN" )
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
         return null
     }
 
@@ -193,11 +157,7 @@ export const criarProdutoHub2b = async ( produto: Product | null ) => {
 
 export const generateAccessTokenV2 = async () => {
 
-    const headers = {
-        'Content-Type': 'application/json'
-    }
-
-    const URL_TOKEN = "https://rest.hub2b.com.br/oauth2/login"
+    const URL_TOKEN = URL_V2 + "/oauth2/login"
 
     const body = { client_id, client_secret, grant_type, scope, username, password }
 
@@ -207,14 +167,149 @@ export const generateAccessTokenV2 = async () => {
         credentials = response.data
 
         credentials.access_token
-            ? log( "Token atualizado com sucesso", "EVENT", getFunctionName(), "INFO" )
+            ? log( "Token atualizado com sucesso", "EVENT", getFunctionName() )
             : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
 
     } catch ( error ) {
         if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "WARN" )
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
         return null
     }
 
 }
 
+export const listOrders = async () => {
+
+    const URL_ORDERS = URL_V2 + "/Orders" + "?access_token=" + credentials.access_token
+
+    try {
+        const response = await axios.get( URL_ORDERS, { headers } )
+
+        const orders = response.data.response
+
+        orders
+            ? log( "Get List Orders success", "EVENT", getFunctionName() )
+            : log( "Get List Orders error", "EVENT", getFunctionName(), "WARN" )
+
+        return orders
+
+    } catch ( error ) {
+        if ( error instanceof Error )
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
+        return null
+    }
+
+}
+
+export const postInvoice = async ( order_id: string ) => {
+
+    const URL_ORDERS = URL_V2 + `/Orders/${ order_id }/Invoice` + "?access_token=" + credentials.access_token
+
+    const body = {
+        "xml": "string",
+        "key": "string",
+        "number": "string",
+        "cfop": "string",
+        "series": "string",
+        "totalAmount": 0,
+        "issueDate": "2021-05-25T17:43:24.166Z",
+        "xmlReference": "string",
+        "packages": 0
+    }
+
+    try {
+        const response = await axios.post( URL_ORDERS, body, { headers } )
+
+        const invoice = response.data
+
+        invoice
+            ? log( "Get Invoice success", "EVENT", getFunctionName() )
+            : log( "Get Invoice error", "EVENT", getFunctionName(), "WARN" )
+
+        return invoice
+
+    } catch ( error ) {
+        if ( error instanceof Error )
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
+        return null
+    }
+
+}
+
+export const getInvoice = async ( order_id: string ) => {
+
+    const URL_ORDERS = URL_V2 + `/Orders/${ order_id }/Invoice` + "?access_token=" + credentials.access_token
+
+    try {
+        const response = await axios.get( URL_ORDERS, { headers } )
+
+        const invoice = response.data
+
+        invoice
+            ? log( "Get Invoice success", "EVENT", getFunctionName() )
+            : log( "Get Invoice error", "EVENT", getFunctionName(), "WARN" )
+
+        return invoice
+
+    } catch ( error ) {
+        if ( error instanceof Error )
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
+        return null
+    }
+
+}
+
+export const postTracking = async ( order_id: string ) => {
+
+    const URL_ORDERS = URL_V2 + `/Orders/${ order_id }/Tracking` + "?access_token=" + credentials.access_token
+
+    const body = {
+        "code": "string",
+        "url": "string",
+        "shippingDate": "2021-05-25T17:50:31.662Z",
+        "shippingProvider": "string",
+        "shippingService": "string"
+    }
+
+    try {
+        const response = await axios.post( URL_ORDERS, body, { headers } )
+
+        const tracking = response.data
+
+        tracking
+            ? log( "Get Tracking success", "EVENT", getFunctionName() )
+            : log( "Get Tracking error", "EVENT", getFunctionName(), "WARN" )
+
+        return tracking
+
+    } catch ( error ) {
+        if ( error instanceof Error )
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
+        return null
+    }
+
+}
+
+
+export const getTracking = async ( order_id: string ) => {
+
+    const URL_ORDERS = URL_V2 + `/Orders/${ order_id }/Tracking` + "?access_token=" + credentials.access_token
+
+    try {
+        const response = await axios.get( URL_ORDERS, { headers } )
+
+        const tracking = response.data
+
+        tracking
+            ? log( "Get Tracking success", "EVENT", getFunctionName() )
+            : log( "Get Tracking error", "EVENT", getFunctionName(), "WARN" )
+
+        return tracking
+
+    } catch ( error ) {
+        if ( error instanceof Error )
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
+        return null
+    }
+
+}
