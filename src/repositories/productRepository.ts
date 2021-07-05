@@ -48,10 +48,14 @@ export const createNewProduct = async ( product: Product, variations: Variation[
         return productResult
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
+
     } finally {
+
         await session.endSession()
     }
 }
@@ -78,8 +82,10 @@ export const updateProductById = async ( _id: any, patch: any ): Promise<Product
         return await findProductById( result.value._id )
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -92,6 +98,7 @@ export const updateProductById = async ( _id: any, patch: any ): Promise<Product
 export const updateVariationById = async ( _id: any, patch: any ): Promise<Product | null> => {
 
     try {
+
         const options = {
             $set: { ...patch }
         }
@@ -105,8 +112,10 @@ export const updateVariationById = async ( _id: any, patch: any ): Promise<Produ
         return await findProductById( result.value.product_id )
 
     } catch ( error ) {
+
         if ( error instanceof MongoError )
             log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -118,9 +127,10 @@ export const updateVariationById = async ( _id: any, patch: any ): Promise<Produ
  */
 export const findProductById = async ( productId: string ): Promise<Product | null> => {
 
-    const query = { _id: new ObjectID( productId ) }
-
     try {
+
+        const query = { _id: new ObjectID( productId ) }
+
         const productsCursor = await productCollection.aggregate( [
             {
                 $lookup:
@@ -141,8 +151,10 @@ export const findProductById = async ( productId: string ): Promise<Product | nu
         return product[0]
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -154,9 +166,9 @@ export const findProductById = async ( productId: string ): Promise<Product | nu
  */
 export const findProductsByShopId = async ( shop_id: string ): Promise<Product[] | null> => {
 
-    const query = { shop_id }
-
     try {
+
+        const query = { shop_id }
 
         const productsCursor = await productCollection.aggregate( [
             {
@@ -179,8 +191,10 @@ export const findProductsByShopId = async ( shop_id: string ): Promise<Product[]
         return products
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -192,9 +206,10 @@ export const findProductsByShopId = async ( shop_id: string ): Promise<Product[]
  */
 export const findVariationsByProductId = async ( product_id: string ): Promise<Variation[] | null> => {
 
-    const query = { product_id: new ObjectID( product_id ) }
-
     try {
+
+        const query = { product_id: new ObjectID( product_id ) }
+
         const variationsCursor = await variationCollection.find( query )
 
         const variations = await variationsCursor.toArray()
@@ -202,8 +217,10 @@ export const findVariationsByProductId = async ( product_id: string ): Promise<V
         return variations
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -215,16 +232,19 @@ export const findVariationsByProductId = async ( product_id: string ): Promise<V
  */
 export const findVariationById = async ( variation_id: string ): Promise<Variation | null> => {
 
-    const query = { _id: new ObjectID( variation_id ) }
-
     try {
+
+        const query = { _id: new ObjectID( variation_id ) }
+
         const variation = await variationCollection.findOne( query )
 
         return variation
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }

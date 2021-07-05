@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import { ObjectID } from 'mongodb'
 import { findProductById } from '../repositories/productRepository'
 import { findUserById } from '../repositories/userRepository'
 import { findShop } from '../services/accountService'
@@ -120,11 +121,11 @@ export const loggerResponse = logger( 'to :remote-addr - STATUS :status in :resp
  */
 export const userCanAccessShop = async ( req: Request, res: Response, next: NextFunction ) => {
 
-    const shop_id = req.headers.shop_id
-
     const user_id = req.user?._id
 
-    if ( !user_id || !shop_id ) return next( createHttpStatus( unauthorized ) )
+    const shop_id = req.headers.shop_id
+
+    if ( !user_id || !shop_id || Array.isArray( shop_id ) || !ObjectID.isValid( shop_id ) ) return next( createHttpStatus( unauthorized ) )
 
     const [user, shop] = await Promise.all( [findUserById( user_id ), findShop( shop_id )] )
 
@@ -150,7 +151,7 @@ export const isProductFromShop = async ( req: Request, res: Response, next: Next
 
     const product_id = req.params.product_id
 
-    if ( !product_id || !shop_id ) return next( createHttpStatus( unauthorized, invalidProductReference ) )
+    if ( !product_id || !shop_id || !ObjectID.isValid( product_id ) ) return next( createHttpStatus( unauthorized, invalidProductReference ) )
 
     const [product, shop] = await Promise.all( [findProductById( product_id ), findShop( shop_id )] )
 
@@ -172,15 +173,17 @@ export const isProductFromShop = async ( req: Request, res: Response, next: Next
  */
 export const isVariationFromProduct = async ( req: Request, res: Response, next: NextFunction ) => {
 
+    const product_id = req.product?._id
+
     const variation_id = req.params.variation_id
 
-    if ( !variation_id ) return next( createHttpStatus( unauthorized, invalidVariationReference ) )
+    if ( !variation_id || !product_id || !ObjectID.isValid( variation_id ) ) return next( createHttpStatus( unauthorized, invalidVariationReference ) )
 
     const variation = await findVariation( variation_id )
 
     if ( !variation ) return next( createHttpStatus( unauthorized, invalidVariationReference ) )
 
-    if ( !variation.product_id.equals( req.product?._id ) ) return next( createHttpStatus( unauthorized, invalidVariationReference ) )
+    if ( !variation.product_id.equals( product_id ) ) return next( createHttpStatus( unauthorized, invalidVariationReference ) )
 
     req.variation = variation
 

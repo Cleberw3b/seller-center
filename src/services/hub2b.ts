@@ -2,15 +2,15 @@
 //      HUB2B Service
 //
 
-import axios from "axios"
-import { HUB2B_Product, productExample } from "../models/hub2b"
+import axios, { Method } from "axios"
+import { HUB2B_Invoice, HUB2B_Product, HUB2B_Status, HUB2B_Tracking } from "../models/hub2b"
 import { Product } from "../models/product"
 import { PROJECT_HOST } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowIsoDate } from "../utils/util"
 
 // Default
-const headers = {
+const default_headers = {
     'Content-Type': 'application/json'
 }
 
@@ -19,7 +19,7 @@ const URL_V1 = "https://eb-api.plataformahub.com.br/RestServiceImpl.svc"
 const idTenant = 2032
 const TokenDeAcesso = "EZpH53QWxMPAI09O9fUu"
 const headersV1 = {
-    ...headers,
+    ...default_headers,
     "auth": TokenDeAcesso
 }
 
@@ -36,6 +36,59 @@ let credentials = {
     expires_in: 7200,
     refresh_token: '',
     token_type: 'bearer'
+}
+
+export const requestHub2B = async ( URL: string, type?: Method, body?: any, headers?: any ) => {
+
+    if ( !type ) type = 'GET'
+
+    if ( !headers ) headers = { headers: default_headers }
+
+    try {
+
+        const response = await axios( {
+            method: type,
+            url: URL,
+            data: body,
+            headers
+        } )
+
+        response
+            ? log( "Request success", "EVENT", getFunctionName() )
+            : log( "Request failed", "EVENT", getFunctionName(), "WARN" )
+
+        return response
+
+    } catch ( error ) {
+
+        if ( axios.isAxiosError( error ) )
+            log( error.response?.data?.errors, "EVENT", getFunctionName(), "ERROR" )
+
+        if ( error instanceof Error ) {
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
+        }
+
+        return null
+    }
+}
+
+export const generateAccessTokenV2 = async () => {
+
+    const URL_OAUTH = URL_V2 + "/oauth2/login"
+
+    const body = { client_id, client_secret, grant_type, scope, username, password }
+
+    const response = await requestHub2B( URL_OAUTH, 'POST', body )
+
+    if ( !response ) return null
+
+    credentials = response.data
+
+    credentials.access_token
+        ? log( "Token atualizado com sucesso", "EVENT", getFunctionName() )
+        : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
+
+    return credentials.access_token
 }
 
 export const setupIntegration = async () => {
@@ -71,20 +124,16 @@ export const setupIntegration = async () => {
         ]
     }
 
-    try {
-        const response = await axios.post( SETUP_URL, body, { headers } )
+    const response = await requestHub2B( SETUP_URL, 'POST', body )
 
-        const setup = response.data
+    if ( !response ) return null
 
-        setup
-            ? log( "Setup realizado com sucesso", "EVENT", getFunctionName() )
-            : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
+    const setup = response.data
 
-    } catch ( error ) {
-        if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
-        return null
-    }
+    setup
+        ? log( "Setup realizado com sucesso", "EVENT", getFunctionName() )
+        : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
+
 }
 
 export const criarProdutoHub2b = async ( produto: Product ) => {
@@ -100,15 +149,15 @@ export const criarProdutoHub2b = async ( produto: Product ) => {
     produto.variations?.forEach( variation => {
 
         const productHub2: HUB2B_Product = {
-            sku: variation._id,
-            parentSKU: produto._id,
+            sku: variation._id.toString(),
+            parentSKU: produto._id.toString(),
             ean13: produto.ean,
             warrantyMonths: 30,
             handlingTime: 2,
             stock: `${ variation.stock }`,
-            weightKg: `${ produto.weight * 1000 }`,
-            url: `${ PROJECT_HOST }/product/${ variation._id }`,
-            sourceId: variation._id,
+            weightKg: `${ produto.weight / 1000 }`,
+            url: `${ PROJECT_HOST }/product/${ variation._id.toString() }`,
+            sourceId: variation._id.toString(),
             categoryCode: `${ produto.category }`,
             name: produto.name,
             sourceDescription: produto.description,
@@ -119,9 +168,9 @@ export const criarProdutoHub2b = async ( produto: Product ) => {
             idProductType: 1,
             idTypeCondition: 1,
             shippingType: "me1;me2",
-            height_m: `${ produto.height }`,
-            width_m: `${ produto.width }`,
-            length_m: `${ produto.length }`,
+            height_m: `${ produto.height / 100 }`,
+            width_m: `${ produto.width / 100 }`,
+            length_m: `${ produto.length / 100 }`,
             priceBase: `${ produto.price }`,
             priceSale: `${ produto.price - ( produto.price_discounted ? produto.price_discounted : 0 ) }`,
             images: imageList,
@@ -135,208 +184,225 @@ export const criarProdutoHub2b = async ( produto: Product ) => {
         hub2productList.push( productHub2 )
     } )
 
-    try {
+    const response = await requestHub2B( URL, 'POST', hub2productList, headersV1 )
 
-        const response = await axios.post( URL, hub2productList, { headers: headersV1 } )
+    if ( response?.data.error ) {
 
-        const sku = response
+        log( "Não foi possível cadastrar produto no HUB2B", "EVENT", getFunctionName(), "WARN" )
 
-        sku
-            ? log( "Produto cadastrado com sucesso no HUB2B", "EVENT", getFunctionName() )
-            : log( "Não foi possível cadastrar produto no HUB2B", "EVENT", getFunctionName(), "WARN" )
-
-        return sku
-
-    } catch ( error ) {
-        if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
         return null
     }
 
+    log( "Produto cadastrado com sucesso no HUB2B", "EVENT", getFunctionName() )
 }
 
-export const generateAccessTokenV2 = async () => {
+export const getStock = async ( variation_id: any ) => {
 
-    const URL_TOKEN = URL_V2 + "/oauth2/login"
+    await generateAccessTokenV2()
 
-    const body = { client_id, client_secret, grant_type, scope, username, password }
+    const URL_STOCK = URL_V2 + `/inventory/${ variation_id }/stocks` + "?access_token=" + credentials.access_token
 
-    try {
-        const response = await axios.post( URL_TOKEN, body, { headers } )
+    const response = await requestHub2B( URL_STOCK )
 
-        credentials = response.data
+    if ( !response ) return null
 
-        credentials.access_token
-            ? log( "Token atualizado com sucesso", "EVENT", getFunctionName() )
-            : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
+    const stock = response.data[0]
 
-    } catch ( error ) {
-        if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
-        return null
+    stock
+        ? log( "Get List Orders success", "EVENT", getFunctionName() )
+        : log( "Get List Orders error", "EVENT", getFunctionName(), "WARN" )
+
+    return stock
+}
+
+export const updateStock = async ( variation_id: any, stock: number ) => {
+
+    await generateAccessTokenV2()
+
+    const URL_STOCK = URL_V2 + `/inventory/${ variation_id }/stocks` + "?access_token=" + credentials.access_token
+
+    const body = {
+        available: stock,
+        warehouseId: 0
+    }
+    const response = await requestHub2B( URL_STOCK, 'PUT', body )
+
+    if ( !response ) return null
+
+    const update_stock = response.data
+
+    update_stock
+        ? log( "Get List Orders success", "EVENT", getFunctionName() )
+        : log( "Get List Orders error", "EVENT", getFunctionName(), "WARN" )
+
+    return update_stock
+}
+
+export const updatePrice = async ( variation_id: any, price: number, price_discounted: number ) => {
+
+    await generateAccessTokenV2()
+
+    const URL_PRICE = URL_V2 + `/inventory/${ variation_id }/price` + "?access_token=" + credentials.access_token
+
+    const body = {
+        base: price,
+        sale: price_discounted
     }
 
+    const response = await requestHub2B( URL_PRICE, 'PUT', body )
+
+    if ( !response ) return null
+
+    const orders = response.data
+
+    orders
+        ? log( "Get List Orders success", "EVENT", getFunctionName() )
+        : log( "Get List Orders error", "EVENT", getFunctionName(), "WARN" )
+
+    return orders
 }
 
 // TODO -> Implementar
 export const postOrder = async () => {
 
+    await generateAccessTokenV2()
+
     const URL_ORDERS = URL_V2 + "/Orders" + "?access_token=" + credentials.access_token
 
     const body = {}
 
-    try {
-        const response = await axios.post( URL_ORDERS, body, { headers } )
+    const response = await requestHub2B( URL_ORDERS, 'POST', body )
 
-        const orders = response.data.response
+    if ( !response ) return null
 
-        orders
-            ? log( "POST Orders success", "EVENT", getFunctionName() )
-            : log( "POST Orders error", "EVENT", getFunctionName(), "WARN" )
+    const orders = response.data.response
 
-        return orders
+    orders
+        ? log( "POST Orders success", "EVENT", getFunctionName() )
+        : log( "POST Orders error", "EVENT", getFunctionName(), "WARN" )
 
-    } catch ( error ) {
-        if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
-        return null
-    }
+    return orders
 
 }
 
 export const listOrders = async () => {
 
+    await generateAccessTokenV2()
+
     const URL_ORDERS = URL_V2 + "/Orders" + "?access_token=" + credentials.access_token
 
-    try {
-        const response = await axios.get( URL_ORDERS, { headers } )
+    const response = await requestHub2B( URL_ORDERS )
 
-        const orders = response.data.response
+    if ( !response ) return null
 
-        orders
-            ? log( "Get List Orders success", "EVENT", getFunctionName() )
-            : log( "Get List Orders error", "EVENT", getFunctionName(), "WARN" )
+    const orders = response.data.response
 
-        return orders
+    orders
+        ? log( "Get List Orders success", "EVENT", getFunctionName() )
+        : log( "Get List Orders error", "EVENT", getFunctionName(), "WARN" )
 
-    } catch ( error ) {
-        if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
-        return null
-    }
-
+    return orders
 }
 
-export const postInvoice = async ( order_id: string ) => {
+export const postInvoice = async ( order_id: number, _invoice: HUB2B_Invoice ) => {
 
-    const URL_ORDERS = URL_V2 + `/Orders/${ order_id }/Invoice` + "?access_token=" + credentials.access_token
+    await generateAccessTokenV2()
 
-    const body = {
-        "xml": "string",
-        "key": "string",
-        "number": "string",
-        "cfop": "string",
-        "series": "string",
-        "totalAmount": 0,
-        "issueDate": "2021-05-25T17:43:24.166Z",
-        "xmlReference": "string",
-        "packages": 0
-    }
+    const URL_INVOICE = URL_V2 + `/Orders/${ order_id }/Invoice` + "?access_token=" + credentials.access_token
 
-    try {
-        const response = await axios.post( URL_ORDERS, body, { headers } )
+    const body = _invoice
 
-        const invoice = response.data
+    const response = await requestHub2B( URL_INVOICE, "POST", body )
 
-        invoice
-            ? log( "POST Invoice success", "EVENT", getFunctionName() )
-            : log( "POST Invoice error", "EVENT", getFunctionName(), "WARN" )
+    if ( !response ) return null
 
-        return invoice
+    const invoice = response.data
 
-    } catch ( error ) {
-        if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
-        return null
-    }
+    invoice
+        ? log( "POST Invoice success", "EVENT", getFunctionName() )
+        : log( "POST Invoice error", "EVENT", getFunctionName(), "WARN" )
 
+    return invoice
 }
 
-export const getInvoice = async ( order_id: string ) => {
+export const getInvoice = async ( order_id: number ) => {
 
-    const URL_ORDERS = URL_V2 + `/Orders/${ order_id }/Invoice` + "?access_token=" + credentials.access_token
+    await generateAccessTokenV2()
 
-    try {
-        const response = await axios.get( URL_ORDERS, { headers } )
+    const URL_INVOICE = URL_V2 + `/Orders/${ order_id }/Invoice` + "?access_token=" + credentials.access_token
 
-        const invoice = response.data
+    const response = await requestHub2B( URL_INVOICE )
 
-        invoice
-            ? log( "Get Invoice success", "EVENT", getFunctionName() )
-            : log( "Get Invoice error", "EVENT", getFunctionName(), "WARN" )
+    if ( !response ) return null
 
-        return invoice
+    const invoice = response.data
 
-    } catch ( error ) {
-        if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
-        return null
-    }
+    invoice
+        ? log( "Get Invoice success", "EVENT", getFunctionName() )
+        : log( "Get Invoice error", "EVENT", getFunctionName(), "WARN" )
 
+    return invoice
 }
 
 // Não é permitido enviar os dados de rastreio sem antes ter enviado a nota fiscal.
-export const postTracking = async ( order_id: string, tracking_code: string, tracking_url: string, ) => {
+export const postTracking = async ( order_id: number, _tracking: HUB2B_Tracking ) => {
 
-    const URL_ORDERS = URL_V2 + `/Orders/${ order_id }/Tracking` + "?access_token=" + credentials.access_token
+    await generateAccessTokenV2()
 
-    const body = {
-        "code": "string",
-        "url": "string",
-        "shippingDate": nowIsoDate(),
-        "shippingProvider": "string",
-        "shippingService": "string"
-    }
+    const URL_TRACKING = URL_V2 + `/Orders/${ order_id }/Tracking` + "?access_token=" + credentials.access_token
 
-    try {
-        const response = await axios.post( URL_ORDERS, body, { headers } )
+    const body = _tracking
 
-        const tracking = response.data
+    const response = await requestHub2B( URL_TRACKING, "POST", body )
 
-        tracking
-            ? log( "POST Tracking success", "EVENT", getFunctionName() )
-            : log( "POST Tracking error", "EVENT", getFunctionName(), "WARN" )
+    if ( !response ) return null
 
-        return tracking
+    const tracking = response.data
 
-    } catch ( error ) {
-        if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
-        return null
-    }
+    tracking
+        ? log( "POST Tracking success", "EVENT", getFunctionName() )
+        : log( "POST Tracking error", "EVENT", getFunctionName(), "WARN" )
 
+    return tracking
+}
+
+export const getTracking = async ( order_id: number ) => {
+
+    await generateAccessTokenV2()
+
+    const URL_TRACKING = URL_V2 + `/Orders/${ order_id }/Tracking` + "?access_token=" + credentials.access_token
+
+    const response = await requestHub2B( URL_TRACKING )
+
+    if ( !response ) return null
+
+    const tracking = response.data
+
+    tracking
+        ? log( "Get Tracking success", "EVENT", getFunctionName() )
+        : log( "Get Tracking error", "EVENT", getFunctionName(), "WARN" )
+
+    return tracking
 }
 
 
-export const getTracking = async ( order_id: string ) => {
+export const updateStatus = async ( order_id: number, _status: HUB2B_Status ) => {
 
-    const URL_ORDERS = URL_V2 + `/Orders/${ order_id }/Tracking` + "?access_token=" + credentials.access_token
+    await generateAccessTokenV2()
 
-    try {
-        const response = await axios.get( URL_ORDERS, { headers } )
+    const URL_STATUS = URL_V2 + `/Orders/${ order_id }/Status` + "?access_token=" + credentials.access_token
 
-        const tracking = response.data
+    const body = _status
 
-        tracking
-            ? log( "Get Tracking success", "EVENT", getFunctionName() )
-            : log( "Get Tracking error", "EVENT", getFunctionName(), "WARN" )
+    const response = await requestHub2B( URL_STATUS, 'PUT', body )
 
-        return tracking
+    if ( !response ) return null
 
-    } catch ( error ) {
-        if ( error instanceof Error )
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
-        return null
-    }
+    const status = response.data
 
+    status
+        ? log( "Get Tracking success", "EVENT", getFunctionName() )
+        : log( "Get Tracking error", "EVENT", getFunctionName(), "WARN" )
+
+    return status
 }

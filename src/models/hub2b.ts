@@ -84,7 +84,7 @@ export interface HUB2B_Payment {
 }
 
 export interface HUB2B_Status {
-    status: string,
+    status: 'pending' | 'approved' | 'invoiced' | 'shipped' | 'delivered' | 'canceled' | 'completed',
     updatedDate: string,
     active: boolean,
     message: string
@@ -132,6 +132,26 @@ export interface HUB2B_Order {
     products: HUB2B_Product_Order[]
     orderNotes: HUB2B_Order_Notes[]
     orderAdditionalInfos: HUB2B_Order_Additional_Info[]
+}
+
+export interface HUB2B_Invoice {
+    xml?: string,
+    key: string,
+    number: string,
+    cfop: string,
+    series: string,
+    totalAmount: 1,
+    issueDate: string,
+    xmlReference: string,
+    packages: number
+}
+
+export interface HUB2B_Tracking {
+    code: string,
+    url: string,
+    shippingDate: string,
+    shippingProvider: string,
+    shippingService: string
 }
 
 export const productExample = {

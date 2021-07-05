@@ -14,6 +14,7 @@ import { getFunctionName } from "../utils/util"
  * @param activationToken - the token to be saved
  */
 export const createAccessToken = async ( activationToken: AccessToken ): Promise<AccessToken | null> => {
+
     try {
 
         const result = await accessTokenCollection.insertOne( activationToken )
@@ -21,8 +22,10 @@ export const createAccessToken = async ( activationToken: AccessToken ): Promise
         return result.ops[0] ? result.ops[0] : null
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -33,13 +36,16 @@ export const createAccessToken = async ( activationToken: AccessToken ): Promise
  * @param token
  */
 export const findAccessTokenByToken = async ( token: string ): Promise<AccessToken | null> => {
+
     try {
 
         return await accessTokenCollection.findOne( { token } )
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -50,6 +56,7 @@ export const findAccessTokenByToken = async ( token: string ): Promise<AccessTok
  * @param token
  */
 export const retrieveAllAccessToken = async (): Promise<AccessToken[] | null> => {
+
     try {
 
         const result = await accessTokenCollection.find()
@@ -57,8 +64,10 @@ export const retrieveAllAccessToken = async (): Promise<AccessToken[] | null> =>
         return result.toArray()
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -69,6 +78,7 @@ export const retrieveAllAccessToken = async (): Promise<AccessToken[] | null> =>
  * @param token
  */
 export const deleteAccessToken = async ( token: string ): Promise<boolean> => {
+
     try {
 
         const result = await accessTokenCollection.deleteOne( { token } )
@@ -76,8 +86,10 @@ export const deleteAccessToken = async ( token: string ): Promise<boolean> => {
         return result.result.ok === 1
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return false
     }
 }

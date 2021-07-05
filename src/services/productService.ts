@@ -69,7 +69,7 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
 
     log( `Product ${ product.name } has been created.`, 'EVENT', getFunctionName() )
 
-    // criarProdutoHub2b( product )
+    criarProdutoHub2b( product )
 
     return product
 }

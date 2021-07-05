@@ -2,7 +2,7 @@
 //      User Repository
 //
 
-import { MongoError, ObjectID, ObjectId } from "mongodb"
+import { MongoError, ObjectID } from "mongodb"
 import { User } from "../models/user"
 import { IS_PRODUCTION_ENV } from "../utils/consts"
 import { userCollection } from "../utils/db/collections"
@@ -15,6 +15,7 @@ import { getFunctionName } from "../utils/util"
  * @param user - new user
  */
 export const createNewUser = async ( user: User ): Promise<User | null> => {
+
     try {
 
         const result = await userCollection.insertOne( user )
@@ -28,12 +29,13 @@ export const createNewUser = async ( user: User ): Promise<User | null> => {
         return userInserted
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
-
 
 type FindOne = {
     username?: string,
@@ -46,6 +48,7 @@ type FindOne = {
  * @param user
  */
 export const findOneUser = async ( { username, email }: FindOne ): Promise<User | null> => {
+
     try {
 
         const projection = { username: 1, email: 1, password: 1, role: 1, isActive: 1 }
@@ -61,8 +64,10 @@ export const findOneUser = async ( { username, email }: FindOne ): Promise<User 
         return result
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -77,12 +82,16 @@ export const findUserById = async ( _id: string ): Promise<User | null> => {
     const projection = { username: 1, email: 1, role: 1, isActive: 1 }
 
     try {
+
         const user = await userCollection.findOne( { _id: new ObjectID( _id ) }, { projection } )
 
         return user
+
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -93,6 +102,7 @@ export const findUserById = async ( _id: string ): Promise<User | null> => {
  * @param  id - User Id
  */
 export const disableUser = async ( _id: any ): Promise<User | null> => {
+
     try {
 
         const options = {
@@ -106,8 +116,10 @@ export const disableUser = async ( _id: any ): Promise<User | null> => {
         return result.value ? result.value : null
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -118,6 +130,7 @@ export const disableUser = async ( _id: any ): Promise<User | null> => {
  * @param id - User Id
  */
 export const enableUser = async ( _id: any ) => {
+
     try {
 
         const options = {
@@ -131,8 +144,10 @@ export const enableUser = async ( _id: any ) => {
         return result.value ? result.value : null
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -144,18 +159,20 @@ export const enableUser = async ( _id: any ) => {
  */
 export const deleteUser = async ( _id: any ): Promise<User | null> => {
 
-    // Do not use in production
-    if ( IS_PRODUCTION_ENV ) throw new Error( "Impossible to execute command." )
-
     try {
+
+        // Do not use in production
+        if ( IS_PRODUCTION_ENV ) throw new Error( "Impossible to execute command." )
 
         const result = await userCollection.findOneAndDelete( { _id: new ObjectID( _id ) } )
 
         return result.value ? result.value : null
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -166,6 +183,7 @@ export const deleteUser = async ( _id: any ): Promise<User | null> => {
  * @param id - User Id
  */
 export const updatePassword = async ( _id: any, password: string ): Promise<User | null> => {
+
     try {
 
         const options = {
@@ -179,8 +197,10 @@ export const updatePassword = async ( _id: any, password: string ): Promise<User
         return result.value ? result.value : null
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }

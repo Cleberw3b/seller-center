@@ -19,16 +19,16 @@ import { getFunctionName } from "../utils/util"
  */
 export const createOrUpdatePersonalInfo = async ( personalInfo: PersonalInfo ): Promise<PersonalInfo | null> => {
 
-    const query = { userId: personalInfo.userId }
-
-    const replacement = { ...personalInfo }
-
-    const options = {
-        upsert: true,
-        returnNewDocument: true
-    }
-
     try {
+
+        const query = { userId: personalInfo.userId }
+
+        const replacement = { ...personalInfo }
+
+        const options = {
+            upsert: true,
+            returnNewDocument: true
+        }
 
         const result = await personalInfoColletion.findOneAndReplace( query, replacement, options )
 
@@ -49,8 +49,10 @@ export const createOrUpdatePersonalInfo = async ( personalInfo: PersonalInfo ): 
         return personalInfo
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -61,6 +63,7 @@ export const createOrUpdatePersonalInfo = async ( personalInfo: PersonalInfo ): 
  * @param userId
  */
 export const findPersonalInfoByUserID = async ( userId: string ): Promise<PersonalInfo | null> => {
+
     try {
 
         const projectionPF = {
@@ -83,8 +86,10 @@ export const findPersonalInfoByUserID = async ( userId: string ): Promise<Person
         return personalInfo
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -100,7 +105,9 @@ export const findPersonalInfoByUserID = async ( userId: string ): Promise<Person
  * @param address - the user address
  */
 export const createOrUpdateAddress = async ( address: Address ): Promise<Address | null> => {
+
     try {
+
         const result = await addressCollection.updateOne(
             { userId: address.userId },
             { $set: address },
@@ -122,8 +129,10 @@ export const createOrUpdateAddress = async ( address: Address ): Promise<Address
         return address
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -134,6 +143,7 @@ export const createOrUpdateAddress = async ( address: Address ): Promise<Address
  * @param userId
  */
 export const findAddressByUserID = async ( userId: string ): Promise<Address | null> => {
+
     try {
 
         const projection = { cep: 1, address: 1, number: 1, complement: 1, district: 1, city: 1 }
@@ -143,8 +153,10 @@ export const findAddressByUserID = async ( userId: string ): Promise<Address | n
         return address
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -161,7 +173,9 @@ export const findAddressByUserID = async ( userId: string ): Promise<Address | n
  * @param bankInfo - the user bank information
  */
 export const createOrUpdateBankInfo = async ( bankInfo: BankInfo ): Promise<BankInfo | null> => {
+
     try {
+
         const result = await bankInfoCollection.updateOne(
             { userId: bankInfo.userId },
             { $set: bankInfo },
@@ -183,8 +197,10 @@ export const createOrUpdateBankInfo = async ( bankInfo: BankInfo ): Promise<Bank
         return bankInfo
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -195,6 +211,7 @@ export const createOrUpdateBankInfo = async ( bankInfo: BankInfo ): Promise<Bank
  * @param userId
  */
 export const findBankInfoByUserID = async ( userId: string ): Promise<BankInfo | null> => {
+
     try {
 
         const projection = { account: 1, agency: 1, bank: 1, name: 1 }
@@ -204,8 +221,10 @@ export const findBankInfoByUserID = async ( userId: string ): Promise<BankInfo |
         return bankInfo
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -221,7 +240,9 @@ export const findBankInfoByUserID = async ( userId: string ): Promise<BankInfo |
  * @param shopInfo - the user shop information
  */
 export const createOrUpdateShopInfo = async ( shopInfo: ShopInfo ): Promise<ShopInfo | null> => {
+
     try {
+
         const result = await shopInfoCollection.updateOne(
             { userId: shopInfo.userId },
             { $set: shopInfo },
@@ -243,8 +264,10 @@ export const createOrUpdateShopInfo = async ( shopInfo: ShopInfo ): Promise<Shop
         return shopInfo
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -255,6 +278,7 @@ export const createOrUpdateShopInfo = async ( shopInfo: ShopInfo ): Promise<Shop
  * @param userId
  */
 export const findShopInfoByUserID = async ( userId: string ): Promise<ShopInfo | null> => {
+
     try {
 
         const projection = { userId: 1, name: 1 }
@@ -264,8 +288,10 @@ export const findShopInfoByUserID = async ( userId: string ): Promise<ShopInfo |
         return shopInfo
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -276,6 +302,7 @@ export const findShopInfoByUserID = async ( userId: string ): Promise<ShopInfo |
  * @param userId
  */
 export const findShopInfoByID = async ( _id: string ): Promise<ShopInfo | null> => {
+
     try {
 
         const projection = { userId: 1, name: 1 }
@@ -285,8 +312,10 @@ export const findShopInfoByID = async ( _id: string ): Promise<ShopInfo | null> 
         return shopInfo
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -301,7 +330,9 @@ export const findShopInfoByID = async ( _id: string ): Promise<ShopInfo | null> 
  * @param shopInfo - the user shop information
  */
 export const createOrUpdateContact = async ( contact: Contact ): Promise<Contact | null> => {
+
     try {
+
         const result = await contactCollection.updateOne(
             { userId: contact.userId },
             { $set: contact },
@@ -323,8 +354,10 @@ export const createOrUpdateContact = async ( contact: Contact ): Promise<Contact
         return contact
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
@@ -335,6 +368,7 @@ export const createOrUpdateContact = async ( contact: Contact ): Promise<Contact
  * @param userId
  */
 export const findContactByUserID = async ( userId: string ): Promise<Contact | null> => {
+
     try {
 
         const projection = { userId: 1, phone: 1, whatsapp: 1, url: 1 }
@@ -344,8 +378,10 @@ export const findContactByUserID = async ( userId: string ): Promise<Contact | n
         return shopInfo
 
     } catch ( error ) {
-        if ( error instanceof MongoError )
+
+        if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Account Repository - ${ getFunctionName() }`, 'ERROR' )
+
         return null
     }
 }
