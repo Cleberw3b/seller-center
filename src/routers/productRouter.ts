@@ -3,10 +3,11 @@
 //
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { createProduct, findProduct, findProductsByShop, updateProduct, updateProductVariation } from '../services/productService'
+import { createProduct, findProduct, findProductsByShop, findProductVariation, updateProduct, updateProductVariation } from '../services/productService'
 import { uploadProductPicture } from '../services/uploadService'
 import { badRequest, createHttpStatus, internalServerError, noContent, notFound, ok } from '../utils/httpStatus'
-import { isProductPatchValid, isProductValid, isVariationPatchValid } from '../validations/productValidation'
+import { isProductFromShop, isVariationFromProduct } from '../utils/middlewares'
+import { isNewProductValid, isProductPatchValid, isVariationPatchValid } from '../validations/productValidation'
 const router = Router()
 
 const uploadMultiple = uploadProductPicture.array( 'images', 10 )
@@ -41,14 +42,14 @@ router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 
     const body = req.body
 
-    let errors = await isProductValid( body )
+    let errors = await isNewProductValid( body )
 
     if ( errors.length > 0 )
         return res
             .status( badRequest.status )
             .send( createHttpStatus( badRequest, errors ) )
 
-    body.shop = req.shop_id
+    body.shop = req.shop?._id
 
     const product = await createProduct( body )
 
@@ -63,15 +64,25 @@ router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 } )
 
 /**
+ * GET -> produto details
+ */
+router.get( '/:product_id', isProductFromShop, async ( req: Request, res: Response, next: NextFunction ) => {
+
+    return res
+        .status( ok.status )
+        .send( req.product )
+} )
+
+/**
  * PATCH -> atualiza produto
  */
-router.patch( '/:product_id', async ( req: Request, res: Response, next: NextFunction ) => {
+router.patch( '/:product_id', isProductFromShop, async ( req: Request, res: Response, next: NextFunction ) => {
 
     const body = req.body
 
-    const product_id = req.params.product_id
+    const product_id = req.product?._id
 
-    let errors = await isProductPatchValid( product_id, body )
+    let errors = await isProductPatchValid( body )
 
     if ( errors.length > 0 )
         return res
@@ -90,19 +101,33 @@ router.patch( '/:product_id', async ( req: Request, res: Response, next: NextFun
         .send( product )
 } )
 
+/**
+ * GET -> variação do produto
+ */
+router.get( '/:product_id/variation/:variation_id', isProductFromShop, isVariationFromProduct, async ( req: Request, res: Response, next: NextFunction ) => {
+
+    if ( !req.product || !req.variation )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    req.product.variations = [req.variation]
+
+    return res
+        .status( ok.status )
+        .send( req.product )
+} )
 
 /**
  * PATCH -> atualiza variação do produto
  */
-router.patch( '/:product_id/variation/:variation_id', async ( req: Request, res: Response, next: NextFunction ) => {
+router.patch( '/:product_id/variation/:variation_id', isProductFromShop, isVariationFromProduct, async ( req: Request, res: Response, next: NextFunction ) => {
 
     const body = req.body
 
-    const product_id = req.params.product_id
-
     const variation_id = req.params.variation_id
 
-    let errors = await isVariationPatchValid( product_id, variation_id, body )
+    let errors = await isVariationPatchValid( body )
 
     if ( errors.length > 0 )
         return res
@@ -122,30 +147,11 @@ router.patch( '/:product_id/variation/:variation_id', async ( req: Request, res:
 } )
 
 /**
- * GET -> verifica se o sistema está ativo respondendo com o tempo desde o último start 
- */
-router.get( '/:product_id', async ( req: Request, res: Response, next: NextFunction ) => {
-
-    const productId = req.params.product_id
-
-    const product = await findProduct( productId )
-
-    if ( !product )
-        return res
-            .status( notFound.status )
-            .send( createHttpStatus( notFound ) )
-
-    return res
-        .status( ok.status )
-        .send( product )
-} )
-
-/**
  * GET -> Retrieve all products for a given shop
  */
 router.get( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 
-    const products = await findProductsByShop( req.shop_id )
+    const products = await findProductsByShop( req.shop?._id )
 
     if ( !products )
         return res

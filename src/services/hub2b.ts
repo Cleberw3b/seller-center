@@ -7,7 +7,7 @@ import { HUB2B_Product, productExample } from "../models/hub2b"
 import { Product } from "../models/product"
 import { PROJECT_HOST } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
-import { getFunctionName } from "../utils/util"
+import { getFunctionName, nowIsoDate } from "../utils/util"
 
 // Default
 const headers = {
@@ -100,15 +100,15 @@ export const criarProdutoHub2b = async ( produto: Product ) => {
     produto.variations?.forEach( variation => {
 
         const productHub2: HUB2B_Product = {
-            sku: produto._id,
-            parentSKU: produto.sku,
+            sku: variation._id,
+            parentSKU: produto._id,
             ean13: produto.ean,
             warrantyMonths: 30,
             handlingTime: 2,
             stock: `${ variation.stock }`,
             weightKg: `${ produto.weight * 1000 }`,
-            url: `${ PROJECT_HOST }/product/${ produto._id }`,
-            sourceId: produto._id,
+            url: `${ PROJECT_HOST }/product/${ variation._id }`,
+            sourceId: variation._id,
             categoryCode: `${ produto.category }`,
             name: produto.name,
             sourceDescription: produto.description,
@@ -178,6 +178,32 @@ export const generateAccessTokenV2 = async () => {
 
 }
 
+// TODO -> Implementar
+export const postOrder = async () => {
+
+    const URL_ORDERS = URL_V2 + "/Orders" + "?access_token=" + credentials.access_token
+
+    const body = {}
+
+    try {
+        const response = await axios.post( URL_ORDERS, body, { headers } )
+
+        const orders = response.data.response
+
+        orders
+            ? log( "POST Orders success", "EVENT", getFunctionName() )
+            : log( "POST Orders error", "EVENT", getFunctionName(), "WARN" )
+
+        return orders
+
+    } catch ( error ) {
+        if ( error instanceof Error )
+            log( error.message, "EVENT", getFunctionName(), "ERROR" )
+        return null
+    }
+
+}
+
 export const listOrders = async () => {
 
     const URL_ORDERS = URL_V2 + "/Orders" + "?access_token=" + credentials.access_token
@@ -223,8 +249,8 @@ export const postInvoice = async ( order_id: string ) => {
         const invoice = response.data
 
         invoice
-            ? log( "Get Invoice success", "EVENT", getFunctionName() )
-            : log( "Get Invoice error", "EVENT", getFunctionName(), "WARN" )
+            ? log( "POST Invoice success", "EVENT", getFunctionName() )
+            : log( "POST Invoice error", "EVENT", getFunctionName(), "WARN" )
 
         return invoice
 
@@ -259,14 +285,15 @@ export const getInvoice = async ( order_id: string ) => {
 
 }
 
-export const postTracking = async ( order_id: string ) => {
+// Não é permitido enviar os dados de rastreio sem antes ter enviado a nota fiscal.
+export const postTracking = async ( order_id: string, tracking_code: string, tracking_url: string, ) => {
 
     const URL_ORDERS = URL_V2 + `/Orders/${ order_id }/Tracking` + "?access_token=" + credentials.access_token
 
     const body = {
         "code": "string",
         "url": "string",
-        "shippingDate": "2021-05-25T17:50:31.662Z",
+        "shippingDate": nowIsoDate(),
         "shippingProvider": "string",
         "shippingService": "string"
     }
@@ -277,8 +304,8 @@ export const postTracking = async ( order_id: string ) => {
         const tracking = response.data
 
         tracking
-            ? log( "Get Tracking success", "EVENT", getFunctionName() )
-            : log( "Get Tracking error", "EVENT", getFunctionName(), "WARN" )
+            ? log( "POST Tracking success", "EVENT", getFunctionName() )
+            : log( "POST Tracking error", "EVENT", getFunctionName(), "WARN" )
 
         return tracking
 

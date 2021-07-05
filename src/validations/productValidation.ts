@@ -4,8 +4,7 @@
 
 import { COLORS } from "../models/color"
 import { SIZES } from "../models/size"
-import { findProductById, findVariationById } from "../repositories/productRepository"
-import { AppError, invalidCategory, invalidEAN, invalidImageReference, invalidNationality, invalidProductBrand, invalidProductDescription, invalidProductGender, invalidProductName, invalidProductReference, invalidProductVariations, invalidSKU, invalidSubCategory, invalidVariationColor, invalidVariationHeight, invalidVariationLength, invalidVariationPrice, invalidVariationPriceDiscounted, invalidVariationReference, invalidVariationReferenceToProduct, invalidVariationSize, invalidVariationStock, invalidVariationWeight, invalidVariationWidth } from "../utils/errors/errors"
+import { AppError, invalidCategory, invalidEAN, invalidImageReference, invalidNationality, invalidProductBrand, invalidProductDescription, invalidProductGender, invalidProductName, invalidProductVariations, invalidSKU, invalidSubCategory, invalidVariationColor, invalidVariationHeight, invalidVariationLength, invalidVariationPrice, invalidVariationPriceDiscounted, invalidVariationSize, invalidVariationStock, invalidVariationWeight, invalidVariationWidth } from "../utils/errors/errors"
 import { isNegativeNumber, isNotNumber } from "../utils/util"
 
 /**
@@ -14,7 +13,7 @@ import { isNegativeNumber, isNotNumber } from "../utils/util"
  * @param body
  * @returns a list of `AppError` containing description of errors
  */
-export const isProductValid = async ( body: any ): Promise<AppError[]> => {
+export const isNewProductValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
 
@@ -75,13 +74,9 @@ export const isProductValid = async ( body: any ): Promise<AppError[]> => {
  * @param body
  * @returns a list of `AppError` containing description of errors
  */
-export const isProductPatchValid = async ( product_id: any, body: any ): Promise<AppError[]> => {
+export const isProductPatchValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
-
-    if ( !product_id ) errors.push( invalidProductReference )
-
-    if ( !await findProductById( product_id ) ) errors.push( invalidProductReference )
 
     return errors
 }
@@ -92,23 +87,9 @@ export const isProductPatchValid = async ( product_id: any, body: any ): Promise
  * @param body
  * @returns a list of `AppError` containing description of errors
  */
-export const isVariationPatchValid = async ( product_id: any, variation_id: any, body: any ): Promise<AppError[]> => {
+export const isVariationPatchValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
-
-    if ( !product_id ) errors.push( invalidProductReference )
-
-    if ( !variation_id ) errors.push( invalidVariationReference )
-
-    const product = await findProductById( product_id )
-
-    if ( !product ) errors.push( invalidProductReference )
-
-    const variation = await findVariationById( variation_id )
-
-    if ( !variation ) errors.push( invalidVariationReference )
-
-    if ( !variation?.product_id.equals( product?._id ) ) errors.push( invalidVariationReferenceToProduct )
 
     return errors
 }

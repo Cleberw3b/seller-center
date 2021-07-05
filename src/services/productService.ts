@@ -2,10 +2,10 @@
 //      Product Service
 //
 
-import { Product } from "../models/product"
+import { Product, Variation } from "../models/product"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
-import { createNewProduct, findProductById, findProductsByShopId, updateProductById, updateVariationById } from "../repositories/productRepository"
+import { createNewProduct, findProductById, findProductsByShopId, findVariationById, updateProductById, updateVariationById } from "../repositories/productRepository"
 import { criarProdutoHub2b } from "./hub2b"
 
 /**
@@ -38,7 +38,7 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
 
     const shop_id = body.shop
 
-    const refProduct: Product = {
+    const ref_product: Product = {
         shop_id,
         images,
         category,
@@ -60,14 +60,16 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
         is_active: true
     }
 
-    const product = await createNewProduct( refProduct, variations )
+    const product = await createNewProduct( ref_product, variations )
 
-    product
-        ? log( `Product ${ product.name } has been created.`, 'EVENT', getFunctionName() )
-        : log( `Product ${ product } has been created.`, 'EVENT', getFunctionName() )
+    if ( !product ) {
+        log( `Product ${ product } has been created.`, 'EVENT', getFunctionName() )
+        return null
+    }
 
+    log( `Product ${ product.name } has been created.`, 'EVENT', getFunctionName() )
 
-    criarProdutoHub2b( product )
+    // criarProdutoHub2b( product )
 
     return product
 }
@@ -75,15 +77,15 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
 /**
  * Find a product by its id
  * 
- * @param productId - productId
+ * @param product_id - product_id
  */
-export const findProduct = async ( productId: any ): Promise<Product | null> => {
+export const findProduct = async ( product_id: any ): Promise<Product | null> => {
 
-    let product = await findProductById( productId )
+    let product = await findProductById( product_id )
 
     product
         ? log( `Product ${ product.name } has been found.`, 'EVENT', getFunctionName() )
-        : log( `Product ${ productId } does not exist.`, 'EVENT', getFunctionName() )
+        : log( `Product ${ product_id } does not exist.`, 'EVENT', getFunctionName() )
 
     return product
 }
@@ -91,14 +93,14 @@ export const findProduct = async ( productId: any ): Promise<Product | null> => 
 /**
  * Find all products for a given shop id
  *
- * @param shopId - shopId
+ * @param shop_id - shop_id
  */
-export const findProductsByShop = async ( shopId: any ): Promise<Product[] | null> => {
+export const findProductsByShop = async ( shop_id: any ): Promise<Product[] | null> => {
 
-    const products = await findProductsByShopId( shopId )
+    const products = await findProductsByShopId( shop_id )
 
     products
-        ? log( `Found ${ products.length } products for shop ${ shopId }`, 'EVENT', getFunctionName() )
+        ? log( `Found ${ products.length } products for shop ${ shop_id }`, 'EVENT', getFunctionName() )
         : log( `Could not find any products`, 'EVENT', getFunctionName() )
 
     return products
@@ -120,8 +122,6 @@ export const updateProduct = async ( _id: any, patch: any ): Promise<Product | n
     return products
 }
 
-
-
 /**
  * Update a variation of product by its ID
  *
@@ -136,4 +136,49 @@ export const updateProductVariation = async ( _id: any, patch: any ): Promise<Pr
         : log( `Could not update product`, 'EVENT', getFunctionName() )
 
     return products
+}
+
+/**
+ * Find variation by id
+ *
+ * @param variation_id - variation_id
+ */
+export const findVariation = async ( variation_id: any ): Promise<Variation | null> => {
+
+
+    let variation = await findVariationById( variation_id )
+
+    variation
+        ? log( `Variation ${ variation._id } has been found.`, 'EVENT', getFunctionName() )
+        : log( `Variation ${ variation_id } does not exist.`, 'EVENT', getFunctionName() )
+
+    return variation
+}
+
+/**
+ * Find a product variation by variation id
+ * 
+ * @param variation_id - variation_id
+ */
+export const findProductVariation = async ( variation_id: any ): Promise<Product | null> => {
+
+    let variation = await findVariation( variation_id )
+
+    if ( !variation ) {
+        log( `Variation ${ variation_id } does not exist.`, 'EVENT', getFunctionName() )
+        return null
+    }
+
+    let product = await findProduct( variation.product_id )
+
+    if ( !product ) {
+        log( `Product ${ variation.product_id } does not exist.`, 'EVENT', getFunctionName() )
+        return null
+    }
+
+    log( `Product ${ product.name } has been found.`, 'EVENT', getFunctionName() )
+
+    product.variations = [variation]
+
+    return product
 }

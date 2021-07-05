@@ -1,12 +1,17 @@
 
+import { Product } from "../../models/product"
 import * as express from "express"
+import { ShopInfo } from "../../models/account"
+import { Variation } from "../../models/product"
 import { User } from "../../models/user"
 
 declare global {
     namespace Express {
         interface Request {
-            user?: User
-            shop_id: string
+            user?: User,
+            shop?: ShopInfo,
+            product?: Product,
+            variation?: Variation,
         }
     }
 }

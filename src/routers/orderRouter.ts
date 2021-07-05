@@ -12,7 +12,7 @@ const router = Router()
  */
 router.get( '/all', async ( req: Request, res: Response, next: NextFunction ) => {
 
-    const orders = await findOrdersByShop( req.shop_id )
+    const orders = await findOrdersByShop( req.shop?._id )
 
     if ( !orders )
         return res
