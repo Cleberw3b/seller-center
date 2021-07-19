@@ -3,7 +3,6 @@
 //
 
 import { COLORS } from "../models/color"
-import { SIZES } from "../models/size"
 import { AppError, invalidCategory, invalidEAN, invalidImageReference, invalidNationality, invalidProductBrand, invalidProductDescription, invalidProductGender, invalidProductName, invalidProductVariations, invalidSKU, invalidSubCategory, invalidVariationColor, invalidVariationHeight, invalidVariationLength, invalidVariationPrice, invalidVariationPriceDiscounted, invalidVariationSize, invalidVariationStock, invalidVariationWeight, invalidVariationWidth } from "../utils/errors/errors"
 import { isNegativeNumber, isNotNumber } from "../utils/util"
 
@@ -53,11 +52,11 @@ export const isNewProductValid = async ( body: any ): Promise<AppError[]> => {
     else {
         body.variations.forEach( ( variation: any ) => {
 
-            const isSizeValid = SIZES.some( size => size === variation.size )
+            // const isSizeValid = SIZES.some( size => size === variation.size )
 
             const isColorValid = COLORS.some( color => color === variation.color )
 
-            if ( variation.size && !isSizeValid ) errors.push( invalidVariationSize )
+            // if ( variation.size && !isSizeValid ) errors.push( invalidVariationSize )
 
             if ( !variation.stock || isNotNumber( variation.stock ) || isNegativeNumber( variation.stock ) ) errors.push( invalidVariationStock )
 

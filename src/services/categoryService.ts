@@ -4,7 +4,7 @@
 
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
-import { CATEGORIES, Category, SUBCATEGORIES } from "../models/category"
+import { CATEGORIES, Category, SUBCATEGORIES, SubCategory } from "../models/category"
 
 /**
  * List category
@@ -26,7 +26,7 @@ export const getAllCategories = async (): Promise<Category[]> => {
  * 
  * @param category_code  `category_code`
  */
-export const getAllSubCategories = async ( category_code: number ): Promise<Category[]> => {
+export const getAllSubCategories = async ( category_code: number ): Promise<SubCategory[]> => {
 
     const subcategories = SUBCATEGORIES.filter( subcategory => subcategory.categoryCode === category_code )
 
@@ -59,7 +59,7 @@ export const getCategory = async ( code: number ): Promise<Category[]> => {
  * 
  * @param code  `code`
  */
-export const getSubCategory = async ( code: number ): Promise<Category[]> => {
+export const getSubCategory = async ( code: number ): Promise<SubCategory[]> => {
 
     const subcategory = SUBCATEGORIES.filter( subcategory => subcategory.code === code )
 

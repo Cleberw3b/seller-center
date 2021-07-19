@@ -3,9 +3,10 @@
 //
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { createProduct, findProduct, findProductsByShop, findProductVariation, updateProduct, updateProductVariation } from '../services/productService'
+import { createProduct, findProductsByShop, updateProduct, updateProductVariation } from '../services/productService'
 import { uploadProductPicture } from '../services/uploadService'
-import { badRequest, createHttpStatus, internalServerError, noContent, notFound, ok } from '../utils/httpStatus'
+import { badRequest, createHttpStatus, internalServerError, noContent, ok } from '../utils/httpStatus'
+import { log } from '../utils/loggerUtil'
 import { isProductFromShop, isVariationFromProduct } from '../utils/middlewares'
 import { isNewProductValid, isProductPatchValid, isVariationPatchValid } from '../validations/productValidation'
 const router = Router()
@@ -19,7 +20,7 @@ router.post( '/upload', async ( req, res, next ) => {
 
     uploadMultiple( req, res, err => {
 
-        if ( err ) next( createHttpStatus( internalServerError, err ) )
+        if ( err ) return log( err.message, 'EVENT', 'UPLOAD', 'ERROR' )
 
         const filesLocation: string[] = []
 
