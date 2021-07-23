@@ -5,6 +5,7 @@
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 import { CATEGORIES, Category, SUBCATEGORIES, SubCategory } from "../models/category"
+import { ATTRIBUTES, Category_Attribute } from "../models/attribute"
 
 /**
  * List category
@@ -68,4 +69,21 @@ export const getSubCategory = async ( code: number ): Promise<SubCategory[]> => 
         : log( `Could not retrieve subcategory.`, 'EVENT', getFunctionName(), 'ERROR' )
 
     return subcategory
+}
+
+
+/**
+ * Retrieve a category attributes that has the same code
+ * 
+ * @param code  `code`
+ */
+export const getCategoryAttributes = async ( code: number ): Promise<Category_Attribute[]> => {
+
+    const attributes = ATTRIBUTES.filter( attributes => attributes.category === code )
+
+    attributes
+        ? log( `ATTRIBUTES ${ attributes } found`, 'EVENT', getFunctionName() )
+        : log( `Could not retrieve attributes.`, 'EVENT', getFunctionName(), 'ERROR' )
+
+    return attributes
 }

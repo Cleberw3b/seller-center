@@ -1,19 +1,9 @@
-import { COLORS } from "./color"
-import { FLAVORS } from "./flavors"
-import { SIZES_ALIMENTOS_BEBIDAS, SIZES_BEACHWEAR, SIZES_BEATY, SIZES_CALCADOS, SIZES_DEFAULT, SIZES_FITNESS, SIZES_HOME, SIZES_PET } from "./size"
+
 
 export interface Category {
     _id?: any,
     code: number,
-    value: string,
-    attributes: {
-        sizes?: string[],
-        colors?: string[],
-        flavors?: string[],
-        gluten_free?: [true, false],
-        lactose_free?: [true, false],
-        voltages?: ['110', '220', 'bivolt']
-    }
+    value: string
 }
 
 export interface SubCategory {
@@ -27,100 +17,50 @@ export const CATEGORIES: Category[] = [
     {
         code: 281,
         value: "Acessórios",
-        attributes: {
-            sizes: SIZES_DEFAULT,
-            colors: COLORS
-        }
     },
     {
         code: 282,
         value: "Beachwear",
-        attributes: {
-            sizes: SIZES_BEACHWEAR,
-            colors: COLORS
-        }
     },
     {
         code: 283,
         value: "Calçados",
-        attributes: {
-            sizes: SIZES_CALCADOS,
-            colors: COLORS
-        }
     },
     {
         code: 284,
         value: "Underwear",
-        attributes: {
-            sizes: SIZES_DEFAULT,
-            colors: COLORS
-        }
     },
     {
         code: 285,
         value: "Fitness",
-        attributes: {
-            sizes: SIZES_FITNESS,
-            colors: COLORS
-        }
     },
     {
         code: 286,
         value: "Roupas",
-        attributes: {
-            sizes: SIZES_DEFAULT,
-            colors: COLORS
-        }
     },
     {
         code: 288,
         value: "Home",
-        attributes: {
-            sizes: SIZES_HOME,
-            colors: COLORS
-        }
     },
     {
         code: 289,
         value: "Beauty",
-        attributes: {
-            sizes: SIZES_BEATY,
-            colors: COLORS
-        }
     },
     {
         code: 407,
         value: "Kids/Teen",
-        attributes: {
-            sizes: SIZES_DEFAULT,
-            colors: COLORS
-        }
     },
     {
         code: 426,
         value: "Joias",
-        attributes: {
-            sizes: SIZES_DEFAULT,
-            colors: COLORS
-        }
     },
     {
         code: 449,
         value: "Moda Pet",
-        attributes: {
-            sizes: SIZES_PET,
-            colors: COLORS
-        }
     },
     {
         code: 450,
         value: "Alimentos e Bebidas",
-        attributes: {
-            sizes: SIZES_ALIMENTOS_BEBIDAS,
-            flavors: FLAVORS,
-            gluten_free: [true, false],
-            lactose_free: [true, false],
-        }
     }
 ]
 

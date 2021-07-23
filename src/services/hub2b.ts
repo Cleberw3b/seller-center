@@ -188,7 +188,7 @@ export const criarProdutoHub2b = async ( produto: Product ) => {
             width_m: `${ produto.width / 100 }`,
             length_m: `${ produto.length / 100 }`,
             priceBase: `${ produto.price }`,
-            priceSale: `${ produto.price - ( produto.price_discounted ? produto.price_discounted : 0 ) }`,
+            priceSale: `${ produto.price_discounted ? produto.price_discounted : produto.price }`,
             images: imageList,
             specifications: attributes
         }
@@ -450,4 +450,82 @@ export const updateStatus = async ( order_id: string, _status: HUB2B_Status ) =>
         : log( "Get Tracking error", "EVENT", getFunctionName(), "WARN" )
 
     return status
+}
+
+
+// #############################################################
+// ##############           HOMOLOGAÇÃO         ################
+// #############################################################
+
+const sku = '60f761e79a36eb4e309d67bc'
+
+const pedido1 = 'TESTE-637624551852328025'
+const pedido2 = 'TESTE-637624551893312614'
+const pedido3 = 'TESTE-637624551908384251'
+const pedido4 = 'TESTE-637624551921954283'
+const pedido5 = 'TESTE-637624551935945533'
+
+const listaPedidos = [pedido1, pedido2, pedido3, pedido4, pedido5]
+
+const orderId1 = 797209119
+const orderId2 = 797209118
+const orderId3 = 797209117
+const orderId4 = 797209116
+const orderId5 = 797209115
+
+const ordersIds = [orderId1, orderId2, orderId3, orderId4, orderId5]
+
+const patch = { sku, warrantyMonths: 1 }
+
+const invoice: HUB2B_Invoice = {
+    cfop: '1.111',
+    issueDate: nowIsoDate(),
+    key: '11111111111111111111111111111111111111111111',
+    number: '111111111',
+    packages: 1,
+    series: '11111111111111',
+    totalAmount: 1,
+    xmlReference: '',
+}
+
+const rastreio: HUB2B_Tracking = {
+    code: 'AR-1849-SIY',
+    shippingDate: nowIsoDate(),
+    shippingProvider: 'Correrios',
+    shippingService: 'AR',
+    url: 'http://track.product'
+}
+
+const status: HUB2B_Status = {
+    active: true,
+    message: 'Mensagem de teste',
+    status: 'delivered',
+    updatedDate: nowIsoDate()
+}
+
+const getTestInvoice = () => {
+    return getInvoice( pedido1 )
+}
+
+const getTestTracking = () => {
+    return getTracking( pedido1 )
+}
+
+
+const homologHub2b = async () => {
+
+    const upProduct = await updateProduto( [patch] )
+
+    const upPrice = await updatePrice( sku, 50, 45 )
+
+    const upStock = await updateStock( sku, 50 )
+
+    const listarPedidos = await listOrders()
+
+    const upNFe = await postInvoice( pedido1, invoice )
+
+    const track = await postTracking( pedido1, rastreio )
+
+    const upStatus = await updateStatus( pedido1, status )
+
 }
