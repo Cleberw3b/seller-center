@@ -178,7 +178,7 @@ export const SIZES_HOME = [
     'U',
 ]
 
-export const SIZES_BEATY = [
+export const SIZES_BEAUTY = [
     '10',
     '12',
     '14',
