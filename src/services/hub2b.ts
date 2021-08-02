@@ -175,7 +175,7 @@ export const criarProdutoHub2b = async ( produto: Product ) => {
             weightKg: `${ produto.weight / 1000 }`,
             url: `${ PROJECT_HOST }/product/${ variation._id.toString() }`,
             sourceId: variation._id.toString(),
-            categoryCode: `${ produto.category }`,
+            categoryCode: `${ produto.subcategory }`,
             name: produto.name,
             sourceDescription: produto.description,
             description: produto.description,
