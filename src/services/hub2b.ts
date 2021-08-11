@@ -7,7 +7,7 @@ import { HUB2B_Invoice, HUB2B_Product, HUB2B_Status, HUB2B_Tracking } from "../m
 import { Product } from "../models/product"
 import { HUB2B_ACCESS_KEY_V1, HUB2B_URL_V2, PROJECT_HOST, HUB2B_CLIENT_ID, HUB2B_CLIENT_SECRET, HUB2B_USERNAME, HUB2B_PASSWORD, HUB2B_TENANT, HUB2B_URL_V1 } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
-import { getFunctionName, nowIsoDate } from "../utils/util"
+import { getFunctionName, nowInSeconds, nowIsoDate } from "../utils/util"
 
 // Default
 const default_headers = {
@@ -31,7 +31,8 @@ let credentials = {
     access_token: '',
     expires_in: 7200,
     refresh_token: '',
-    token_type: 'bearer'
+    token_type: 'bearer',
+    update_at: 0
 }
 
 export const requestHub2B = async ( URL: string, type?: Method, body?: any, headers?: any ) => {
@@ -68,7 +69,7 @@ export const requestHub2B = async ( URL: string, type?: Method, body?: any, head
     }
 }
 
-export const generateAccessTokenV2 = async () => {
+export const generateAccessTokenV2Hub2b = async () => {
 
     const URL_OAUTH = HUB2B_URL_V2 + "/oauth2/login"
 
@@ -90,10 +91,50 @@ export const generateAccessTokenV2 = async () => {
         ? log( "Token atualizado com sucesso", "EVENT", getFunctionName() )
         : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
 
+    credentials.update_at = nowInSeconds() / 60
+
     return credentials.access_token
 }
 
-export const setupIntegration = async () => {
+export const isAccessTokenValidHub2b = () => {
+
+    if ( !credentials.access_token ) return false
+
+    if ( !credentials.update_at ) return false
+
+    if ( credentials.update_at + credentials.expires_in >= nowInSeconds() / 60 ) return false
+
+}
+
+export const renewAccessTokenHub2b = async ( force = false ) => {
+
+    if ( !force ) if ( isAccessTokenValidHub2b() ) return
+
+    const URL_REFRESH = HUB2B_URL_V2 + "/oauth2/token"
+
+    const body = {
+        client_id: HUB2B_CLIENT_ID,
+        client_secret: HUB2B_CLIENT_SECRET,
+        grant_type: "refresh_token",
+        refresh_token: credentials.refresh_token
+    }
+
+    const response = await requestHub2B( URL_REFRESH, 'POST', body )
+
+    if ( !response ) return await generateAccessTokenV2Hub2b()
+
+    credentials = response.data
+
+    credentials.access_token
+        ? log( "Token atualizado com sucesso", "EVENT", getFunctionName() )
+        : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
+
+    credentials.update_at = nowInSeconds() / 60
+
+    return credentials.access_token
+}
+
+export const setupIntegrationHub2b = async () => {
 
     const SETUP_URL = HUB2B_URL_V2 + "/Setup/integration"
 
@@ -138,11 +179,10 @@ export const setupIntegration = async () => {
 
 }
 
-export const criarProdutoHub2b = async ( produto: Product ) => {
 
-    const URL = HUB2B_URL_V1 + "/setsku/" + HUB2B_TENANT
+export const parseProdutoToProdutoHub2 = ( produto: Product ): HUB2B_Product[] => {
 
-    let hub2productList: HUB2B_Product[] = []
+    const produtosHub2b: HUB2B_Product[] = []
 
     const imageList = produto.images.map( url => {
         return { url }
@@ -194,8 +234,15 @@ export const criarProdutoHub2b = async ( produto: Product ) => {
             specifications: attributes
         }
 
-        hub2productList.push( productHub2 )
+        produtosHub2b.push( productHub2 )
     } )
+
+    return produtosHub2b
+}
+
+export const criarProdutoHub2b = async ( hub2productList: HUB2B_Product[] ) => {
+
+    const URL = HUB2B_URL_V1 + "/setsku/" + HUB2B_TENANT
 
     const response = await requestHub2B( URL, 'POST', hub2productList, headersV1 )
 
@@ -209,7 +256,7 @@ export const criarProdutoHub2b = async ( produto: Product ) => {
     log( "Produto cadastrado com sucesso no HUB2B", "EVENT", getFunctionName() )
 }
 
-export const updateProduto = async ( patch: any[] ) => {
+export const updateProdutoHub2b = async ( patch: any[] ) => {
 
     const URL = HUB2B_URL_V1 + "/setsku/" + HUB2B_TENANT
 
@@ -228,9 +275,9 @@ export const updateProduto = async ( patch: any[] ) => {
 
 }
 
-export const getStock = async ( variation_id: any ) => {
+export const getStockHub2b = async ( variation_id: any ) => {
 
-    await generateAccessTokenV2()
+    await generateAccessTokenV2Hub2b()
 
     const URL_STOCK = HUB2B_URL_V2 + `/inventory/${ variation_id }/stocks` + "?access_token=" + credentials.access_token
 
@@ -247,9 +294,9 @@ export const getStock = async ( variation_id: any ) => {
     return stock
 }
 
-export const updateStock = async ( variation_id: any, stock: number ) => {
+export const updateStockHub2b = async ( variation_id: any, stock: number ) => {
 
-    await generateAccessTokenV2()
+    await renewAccessTokenHub2b()
 
     const URL_STOCK = HUB2B_URL_V2 + `/inventory/${ variation_id }/stocks` + "?access_token=" + credentials.access_token
 
@@ -270,9 +317,9 @@ export const updateStock = async ( variation_id: any, stock: number ) => {
     return update_stock
 }
 
-export const updatePrice = async ( variation_id: any, price: number, price_discounted: number ) => {
+export const updatePriceHub2b = async ( variation_id: any, price: number, price_discounted: number ) => {
 
-    await generateAccessTokenV2()
+    await renewAccessTokenHub2b()
 
     const URL_PRICE = HUB2B_URL_V2 + `/inventory/${ variation_id }/price` + "?access_token=" + credentials.access_token
 
@@ -295,9 +342,9 @@ export const updatePrice = async ( variation_id: any, price: number, price_disco
 }
 
 // TODO -> Implementar
-export const postOrder = async () => {
+export const postOrderHub2b = async () => {
 
-    await generateAccessTokenV2()
+    await renewAccessTokenHub2b()
 
     const URL_ORDERS = HUB2B_URL_V2 + "/Orders" + "?access_token=" + credentials.access_token
 
@@ -316,9 +363,9 @@ export const postOrder = async () => {
     return orders
 }
 
-export const listOrders = async ( ordersNumber?: string[] ) => {
+export const listOrdersHub2b = async ( ordersNumber?: string[] ) => {
 
-    await generateAccessTokenV2()
+    await renewAccessTokenHub2b()
 
     let URL_ORDERS = ''
 
@@ -350,9 +397,9 @@ export const listOrders = async ( ordersNumber?: string[] ) => {
     return orders
 }
 
-export const postInvoice = async ( order_id: string, _invoice: HUB2B_Invoice ) => {
+export const postInvoiceHub2b = async ( order_id: string, _invoice: HUB2B_Invoice ) => {
 
-    await generateAccessTokenV2()
+    await renewAccessTokenHub2b()
 
     const URL_INVOICE = HUB2B_URL_V2 + `/Orders/${ order_id }/Invoice` + "?access_token=" + credentials.access_token
 
@@ -371,9 +418,9 @@ export const postInvoice = async ( order_id: string, _invoice: HUB2B_Invoice ) =
     return invoice
 }
 
-export const getInvoice = async ( order_id: string ) => {
+export const getInvoiceHub2b = async ( order_id: string ) => {
 
-    await generateAccessTokenV2()
+    await renewAccessTokenHub2b()
 
     const URL_INVOICE = HUB2B_URL_V2 + `/Orders/${ order_id }/Invoice` + "?access_token=" + credentials.access_token
 
@@ -391,9 +438,9 @@ export const getInvoice = async ( order_id: string ) => {
 }
 
 // Não é permitido enviar os dados de rastreio sem antes ter enviado a nota fiscal.
-export const postTracking = async ( order_id: string, _tracking: HUB2B_Tracking ) => {
+export const postTrackingHub2b = async ( order_id: string, _tracking: HUB2B_Tracking ) => {
 
-    await generateAccessTokenV2()
+    await renewAccessTokenHub2b()
 
     const URL_TRACKING = HUB2B_URL_V2 + `/Orders/${ order_id }/Tracking` + "?access_token=" + credentials.access_token
 
@@ -412,9 +459,9 @@ export const postTracking = async ( order_id: string, _tracking: HUB2B_Tracking 
     return tracking
 }
 
-export const getTracking = async ( order_id: string ) => {
+export const getTrackingHub2b = async ( order_id: string ) => {
 
-    await generateAccessTokenV2()
+    await renewAccessTokenHub2b()
 
     const URL_TRACKING = HUB2B_URL_V2 + `/Orders/${ order_id }/Tracking` + "?access_token=" + credentials.access_token
 
@@ -432,9 +479,9 @@ export const getTracking = async ( order_id: string ) => {
 }
 
 
-export const updateStatus = async ( order_id: string, _status: HUB2B_Status ) => {
+export const updateStatusHub2b = async ( order_id: string, _status: HUB2B_Status ) => {
 
-    await generateAccessTokenV2()
+    await renewAccessTokenHub2b()
 
     const URL_STATUS = HUB2B_URL_V2 + `/Orders/${ order_id }/Status` + "?access_token=" + credentials.access_token
 
@@ -452,6 +499,18 @@ export const updateStatus = async ( order_id: string, _status: HUB2B_Status ) =>
 
     return status
 }
+
+generateAccessTokenV2Hub2b()
+
+setInterval( async () => {
+    await renewAccessTokenHub2b()
+}, 1000 * 60 * 7 )
+
+setInterval( async () => {
+    await renewAccessTokenHub2b( true )
+}, 1000 * 60 * 23 )
+
+
 
 
 // #############################################################
@@ -505,28 +564,28 @@ const status: HUB2B_Status = {
 }
 
 const getTestInvoice = () => {
-    return getInvoice( pedido1 )
+    return getInvoiceHub2b( pedido1 )
 }
 
 const getTestTracking = () => {
-    return getTracking( pedido1 )
+    return getTrackingHub2b( pedido1 )
 }
 
 
 const homologHub2b = async () => {
 
-    const upProduct = await updateProduto( [patch] )
+    const upProduct = await updateProdutoHub2b( [patch] )
 
-    const upPrice = await updatePrice( sku, 50, 45 )
+    const upPrice = await updatePriceHub2b( sku, 50, 45 )
 
-    const upStock = await updateStock( sku, 50 )
+    const upStock = await updateStockHub2b( sku, 50 )
 
-    const listarPedidos = await listOrders()
+    const listarPedidos = await listOrdersHub2b()
 
-    const upNFe = await postInvoice( pedido1, invoice )
+    const upNFe = await postInvoiceHub2b( pedido1, invoice )
 
-    const track = await postTracking( pedido1, rastreio )
+    const track = await postTrackingHub2b( pedido1, rastreio )
 
-    const upStatus = await updateStatus( pedido1, status )
+    const upStatus = await updateStatusHub2b( pedido1, status )
 
 }

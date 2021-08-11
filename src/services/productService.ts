@@ -6,7 +6,7 @@ import { Product, Variation } from "../models/product"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 import { createNewProduct, findProductById, findProductsByShopId, findVariationById, updateProductById, updateVariationById } from "../repositories/productRepository"
-import { criarProdutoHub2b } from "./hub2b"
+import productEventEmitter from "../events/product"
 
 /**
  * Save a new product
@@ -69,7 +69,7 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
 
     log( `Product ${ product.name } has been created.`, 'EVENT', getFunctionName() )
 
-    criarProdutoHub2b( product )
+    productEventEmitter.emit( 'create', product )
 
     return product
 }
@@ -113,13 +113,15 @@ export const findProductsByShop = async ( shop_id: any ): Promise<Product[] | nu
  */
 export const updateProduct = async ( _id: any, patch: any ): Promise<Product | null> => {
 
-    const products = await updateProductById( _id, patch )
+    const product = await updateProductById( _id, patch )
 
-    products
+    product
         ? log( `Update product ${ _id }`, 'EVENT', getFunctionName() )
         : log( `Could not update product`, 'EVENT', getFunctionName() )
 
-    return products
+    productEventEmitter.emit( 'update', product )
+
+    return product
 }
 
 /**
@@ -129,13 +131,15 @@ export const updateProduct = async ( _id: any, patch: any ): Promise<Product | n
  */
 export const updateProductVariation = async ( _id: any, patch: any ): Promise<Product | null> => {
 
-    const products = await updateVariationById( _id, patch )
+    const product = await updateVariationById( _id, patch )
 
-    products
+    product
         ? log( `Update product ${ _id }`, 'EVENT', getFunctionName() )
         : log( `Could not update product`, 'EVENT', getFunctionName() )
 
-    return products
+    productEventEmitter.emit( 'update', product )
+
+    return product
 }
 
 /**
