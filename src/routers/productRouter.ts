@@ -3,15 +3,16 @@
 //
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { createProduct, findProductsByShop, updateProduct, updateProductVariation } from '../services/productService'
+import { deleteVariation } from '../repositories/productRepository'
+import { createNewVariation, createProduct, findProductsByShop, updateProduct, updateProductVariation } from '../services/productService'
 import { uploadProductPicture } from '../services/uploadService'
 import { badRequest, createHttpStatus, internalServerError, noContent, ok } from '../utils/httpStatus'
 import { log } from '../utils/loggerUtil'
 import { isProductFromShop, isVariationFromProduct } from '../utils/middlewares'
-import { isNewProductValid, isProductPatchValid, isVariationPatchValid } from '../validations/productValidation'
+import { isNewProductValid, isNewVariationValid, isProductPatchValid, isVariationPatchValid } from '../validations/productValidation'
 const router = Router()
 
-const uploadMultiple = uploadProductPicture.array( 'images', 10 )
+const uploadMultiple = uploadProductPicture.array( 'images', 8 )
 
 /**
  * POST -> Send images to S3 and return the file location
@@ -120,6 +121,34 @@ router.get( '/:product_id/variation/:variation_id', isProductFromShop, isVariati
 } )
 
 /**
+ * POST -> cria variação do produto
+ */
+router.post( '/:product_id/variation', isProductFromShop, async ( req: Request, res: Response, next: NextFunction ) => {
+
+    const body = req.body
+
+    body.product_id = req.product?._id
+
+    let errors = await isNewVariationValid( body )
+
+    if ( errors.length > 0 )
+        return res
+            .status( badRequest.status )
+            .send( createHttpStatus( badRequest, errors ) )
+
+    const variation = await createNewVariation( body )
+
+    if ( !variation )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    return res
+        .status( ok.status )
+        .send( variation )
+} )
+
+/**
  * PATCH -> atualiza variação do produto
  */
 router.patch( '/:product_id/variation/:variation_id', isProductFromShop, isVariationFromProduct, async ( req: Request, res: Response, next: NextFunction ) => {
@@ -145,6 +174,28 @@ router.patch( '/:product_id/variation/:variation_id', isProductFromShop, isVaria
     return res
         .status( ok.status )
         .send( product )
+} )
+
+/**
+ * DELETE -> Exclui variação do produto
+ */
+router.delete( '/:product_id/variation/:variation_id', isProductFromShop, isVariationFromProduct, async ( req: Request, res: Response, next: NextFunction ) => {
+
+    if ( !req.product || !req.variation )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    const result = await deleteVariation( req.variation._id )
+
+    if ( !result )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    return res
+        .status( ok.status )
+        .send( result )
 } )
 
 /**

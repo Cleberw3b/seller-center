@@ -644,6 +644,31 @@ export const invalidVariationReferenceToProduct: AppError = {
     ]
 }
 
+export const invalidVariationVoltage: AppError = {
+    errorCode: 0x033,
+    description: 'Variation voltage is invalid.',
+    tip: 'Check the variation voltage field.',
+    example: [
+        `{ 
+            \'voltage\': \'110\',
+            \'voltage\': \'220\',
+            \'voltage\': \'bivolt\'
+        }`
+    ]
+}
+
+export const invalidVariationFlavor: AppError = {
+    errorCode: 0x034,
+    description: 'Variation flavor is invalid.',
+    tip: 'Check the variation flavor field.',
+    example: [
+        `{ 
+            \'flavor\': \'Neutro\',
+            \'flavor\': \'Laranja\'
+        }`
+    ]
+}
+
 /**
  * Lista com todos os erros relacionados a Client
  */

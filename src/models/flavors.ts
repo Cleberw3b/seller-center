@@ -26,6 +26,7 @@ export const FLAVORS = [
     'Matcha',
     'Melancia',
     'Morango',
+    'Neutro',
     'Uva',
     'Outros'
 ]

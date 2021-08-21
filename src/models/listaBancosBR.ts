@@ -266,6 +266,10 @@ export const BANKS: Bank[] = [
         name: "Banco Cédula"
     },
     {
+        value: "290",
+        name: "PagSeguro Internet S.A"
+    },
+    {
         value: "300",
         name: "Banco de la Nación Argentina"
     },

@@ -29,4 +29,7 @@ export interface Variation {
     voltage?: string | null,
     stock: number,
     color?: string,
+    flavor?: string,
+    gluten_free?: boolean,
+    lactose_free?: boolean,
 }

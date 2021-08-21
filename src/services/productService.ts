@@ -5,7 +5,7 @@
 import { Product, Variation } from "../models/product"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
-import { createNewProduct, findProductById, findProductsByShopId, findVariationById, updateProductById, updateVariationById } from "../repositories/productRepository"
+import { createNewProduct, createVariation, deleteVariation, findProductById, findProductsByShopId, findVariationById, updateProductById, updateVariationById } from "../repositories/productRepository"
 import productEventEmitter from "../events/product"
 
 /**
@@ -159,6 +159,33 @@ export const findVariation = async ( variation_id: any ): Promise<Variation | nu
     return variation
 }
 
+export const createNewVariation = async ( body: any ): Promise<Variation | null> => {
+
+    const { product_id, stock, color, size, voltage, flavor, gluten_free, lactose_free } = body
+
+    let ref_variation: Variation = { product_id, stock }
+
+    if ( color ) ref_variation = Object.assign( ref_variation, { color } )
+
+    if ( size ) ref_variation = Object.assign( ref_variation, { size } )
+
+    if ( voltage ) ref_variation = Object.assign( ref_variation, { voltage } )
+
+    if ( flavor ) ref_variation = Object.assign( ref_variation, { flavor } )
+
+    if ( gluten_free ) ref_variation = Object.assign( ref_variation, { gluten_free } )
+
+    if ( lactose_free ) ref_variation = Object.assign( ref_variation, { lactose_free } )
+
+    let variation = await createVariation( ref_variation )
+
+    variation
+        ? log( `Variation ${ variation._id } has been created.`, 'EVENT', getFunctionName() )
+        : log( `Variation could not be created.`, 'EVENT', getFunctionName() )
+
+    return variation
+}
+
 /**
  * Find a product variation by variation id
  * 
@@ -185,4 +212,15 @@ export const findProductVariation = async ( variation_id: any ): Promise<Product
     product.variations = [variation]
 
     return product
+}
+
+export const deleteVariationById = async ( variation_id: string ): Promise<boolean> => {
+
+    let result = await deleteVariation( variation_id )
+
+    result
+        ? log( `Variation has been deleted.`, 'EVENT', getFunctionName() )
+        : log( `Variation could not be deleted.`, 'EVENT', getFunctionName() )
+
+    return result
 }

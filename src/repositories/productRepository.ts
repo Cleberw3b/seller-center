@@ -248,3 +248,52 @@ export const findVariationById = async ( variation_id: string ): Promise<Variati
         return null
     }
 }
+
+/**
+ * Creates a variation
+ * 
+ * @param variation
+ */
+export const createVariation = async ( variation: Variation ): Promise<Variation | null> => {
+
+    try {
+
+        const result = await variationCollection.insertOne( variation )
+
+        const variationInserted = result.ops[0] ? result.ops[0] : null
+
+        if ( !variationInserted ) throw new Error( "Could not save into database" )
+
+        return variationInserted
+
+    } catch ( error ) {
+
+        if ( error instanceof MongoError || error instanceof Error )
+            log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
+        return null
+    }
+}
+
+
+/**
+ * Creates a variation
+ * 
+ * @param variation
+ */
+export const deleteVariation = async ( variation_id: string ): Promise<boolean> => {
+
+    try {
+
+        const result = await variationCollection.deleteOne( { _id: variation_id } )
+
+        return result.deletedCount ? result.deletedCount >= 1 : false
+
+    } catch ( error ) {
+
+        if ( error instanceof MongoError || error instanceof Error )
+            log( error.message, 'EVENT', `Activation Token Repository - ${ getFunctionName() }`, 'ERROR' )
+
+        return false
+    }
+}
