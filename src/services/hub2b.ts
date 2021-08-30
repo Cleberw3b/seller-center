@@ -52,8 +52,8 @@ export const requestHub2B = async ( URL: string, type?: Method, body?: any, head
         } )
 
         response
-            ? log( "Request success", "EVENT", getFunctionName() )
-            : log( "Request failed", "EVENT", getFunctionName(), "WARN" )
+            ? log( "Request success", "EVENT", getFunctionName( 3 ) )
+            : log( "Request failed", "EVENT", getFunctionName( 3 ), "WARN" )
 
         return response
 
@@ -65,7 +65,18 @@ export const requestHub2B = async ( URL: string, type?: Method, body?: any, head
         }
 
         if ( error instanceof Error ) {
-            log( error.message, "EVENT", getFunctionName(), "ERROR" )
+            log( error.message, "EVENT", getFunctionName( 3 ), "ERROR" )
+        }
+
+        if ( axios.isAxiosError( error ) ) {
+            error.response?.data?.error &&
+                log( error.response?.data?.error, "EVENT", getFunctionName( 3 ), "ERROR" )
+            error.response?.data?.error_description &&
+                log( error.response?.data?.error_description, "EVENT", getFunctionName( 3 ), "ERROR" )
+            error.response?.data?.message &&
+                log( error.response?.data?.message, "EVENT", getFunctionName( 3 ), "ERROR" )
+            error.response?.data?.errors &&
+                log( error.response?.data?.errors, "EVENT", getFunctionName( 3 ), "ERROR" )
         }
 
         return null
@@ -91,10 +102,10 @@ export const generateAccessTokenV2Hub2b = async () => {
     credentials = response.data
 
     credentials.access_token
-        ? log( "Token atualizado com sucesso", "EVENT", getFunctionName() )
+        ? log( "Access Token obtido com sucesso", "EVENT", getFunctionName() )
         : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
 
-    credentials.update_at = nowInSeconds() / 60
+    credentials.update_at = Math.floor( nowInSeconds() / 60 )
 
     return credentials.access_token
 }
@@ -105,13 +116,16 @@ export const isAccessTokenValidHub2b = () => {
 
     if ( !credentials.update_at ) return false
 
-    if ( credentials.update_at + credentials.expires_in >= nowInSeconds() / 60 ) return false
+    if ( credentials.update_at + credentials.expires_in < Math.floor( nowInSeconds() / 60 ) ) return false
 
+    return true
 }
 
 export const renewAccessTokenHub2b = async ( force = false ) => {
 
     if ( !force ) if ( isAccessTokenValidHub2b() ) return
+
+    if ( !credentials.refresh_token ) return await generateAccessTokenV2Hub2b()
 
     const URL_REFRESH = HUB2B_URL_V2 + "/oauth2/token"
 
@@ -130,7 +144,7 @@ export const renewAccessTokenHub2b = async ( force = false ) => {
 
     credentials.access_token
         ? log( "Token atualizado com sucesso", "EVENT", getFunctionName() )
-        : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
+        : log( "Não foi passível atualizar o token de acesso", "EVENT", getFunctionName(), "WARN" )
 
     credentials.update_at = nowInSeconds() / 60
 
@@ -417,26 +431,57 @@ export const postOrderHub2b = async () => {
     return orders
 }
 
-export const listOrdersHub2b = async ( ordersNumber?: string[] ) => {
+export const listOrdersHub2bByOrderNumbers = async ( ordersNumber: string[] ) => {
 
     await renewAccessTokenHub2b()
 
-    let URL_ORDERS = ''
+    let orderParam = ''
 
-    if ( ordersNumber ) {
+    for ( const orderNumber of ordersNumber ) {
+        orderParam += orderNumber + ","
+    }
 
-        let orderParam = ''
+    orderParam = orderParam.substr( 0, orderParam.length - 1 )
 
-        for ( const orderNumber of ordersNumber ) {
-            orderParam += orderNumber + ","
-        }
+    const URL_ORDERS = HUB2B_URL_V2 + "/Orders" + "?number=" + orderParam + "&access_token=" + credentials.access_token
 
-        orderParam = orderParam.substr( 0, orderParam.length - 1 )
+    const response = await requestHub2B( URL_ORDERS )
 
-        URL_ORDERS = HUB2B_URL_V2 + "/Orders" + "?number=" + orderParam + "&access_token=" + credentials.access_token
+    if ( !response ) return null
 
-    } else
-        URL_ORDERS = HUB2B_URL_V2 + "/Orders" + "?access_token=" + credentials.access_token
+    const orders = response.data.response
+
+    orders
+        ? log( "Get List Orders success", "EVENT", getFunctionName() )
+        : log( "Get List Orders error", "EVENT", getFunctionName(), "WARN" )
+
+    return orders
+}
+
+export const listOrdersHub2bByTime = async ( purchaseFrom: string, purchaseTo: string ) => {
+
+    await renewAccessTokenHub2b()
+
+    const URL_ORDERS = HUB2B_URL_V2 + "/Orders" + "?purchaseFrom=" + purchaseFrom + "&purchaseTo=" + purchaseTo + "&access_token=" + credentials.access_token
+
+    const response = await requestHub2B( URL_ORDERS )
+
+    if ( !response ) return null
+
+    const orders = response.data.response
+
+    orders
+        ? log( "Get List Orders success", "EVENT", getFunctionName() )
+        : log( "Get List Orders error", "EVENT", getFunctionName(), "WARN" )
+
+    return orders
+}
+
+export const listAllOrdersHub2b = async () => {
+
+    await renewAccessTokenHub2b()
+
+    const URL_ORDERS = HUB2B_URL_V2 + "/Orders" + "?access_token=" + credentials.access_token
 
     const response = await requestHub2B( URL_ORDERS )
 
@@ -554,17 +599,10 @@ export const updateStatusHub2b = async ( order_id: string, _status: HUB2B_Status
     return status
 }
 
-generateAccessTokenV2Hub2b()
-
-setInterval( async () => {
-    await renewAccessTokenHub2b()
-}, 1000 * 60 * 7 )
 
 setInterval( async () => {
     await renewAccessTokenHub2b( true )
 }, 1000 * 60 * 23 )
-
-
 
 
 // #############################################################
@@ -634,7 +672,7 @@ const homologHub2b = async () => {
 
     const upStock = await updateStockHub2b( sku, 50 )
 
-    const listarPedidos = await listOrdersHub2b()
+    const listarPedidos = await listAllOrdersHub2b()
 
     const upNFe = await postInvoiceHub2b( pedido1, invoice )
 

@@ -27,3 +27,5 @@ dist
 # VS-Code
 .history
 .vscode
+
+.env.prod

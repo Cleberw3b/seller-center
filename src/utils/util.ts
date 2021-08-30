@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from 'axios'
 import { cpf, cnpj } from 'cpf-cnpj-validator'
-import { isDate, isExists, parse } from 'date-fns'
+import { isDate, isExists, parse, } from 'date-fns'
 import { log } from './loggerUtil'
 
 /**
@@ -31,7 +31,7 @@ export const getFunctionName = ( depth: number = 1 ) => {
 /**
  * 
  * @param timestamp 
- * @returns this format 2020-05-01
+ * @returns the time in format of dd-mm-yyyy
  */
 export const formatDate = ( timestamp: number ) => {
     const date = new Date( timestamp )
@@ -39,6 +39,22 @@ export const formatDate = ( timestamp: number ) => {
     const month = date.getMonth() < 10 ? '0' + ( date.getMonth() + 1 ) : date.getMonth() + 1
     const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
     return day + '-' + month + '-' + year
+}
+
+/**
+ * 
+ * @param timestamp 
+ * @returns the time in format of yyyy-mm-ddTHH:mm:ss
+ */
+export const formatDateEnglish = ( timestamp: number ) => {
+    const date = new Date( timestamp )
+    const year = date.getFullYear()
+    const month = date.getMonth() < 10 ? '0' + ( date.getMonth() + 1 ) : date.getMonth() + 1
+    const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
+    const hour = date.getHours()
+    const minutes = date.getMinutes()
+    const seconds = date.getSeconds()
+    return year + '-' + month + '-' + day + 'T' + hour + ":" + minutes + ":" + seconds
 }
 
 /**
@@ -137,16 +153,16 @@ export const logAxiosError = ( error: AxiosError ) => {
     ------ AXIOS ERROR -------
 
         -- URL --
-    ${ prettyFormat( error.config?.url ) } 
+    ${ console.log( error.config?.url ) } 
 
     -- REQUEST DATA --
-     ${ prettyFormat( error.config?.data ) }
+     ${ console.log( error.config?.data ) }
 
      -- REQUEST HEADERS --
-    ${ prettyFormat( error.config?.headers ) }
+    ${ console.log( error.config?.headers ) }
 
     -- RESPONSE DATA --
-    ${ prettyFormat( error.response?.data ? error.response?.data : error.response ) }
+    ${ console.log( error.response?.data ? error.response?.data : error.response ) }
     ------ END LOG -------
     `)
 }
@@ -156,16 +172,16 @@ export const logResponse = ( response: AxiosResponse ) => {
     ------ AXIOS RESPONSE -------
 
         -- URL --
-    ${ prettyFormat( response.config.url ) } 
+    ${ console.log( response.config.url ) } 
 
     -- REQUEST DATA --
-     ${ prettyFormat( response.request ) }
+     ${ console.log( response.request ) }
 
      -- REQUEST HEADERS --
-    ${ prettyFormat( response.config.headers ) }
+    ${ console.log( response.config.headers ) }
 
     -- RESPONSE DATA --
-    ${ prettyFormat( response.data ) }
+    ${ console.log( response.data ) }
     ------ END LOG -------
     `)
 }

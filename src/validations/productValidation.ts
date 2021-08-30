@@ -5,7 +5,7 @@
 import { COLORS } from "../models/color"
 import { FLAVORS } from "../models/flavors"
 import { AppError, invalidCategory, invalidEAN, invalidImageReference, invalidNationality, invalidProductBrand, invalidProductDescription, invalidProductGender, invalidProductName, invalidProductVariations, invalidSKU, invalidSubCategory, invalidVariationColor, invalidVariationFlavor, invalidVariationHeight, invalidVariationLength, invalidVariationPrice, invalidVariationPriceDiscounted, invalidVariationSize, invalidVariationStock, invalidVariationVoltage, invalidVariationWeight, invalidVariationWidth } from "../utils/errors/errors"
-import { isNegativeNumber, isNotNumber } from "../utils/util"
+import { isNegativeNumber, isNotNumber, parsePotentiallyGroupedFloat } from "../utils/util"
 
 /**
  * Verifies if the product is valid
@@ -44,6 +44,8 @@ export const isNewProductValid = async ( body: any ): Promise<AppError[]> => {
     if ( !body.length || isNotNumber( body.length ) || isNegativeNumber( body.length ) ) errors.push( invalidVariationLength )
 
     if ( !body.weight || isNotNumber( body.weight ) || isNegativeNumber( body.weight ) ) errors.push( invalidVariationWeight )
+
+    body.price = parsePotentiallyGroupedFloat( body.price)
 
     if ( !body.price || isNotNumber( body.price ) || isNegativeNumber( body.price ) ) errors.push( invalidVariationPrice )
 

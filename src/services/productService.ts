@@ -91,6 +91,30 @@ export const findProduct = async ( product_id: any ): Promise<Product | null> =>
 }
 
 /**
+ * Find a product by variation id
+ * 
+ * @param variation_id - variation_id
+ */
+export const findProductByVariation = async ( variation_id: any ): Promise<Product | null> => {
+
+    const variation = await findVariationById( variation_id )
+
+    variation
+        ? log( `Variation ${ variation._id } has been found.`, 'EVENT', getFunctionName() )
+        : log( `Variation ${ variation_id } could not be found.`, 'EVENT', getFunctionName() )
+
+    if ( !variation ) return null
+
+    const product = await findProductById( variation.product_id )
+
+    product
+        ? log( `Product ${ product._id } has been found.`, 'EVENT', getFunctionName() )
+        : log( `Product ${ variation.product_id } could not be found.`, 'EVENT', getFunctionName() )
+
+    return product
+}
+
+/**
  * Find all products for a given shop id
  *
  * @param shop_id - shop_id
@@ -201,35 +225,9 @@ export const createNewVariation = async ( body: any ): Promise<Variation | null>
         ? log( `Variation ${ variation._id } has been created.`, 'EVENT', getFunctionName() )
         : log( `Variation could not be created.`, 'EVENT', getFunctionName() )
 
+    productEventEmitter.emit( 'update', await findProductByVariation( variation?._id ) )
+
     return variation
-}
-
-/**
- * Find a product variation by variation id
- * 
- * @param variation_id - variation_id
- */
-export const findProductVariation = async ( variation_id: any ): Promise<Product | null> => {
-
-    let variation = await findVariation( variation_id )
-
-    if ( !variation ) {
-        log( `Variation ${ variation_id } does not exist.`, 'EVENT', getFunctionName() )
-        return null
-    }
-
-    let product = await findProduct( variation.product_id )
-
-    if ( !product ) {
-        log( `Product ${ variation.product_id } does not exist.`, 'EVENT', getFunctionName() )
-        return null
-    }
-
-    log( `Product ${ product.name } has been found.`, 'EVENT', getFunctionName() )
-
-    product.variations = [variation]
-
-    return product
 }
 
 export const deleteVariationById = async ( variation_id: string ): Promise<boolean> => {
@@ -239,6 +237,8 @@ export const deleteVariationById = async ( variation_id: string ): Promise<boole
     result
         ? log( `Variation has been deleted.`, 'EVENT', getFunctionName() )
         : log( `Variation could not be deleted.`, 'EVENT', getFunctionName() )
+
+    productEventEmitter.emit( 'update', await findProductByVariation( variation_id ) )
 
     return result
 }

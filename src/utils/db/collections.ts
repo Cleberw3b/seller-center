@@ -3,6 +3,7 @@ import { User } from '../../models/user'
 import { AccessToken } from '../../models/token'
 import { Address, BankInfo, Contact, PersonalInfo, ShopInfo } from '../../models/account'
 import { Product, Variation } from '../../models/product'
+import { Order, OrderIntegration } from '../../models/order'
 
 export const USER_COLLECTION = 'user'
 export const ACTIVATION_TOKEN_COLLECTION = 'activation_token'
@@ -13,6 +14,8 @@ export const SHOP_INFO_COLLECTION = 'shop_info'
 export const BANK_INFO_COLLECTION = 'bank_info'
 export const PRODUCT_COLLECTION = 'product'
 export const VARIATION_COLLECTION = 'variation'
+export const ORDER_COLLECTION = 'order'
+export const ORDER_INTEGRATION_COLLECTION = 'order_integration'
 
 let userCollection: Collection<User>
 let accessTokenCollection: Collection<AccessToken>
@@ -23,6 +26,8 @@ let shopInfoCollection: Collection<ShopInfo>
 let bankInfoCollection: Collection<BankInfo>
 let productCollection: Collection<Product>
 let variationCollection: Collection<Variation>
+let orderCollection: Collection<Order>
+let orderIntegrationCollection: Collection<OrderIntegration>
 
 export const createCollections = async ( database: Db ) => {
 
@@ -35,6 +40,8 @@ export const createCollections = async ( database: Db ) => {
     bankInfoCollection = database.collection<BankInfo>( BANK_INFO_COLLECTION )
     productCollection = database.collection<Product>( PRODUCT_COLLECTION )
     variationCollection = database.collection<Variation>( VARIATION_COLLECTION )
+    orderCollection = database.collection<Order>( ORDER_COLLECTION )
+    orderIntegrationCollection = database.collection<OrderIntegration>( ORDER_INTEGRATION_COLLECTION )
 
     await startIndexes()
 }
@@ -52,5 +59,7 @@ export {
     shopInfoCollection,
     bankInfoCollection,
     productCollection,
-    variationCollection
+    variationCollection,
+    orderCollection,
+    orderIntegrationCollection,
 }
