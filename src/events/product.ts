@@ -4,7 +4,7 @@
 
 import events from 'events'
 import { Product } from '../models/product'
-import { criarProdutoHub2b, parseProdutoToProdutoHub2, updateProdutoHub2b } from '../services/hub2b'
+import { criarProdutoHub2b, deleteProdutoHub2b, parseProdutoToProdutoHub2, updateProdutoHub2b } from '../services/hub2b'
 
 const productEventEmitter = new events.EventEmitter()
 
@@ -21,7 +21,11 @@ productEventEmitter.on( 'update', ( product: Product ) => {
     console.log( `ProductEventEmitter` )
     console.log( `Update produto ${ product._id } na hub2b.` )
 
-    updateProdutoHub2b( parseProdutoToProdutoHub2( product ) )
+    if ( product.is_active )
+        updateProdutoHub2b( parseProdutoToProdutoHub2( product ) )
+    else
+        deleteProdutoHub2b( product._id )
+
 } )
 
 export default productEventEmitter

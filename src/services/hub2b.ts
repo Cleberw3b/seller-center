@@ -5,6 +5,7 @@
 import axios, { Method } from "axios"
 import { HUB2B_Invoice, HUB2B_Product, HUB2B_Status, HUB2B_Tracking } from "../models/hub2b"
 import { Product } from "../models/product"
+import { SALES_CHANNEL_HUB2B } from "../models/salesChannelHub2b"
 import { HUB2B_ACCESS_KEY_V1, HUB2B_URL_V2, PROJECT_HOST, HUB2B_CLIENT_ID, HUB2B_CLIENT_SECRET, HUB2B_USERNAME, HUB2B_PASSWORD, HUB2B_TENANT, HUB2B_URL_V1 } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowInSeconds, nowIsoDate } from "../utils/util"
@@ -273,6 +274,50 @@ export const updateProdutoHub2b = async ( patch: any[] ) => {
 
     log( "Produto atualizado com sucesso no HUB2B", "EVENT", getFunctionName() )
 
+}
+
+export const deleteProdutoHub2b = async ( product_id: string ) => {
+
+    const URL = HUB2B_URL_V1 + "/removeproduct/" + HUB2B_TENANT
+
+    const body = SALES_CHANNEL_HUB2B.map( channel => {
+        return {
+            itemId: product_id,
+            salesChannel: channel.code
+        }
+    } )
+
+    const response = await requestHub2B( URL, 'POST', body, headersV1 )
+
+    if ( !response ) return null
+
+    if ( response?.data.error ) {
+
+        log( "Não foi possível deletar produto no HUB2B", "EVENT", getFunctionName(), "WARN" )
+
+        return null
+    }
+
+    log( "Produto deletado com sucesso no HUB2B", "EVENT", getFunctionName() )
+}
+
+export const getSKU = async ( sku: string ) => {
+
+    await generateAccessTokenV2Hub2b()
+
+    const URL_STOCK = `https://eb-api-sandbox.plataformahub.com.br/RestServiceImpl.svc/listskus/${ HUB2B_TENANT }?filter=sku:${ sku }`
+
+    const response = await requestHub2B( URL_STOCK )
+
+    if ( !response ) return null
+
+    const product = response.data
+
+    product
+        ? log( "Get List Orders success", "EVENT", getFunctionName() )
+        : log( "Get List Orders error", "EVENT", getFunctionName(), "WARN" )
+
+    return product
 }
 
 export const getStockHub2b = async ( variation_id: any ) => {
