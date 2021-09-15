@@ -43,7 +43,7 @@ export const SALES_CHANNEL_HUB2B = [
     {
         code: 71,
         ticker: "css",
-        name: "CissaMagazine"
+        name: "Cissa Magazine"
     },
     {
         code: 73,
@@ -63,7 +63,7 @@ export const SALES_CHANNEL_HUB2B = [
     {
         code: 76,
         ticker: "mag",
-        name: "MagazineLuiza"
+        name: "Magazine Luiza"
     },
     {
         code: 77,
@@ -239,6 +239,65 @@ export const SALES_CHANNEL_HUB2B = [
         code: 131,
         ticker: "tcob",
         name: "TocaObra"
+    },
+    {
+        code: 133,
+        ticker: "rds",
+        name: "RaiaDrogasil"
+    }
+]
+
+
+export const USED_CHANNELS = [
+    {
+        code: 4,
+        ticker: "mrc",
+        name: "MercadoLivre"
+    },
+    {
+        code: 7,
+        ticker: "amz",
+        name: "Amazon"
+    },
+    {
+        code: 41,
+        ticker: "daf",
+        name: "Dafiti"
+    },
+    {
+        code: 73,
+        ticker: "cfr",
+        name: "Carrefour"
+    },
+    {
+        code: 76,
+        ticker: "mag",
+        name: "Magazine Luiza"
+    },
+    {
+        code: 82,
+        ticker: "sky",
+        name: "B2WSkyHub"
+    },
+    {
+        code: 85,
+        ticker: "cea",
+        name: "CeA"
+    },
+    {
+        code: 115,
+        ticker: "eji",
+        name: "Enjoei"
+    },
+    {
+        code: 124,
+        ticker: "shp",
+        name: "Shopee"
+    },
+    {
+        code: 122,
+        ticker: "gpa",
+        name: "GPA"
     },
     {
         code: 133,

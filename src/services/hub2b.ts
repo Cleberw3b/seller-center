@@ -349,6 +349,7 @@ export const updateStockHub2b = async ( variation_id: any, stock: number ) => {
         available: stock,
         warehouseId: 0
     }
+
     const response = await requestHub2B( URL_STOCK, 'PUT', body )
 
     if ( !response ) return null
