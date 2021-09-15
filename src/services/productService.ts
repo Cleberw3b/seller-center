@@ -4,7 +4,7 @@
 
 import { Product, Variation } from "../models/product"
 import { log } from "../utils/loggerUtil"
-import { getFunctionName } from "../utils/util"
+import { getFunctionName, isNegativeNumber } from "../utils/util"
 import { createNewProduct, createVariation, deleteVariation, findProductById, findProductsByShopId, findVariationById, updateProductById, updateVariationById } from "../repositories/productRepository"
 import productEventEmitter from "../events/product"
 
@@ -113,6 +113,13 @@ export const findProductsByShop = async ( shop_id: any ): Promise<Product[] | nu
  */
 export const updateProduct = async ( _id: any, patch: any ): Promise<Product | null> => {
 
+    let isPriceUpdate = false
+
+    if ( patch.price && !isNegativeNumber( patch.price ) )
+        isPriceUpdate = true
+    else if ( patch.price_discounted && !isNegativeNumber( patch.price_discounted ) )
+        isPriceUpdate = true
+
     const product = await updateProductById( _id, patch )
 
     product
@@ -120,6 +127,10 @@ export const updateProduct = async ( _id: any, patch: any ): Promise<Product | n
         : log( `Could not update product`, 'EVENT', getFunctionName() )
 
     productEventEmitter.emit( 'update', product )
+
+    if ( !product?.is_active ) productEventEmitter.emit( 'delete', product )
+
+    if ( isPriceUpdate ) productEventEmitter.emit( 'update_price', product )
 
     return product
 }
@@ -131,6 +142,11 @@ export const updateProduct = async ( _id: any, patch: any ): Promise<Product | n
  */
 export const updateProductVariation = async ( _id: any, patch: any ): Promise<Product | null> => {
 
+    let isSotckUpdate = false
+
+    if ( patch.stock && !isNegativeNumber( patch.stock ) )
+        isSotckUpdate = true
+
     const product = await updateVariationById( _id, patch )
 
     product
@@ -138,6 +154,8 @@ export const updateProductVariation = async ( _id: any, patch: any ): Promise<Pr
         : log( `Could not update product`, 'EVENT', getFunctionName() )
 
     productEventEmitter.emit( 'update', product )
+
+    if ( isSotckUpdate ) productEventEmitter.emit( 'update_stock', product )
 
     return product
 }
