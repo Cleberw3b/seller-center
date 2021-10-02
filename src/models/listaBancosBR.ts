@@ -282,8 +282,8 @@ export const BANKS: Bank[] = [
         name: "Banco Industrial e Comercial"
     },
     {
-        value: "356",
-        name: "ABN Amro Real"
+        value: "336",
+        name: "C6 Bank"
     },
     {
         value: "341",
@@ -300,6 +300,10 @@ export const BANKS: Bank[] = [
     {
         value: "353",
         name: "Banco Santander Brasil"
+    },
+    {
+        value: "356",
+        name: "ABN Amro Real"
     },
     {
         value: "366",

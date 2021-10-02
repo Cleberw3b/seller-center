@@ -91,6 +91,8 @@ export const activationEmailContent = ( user: User, activationUrl: string ) => `
                                                                                 <tr>
                                                                                     <td align="center" class="esd-block-text es-p10t es-p10b">
                                                                                         <p>Para ativar sua conta acesse o link <a href="${ activationUrl }" target="_blank">${ activationUrl }</a></p>
+                                                                                        <br>
+                                                                                        <p>O Link vai espirar dentro de 24 horas, após esse periodo será necessário cadastrar novamente.</p>
                                                                                     </td>
                                                                                 </tr>
                                                                             </tbody>

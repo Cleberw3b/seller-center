@@ -3,7 +3,7 @@
 //
 
 import { Role, User } from "../models/user"
-import { createNewUser, enableUser, findOneUser, findUserById, updatePassword } from "../repositories/userRepository"
+import { createNewUser, deleteUserByID, enableUser, findOneUser, findUserById, updatePassword } from "../repositories/userRepository"
 import { hashPassword } from "../utils/cryptUtil"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
@@ -153,4 +153,20 @@ export const activateUser = async ( token: string ): Promise<User | null> => {
     user.isActive = true
 
     return user
+}
+
+/**
+ * Delete user
+ * 
+ * @param user_id
+ */
+export const deleteUser = async ( user_id: string ): Promise<User | null> => {
+
+    const deleted = await deleteUserByID( user_id )
+
+    deleted
+        ? log( `User ${ user_id } deleted.`, 'EVENT', getFunctionName() )
+        : log( `Could not delete user.`, 'EVENT', getFunctionName(), 'ERROR' )
+
+    return deleted
 }

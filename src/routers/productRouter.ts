@@ -12,7 +12,7 @@ import { isProductFromShop, isVariationFromProduct } from '../utils/middlewares'
 import { isNewProductValid, isNewVariationValid, isProductPatchValid, isVariationPatchValid } from '../validations/productValidation'
 const router = Router()
 
-const uploadMultiple = uploadProductPicture.array( 'images', 8 )
+const uploadMultiple = uploadProductPicture.array( 'images', 6 )
 
 /**
  * POST -> Send images to S3 and return the file location

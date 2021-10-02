@@ -115,6 +115,7 @@ export const SIZES_CALCADOS = [
     '46',
     '48',
     '50',
+    'U',
 ]
 
 export const SIZES_HOME = [
@@ -275,6 +276,7 @@ export const SIZES_BEAUTY = [
     '196',
     '198',
     '200',
+    'U',
 ]
 
 export const SIZES_FITNESS = [
@@ -521,4 +523,5 @@ export const SIZES_ALIMENTOS_BEBIDAS = [
     '980',
     '990',
     '1000',
+    'U',
 ]

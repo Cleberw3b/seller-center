@@ -7,6 +7,10 @@ import { AccessToken } from "../models/token"
 import { createAccessToken, deleteAccessToken, findAccessTokenByToken, retrieveAllAccessToken } from "../repositories/tokenRepository"
 import { log } from "../utils/loggerUtil"
 import { create_UUID, getFunctionName, nowInSeconds } from "../utils/util"
+import { deleteUser } from "./userService"
+
+const ONE_DAY_IN_SECONDS = 86400
+const TWO_DAYS_IN_SECONDS = 172800
 
 /**
  * Crea
@@ -15,7 +19,7 @@ import { create_UUID, getFunctionName, nowInSeconds } from "../utils/util"
  */
 export const generateAccessToken = async ( user: User ): Promise<AccessToken | null> => {
 
-    const expiration = nowInSeconds() + 86400
+    const expiration = nowInSeconds() + ONE_DAY_IN_SECONDS
 
     const token = create_UUID()
 
@@ -72,8 +76,11 @@ export const deleteAllInvalid = async () => {
     if ( !tokens ) return
 
     tokens.forEach( token => {
-        if ( !isTokenValid( token.token ) ) deleteAccessToken( token.token )
+        if ( !isTokenValid( token.token ) ) {
+            removeAccessToken( token.token )
+            deleteUser( token.user_id )
+        }
     } )
 }
 
-setTimeout( deleteAllInvalid, 2 * 60 * 1000 )
+setInterval( deleteAllInvalid, 2 * 60 * 1000 )

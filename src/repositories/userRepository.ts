@@ -157,12 +157,9 @@ export const enableUser = async ( _id: any ) => {
  * 
  * @param id - User Id
  */
-export const deleteUser = async ( _id: any ): Promise<User | null> => {
+export const deleteUserByID = async ( _id: any ): Promise<User | null> => {
 
     try {
-
-        // Do not use in production
-        if ( IS_PRODUCTION_ENV ) throw new Error( "Impossible to execute command." )
 
         const result = await userCollection.findOneAndDelete( { _id: new ObjectID( _id ) } )
 
