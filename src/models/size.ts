@@ -45,7 +45,10 @@ export const SIZES_DEFAULT = [
     'P',
     'M',
     'G',
-    'U'
+    'GG',
+    'XGG',
+    'XXGG',
+    'U',
 ]
 
 export const SIZES_BEACHWEAR = [
@@ -86,6 +89,8 @@ export const SIZES_BEACHWEAR = [
     'G',
     'GG',
     'GGG',
+    'XGG',
+    'XXGG',
     'U',
 ]
 
@@ -302,6 +307,8 @@ export const SIZES_FITNESS = [
     'G',
     'GG',
     'GGG',
+    'XGG',
+    'XXGG',
     'U',
 ]
 
