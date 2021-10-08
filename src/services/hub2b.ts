@@ -8,7 +8,7 @@ import { Product } from "../models/product"
 import { SALES_CHANNEL_HUB2B } from "../models/salesChannelHub2b"
 import { HUB2B_ACCESS_KEY_V1, HUB2B_URL_V2, PROJECT_HOST, HUB2B_CLIENT_ID, HUB2B_CLIENT_SECRET, HUB2B_USERNAME, HUB2B_PASSWORD, HUB2B_TENANT, HUB2B_URL_V1 } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
-import { getFunctionName, nowInSeconds, nowIsoDate } from "../utils/util"
+import { getFunctionName, logAxiosError, logResponse, nowInSeconds, nowIsoDate } from "../utils/util"
 
 // Default
 const default_headers = {
@@ -59,8 +59,10 @@ export const requestHub2B = async ( URL: string, type?: Method, body?: any, head
 
     } catch ( error ) {
 
-        if ( axios.isAxiosError( error ) )
+        if ( axios.isAxiosError( error ) ) {
             log( error.response?.data?.errors, "EVENT", getFunctionName(), "ERROR" )
+            logAxiosError( error )
+        }
 
         if ( error instanceof Error ) {
             log( error.message, "EVENT", getFunctionName(), "ERROR" )
@@ -231,7 +233,7 @@ export const parseProdutoToProdutoHub2 = ( produto: Product ): HUB2B_Product[] =
             length_m: `${ produto.length / 100 }`,
             priceBase: `${ produto.price }`,
             priceSale: `${ produto.price_discounted ? produto.price_discounted : produto.price }`,
-            images: imageList,
+            images: [... new Set( imageList )],
             specifications: attributes
         }
 
@@ -255,6 +257,8 @@ export const criarProdutoHub2b = async ( hub2productList: HUB2B_Product[] ) => {
     }
 
     log( "Produto cadastrado com sucesso no HUB2B", "EVENT", getFunctionName() )
+
+    response && logResponse( response )
 }
 
 export const updateProdutoHub2b = async ( patch: any[] ) => {
@@ -273,6 +277,8 @@ export const updateProdutoHub2b = async ( patch: any[] ) => {
     }
 
     log( "Produto atualizado com sucesso no HUB2B", "EVENT", getFunctionName() )
+
+    response && logResponse( response )
 
 }
 
@@ -299,6 +305,8 @@ export const deleteProdutoHub2b = async ( product_id: string ) => {
     }
 
     log( "Produto deletado com sucesso no HUB2B", "EVENT", getFunctionName() )
+
+    response && logResponse( response )
 }
 
 export const getSKU = async ( sku: string ) => {

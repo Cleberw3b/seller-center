@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 import { cpf, cnpj } from 'cpf-cnpj-validator'
 import { isDate, isExists, parse } from 'date-fns'
 import { log } from './loggerUtil'
@@ -147,6 +147,25 @@ export const logAxiosError = ( error: AxiosError ) => {
 
     -- RESPONSE DATA --
     ${ prettyFormat( error.response?.data ? error.response?.data : error.response ) }
+    ------ END LOG -------
+    `)
+}
+
+export const logResponse = ( response: AxiosResponse ) => {
+    console.log( `
+    ------ AXIOS RESPONSE -------
+
+        -- URL --
+    ${ prettyFormat( response.config.url ) } 
+
+    -- REQUEST DATA --
+     ${ prettyFormat( response.request ) }
+
+     -- REQUEST HEADERS --
+    ${ prettyFormat( response.config.headers ) }
+
+    -- RESPONSE DATA --
+    ${ prettyFormat( response.data ) }
     ------ END LOG -------
     `)
 }
