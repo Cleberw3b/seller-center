@@ -9,6 +9,7 @@ import { uploadProductPicture } from '../services/uploadService'
 import { badRequest, createHttpStatus, internalServerError, noContent, ok } from '../utils/httpStatus'
 import { log } from '../utils/loggerUtil'
 import { isProductFromShop, isVariationFromProduct } from '../utils/middlewares'
+import { parsePotentiallyGroupedFloat } from '../utils/util'
 import { isNewProductValid, isNewVariationValid, isProductPatchValid, isVariationPatchValid } from '../validations/productValidation'
 const router = Router()
 
@@ -43,6 +44,10 @@ router.post( '/upload', async ( req, res, next ) => {
 router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 
     const body = req.body
+
+    if ( body.price ) body.price = parsePotentiallyGroupedFloat( body.price )
+
+    if ( body.price_discounted ) body.price_discounted = parsePotentiallyGroupedFloat( body.price_discounted )
 
     let errors = await isNewProductValid( body )
 
@@ -81,6 +86,10 @@ router.get( '/:product_id', isProductFromShop, async ( req: Request, res: Respon
 router.patch( '/:product_id', isProductFromShop, async ( req: Request, res: Response, next: NextFunction ) => {
 
     const body = req.body
+
+    if ( body.price ) body.price = parsePotentiallyGroupedFloat( body.price )
+
+    if ( body.price_discounted ) body.price_discounted = parsePotentiallyGroupedFloat( body.price_discounted )
 
     const product_id = req.product?._id
 

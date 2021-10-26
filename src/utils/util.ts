@@ -223,3 +223,16 @@ export const isNotNumber = ( value: any ) => {
 export const isNegativeNumber = ( value: number ) => {
     return value < 0
 }
+
+export const parsePotentiallyGroupedFloat = ( stringValue: string ) => {
+
+    stringValue = stringValue.trim()
+
+    var result = stringValue.replace( /[^0-9]/g, '' )
+
+    if ( /[,\.]\d{2}$/.test( stringValue ) ) {
+        result = result.replace( /(\d{2})$/, '.$1' )
+    }
+
+    return parseFloat( result )
+}
