@@ -52,9 +52,6 @@ mongoClient.on( 'close', ( client: MongoClient ) => {
 export const loadDatabase = async ( app: Express ) => {
 
     try {
-        // If is already connect return
-        if ( mongoClient.isConnected() ) return
-
         // Try to connect
         await mongoClient.connect()
 
@@ -63,9 +60,6 @@ export const loadDatabase = async ( app: Express ) => {
 
     } catch ( error ) {
         console.error( 'Não foi possível conectar com o banco de dados.' )
-        console.log()
-        console.log( MONGO_DB_URL )
-        console.log()
         console.error( error )
     }
 }

@@ -153,16 +153,16 @@ export const logAxiosError = ( error: AxiosError ) => {
     ------ AXIOS ERROR -------
 
         -- URL --
-    ${ console.log( error.config?.url ) } 
+    ${ error.config?.url } 
 
     -- REQUEST DATA --
-     ${ console.log( error.config?.data ) }
+     ${ error.config?.data }
 
      -- REQUEST HEADERS --
-    ${ console.log( error.config?.headers ) }
+    ${ error.config?.headers }
 
     -- RESPONSE DATA --
-    ${ console.log( error.response?.data ? error.response?.data : error.response ) }
+    ${ error.response?.data ? error.response?.data : error.response }
     ------ END LOG -------
     `)
 }
@@ -172,16 +172,16 @@ export const logResponse = ( response: AxiosResponse ) => {
     ------ AXIOS RESPONSE -------
 
         -- URL --
-    ${ console.log( response.config.url ) } 
+    ${ response.config.url } 
 
     -- REQUEST DATA --
-     ${ console.log( response.request ) }
+     ${ response.request }
 
      -- REQUEST HEADERS --
-    ${ console.log( response.config.headers ) }
+    ${ response.config.headers }
 
     -- RESPONSE DATA --
-    ${ console.log( response.data ) }
+    ${ response.data }
     ------ END LOG -------
     `)
 }
@@ -242,13 +242,20 @@ export const isNegativeNumber = ( value: number ) => {
 
 export const parsePotentiallyGroupedFloat = ( stringValue: string ) => {
 
-    stringValue = stringValue.trim()
+    try {
+        stringValue = stringValue.trim()
 
-    var result = stringValue.replace( /[^0-9]/g, '' )
+        var result = stringValue.replace( /[^0-9]/g, '' )
 
-    if ( /[,\.]\d{2}$/.test( stringValue ) ) {
-        result = result.replace( /(\d{2})$/, '.$1' )
+        if ( /[,\.]\d{2}$/.test( stringValue ) ) {
+            result = result.replace( /(\d{2})$/, '.$1' )
+        }
+
+        const float = parseFloat( result )
+
+        return float ? float : false
+
+    } catch ( error ) {
+        return false
     }
-
-    return parseFloat( result )
 }

@@ -7,7 +7,7 @@ import { OrderIntegration } from "../models/order"
 import { findLastIntegrationOrder, newIntegrationHub2b, newOrderHub2b } from "../repositories/orderRepository"
 import { log } from "../utils/loggerUtil"
 import { formatDateEnglish, getFunctionName } from "../utils/util"
-import { getSKU, listAllOrdersHub2b, listOrdersHub2bByTime } from "./hub2b"
+import { getSKU, listAllOrdersHub2b, listOrdersHub2bByTime } from "./hub2bService"
 import { findProductByVariation } from "./productService"
 
 export const INTEGRATION_INTERVAL = 1000 * 13 //seconds

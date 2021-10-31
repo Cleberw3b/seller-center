@@ -4,13 +4,13 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { deleteVariation } from '../repositories/productRepository'
-import { createNewVariation, createProduct, findProductsByShop, updateProduct, updateProductVariation } from '../services/productService'
+import { createNewVariation, createProduct, findProductsByShop, updateProduct, updateProductPrice, updateProductVariation, updateProductVariationStock } from '../services/productService'
 import { uploadProductPicture } from '../services/uploadService'
 import { badRequest, createHttpStatus, internalServerError, noContent, ok } from '../utils/httpStatus'
 import { log } from '../utils/loggerUtil'
 import { isProductFromShop, isVariationFromProduct } from '../utils/middlewares'
 import { parsePotentiallyGroupedFloat } from '../utils/util'
-import { isNewProductValid, isNewVariationValid, isProductPatchValid, isVariationPatchValid } from '../validations/productValidation'
+import { isNewProductValid, isNewVariationValid, isProductPatchValid, isProductPricePatchValid, isProductStockPatchValid, isVariationPatchValid } from '../validations/productValidation'
 const router = Router()
 
 const uploadMultiple = uploadProductPicture.array( 'images', 6 )
@@ -19,23 +19,29 @@ const uploadMultiple = uploadProductPicture.array( 'images', 6 )
  * POST -> Send images to S3 and return the file location
  */
 router.post( '/upload', async ( req, res, next ) => {
+    try {
+        uploadMultiple( req, res, err => {
 
-    uploadMultiple( req, res, err => {
+            if ( err ) return log( err.message, 'EVENT', 'UPLOAD', 'ERROR' )
 
-        if ( err ) return log( err.message, 'EVENT', 'UPLOAD', 'ERROR' )
+            const filesLocation: string[] = []
 
-        const filesLocation: string[] = []
+            if ( Array.isArray( req.files ) )
+                req.files.forEach( ( file: any ) => {
+                    filesLocation.push( file.location )
+                } )
 
-        if ( Array.isArray( req.files ) )
-            req.files.forEach( ( file: any ) => {
-                filesLocation.push( file.location )
+            return res.send( {
+                message: 'Successfully uploaded ' + req.files?.length + ' files!',
+                urls: filesLocation
             } )
-
-        return res.send( {
-            message: 'Successfully uploaded ' + req.files?.length + ' files!',
-            urls: filesLocation
         } )
-    } )
+    } catch ( error ) {
+        return res.send( {
+            message: 'Erro trying to upload ' + req.files?.length + ' files!',
+            error
+        } )
+    }
 } )
 
 /**
@@ -44,10 +50,6 @@ router.post( '/upload', async ( req, res, next ) => {
 router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 
     const body = req.body
-
-    if ( body.price ) body.price = parsePotentiallyGroupedFloat( body.price )
-
-    if ( body.price_discounted ) body.price_discounted = parsePotentiallyGroupedFloat( body.price_discounted )
 
     let errors = await isNewProductValid( body )
 
@@ -87,10 +89,6 @@ router.patch( '/:product_id', isProductFromShop, async ( req: Request, res: Resp
 
     const body = req.body
 
-    if ( body.price ) body.price = parsePotentiallyGroupedFloat( body.price )
-
-    if ( body.price_discounted ) body.price_discounted = parsePotentiallyGroupedFloat( body.price_discounted )
-
     const product_id = req.product?._id
 
     let errors = await isProductPatchValid( body )
@@ -101,6 +99,34 @@ router.patch( '/:product_id', isProductFromShop, async ( req: Request, res: Resp
             .send( createHttpStatus( badRequest, errors ) )
 
     const product = await updateProduct( product_id, body )
+
+    if ( !product )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    return res
+        .status( ok.status )
+        .send( product )
+} )
+
+/**
+ * PATCH -> atualiza preço produto
+ */
+router.patch( '/:product_id/price', isProductFromShop, async ( req: Request, res: Response, next: NextFunction ) => {
+
+    const body = req.body
+
+    const product_id = req.product?._id
+
+    let errors = await isProductPricePatchValid( body )
+
+    if ( errors.length > 0 )
+        return res
+            .status( badRequest.status )
+            .send( createHttpStatus( badRequest, errors ) )
+
+    const product = await updateProductPrice( product_id, body )
 
     if ( !product )
         return res
@@ -174,6 +200,34 @@ router.patch( '/:product_id/variation/:variation_id', isProductFromShop, isVaria
             .send( createHttpStatus( badRequest, errors ) )
 
     const product = await updateProductVariation( variation_id, body )
+
+    if ( !product )
+        return res
+            .status( internalServerError.status )
+            .send( createHttpStatus( internalServerError ) )
+
+    return res
+        .status( ok.status )
+        .send( product )
+} )
+
+/**
+ * PATCH -> atualiza estoque da variação
+ */
+router.patch( '/:product_id/variation/:variation_id/stock', isProductFromShop, isVariationFromProduct, async ( req: Request, res: Response, next: NextFunction ) => {
+
+    const body = req.body
+
+    const variation_id = req.params.variation_id
+
+    let errors = await isProductStockPatchValid( body )
+
+    if ( errors.length > 0 )
+        return res
+            .status( badRequest.status )
+            .send( createHttpStatus( badRequest, errors ) )
+
+    const product = await updateProductVariationStock( variation_id, body )
 
     if ( !product )
         return res

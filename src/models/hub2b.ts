@@ -1,5 +1,14 @@
 
 
+export interface HUB2B_Credentials {
+    _id?: any,
+    access_token: string,
+    expires_in: number,
+    refresh_token: string,
+    token_type: string,
+    update_at: number
+}
+
 export interface HUB2B_Product {
     sku: any,
     parentSKU: string,

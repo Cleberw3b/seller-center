@@ -45,7 +45,9 @@ export const isNewProductValid = async ( body: any ): Promise<AppError[]> => {
 
     if ( !body.weight || isNotNumber( body.weight ) || isNegativeNumber( body.weight ) ) errors.push( invalidVariationWeight )
 
-    body.price = parsePotentiallyGroupedFloat( body.price)
+    if ( body.price ) body.price = parsePotentiallyGroupedFloat( body.price )
+
+    if ( body.price_discounted ) body.price_discounted = parsePotentiallyGroupedFloat( body.price_discounted )
 
     if ( !body.price || isNotNumber( body.price ) || isNegativeNumber( body.price ) ) errors.push( invalidVariationPrice )
 
@@ -67,6 +69,46 @@ export const isNewProductValid = async ( body: any ): Promise<AppError[]> => {
 export const isProductPatchValid = async ( body: any ): Promise<AppError[]> => {
 
     const errors: AppError[] = []
+
+    return errors
+}
+
+/**
+ * Verifies if the product's price can be patched
+ *
+ * @param body
+ * @returns a list of `AppError` containing description of errors
+ */
+export const isProductPricePatchValid = async ( body: any ): Promise<AppError[]> => {
+
+    const errors: AppError[] = []
+
+    const isPrice = body.price ? true : false
+
+    const isPriceDiscounted = body.price_discounted ? true : false
+
+    if ( body.price ) body.price = parsePotentiallyGroupedFloat( body.price )
+
+    if ( body.price_discounted ) body.price_discounted = parsePotentiallyGroupedFloat( body.price_discounted )
+
+    if ( isPrice && !body.price || isNotNumber( body.price ) || isNegativeNumber( body.price ) ) errors.push( invalidVariationPrice )
+
+    if ( isPriceDiscounted && !body.price_discounted || isNotNumber( body.price_discounted ) || isNegativeNumber( body.price_discounted ) ) errors.push( invalidVariationPriceDiscounted )
+
+    return errors
+}
+
+/**
+ * Verifies if the variation's stock can be patched
+ *
+ * @param body
+ * @returns a list of `AppError` containing description of errors
+ */
+export const isProductStockPatchValid = async ( body: any ): Promise<AppError[]> => {
+
+    const errors: AppError[] = []
+
+    if ( !body.stock || isNotNumber( body.stock ) || isNegativeNumber( body.stock ) || !Number.isInteger( body.stock ) ) errors.push( invalidVariationStock )
 
     return errors
 }

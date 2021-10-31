@@ -4,7 +4,7 @@
 
 import { Product, Variation } from "../models/product"
 import { log } from "../utils/loggerUtil"
-import { getFunctionName, isNegativeNumber } from "../utils/util"
+import { getFunctionName } from "../utils/util"
 import { createNewProduct, createVariation, deleteVariation, findProductById, findProductsByShopId, findVariationById, updateProductById, updateVariationById } from "../repositories/productRepository"
 import productEventEmitter from "../events/product"
 
@@ -137,12 +137,7 @@ export const findProductsByShop = async ( shop_id: any ): Promise<Product[] | nu
  */
 export const updateProduct = async ( _id: any, patch: any ): Promise<Product | null> => {
 
-    let isPriceUpdate = false
-
-    if ( patch.price && !isNegativeNumber( patch.price ) )
-        isPriceUpdate = true
-    else if ( patch.price_discounted && !isNegativeNumber( patch.price_discounted ) )
-        isPriceUpdate = true
+    if ( patch.images ) delete patch.images
 
     const product = await updateProductById( _id, patch )
 
@@ -152,9 +147,45 @@ export const updateProduct = async ( _id: any, patch: any ): Promise<Product | n
 
     productEventEmitter.emit( 'update', product )
 
-    if ( !product?.is_active ) productEventEmitter.emit( 'delete', product )
+    return product
+}
 
-    if ( isPriceUpdate ) productEventEmitter.emit( 'update_price', product )
+/**
+ * Update a product's price by its ID
+ *
+ * @param _id - product id
+ */
+export const updateProductPrice = async ( _id: any, patch: any ): Promise<Product | null> => {
+
+    const { price, price_discounted } = patch
+
+    const product = await updateProductById( _id, { price, price_discounted } )
+
+    product
+        ? log( `Update product ${ _id }`, 'EVENT', getFunctionName() )
+        : log( `Could not update product`, 'EVENT', getFunctionName() )
+
+    productEventEmitter.emit( 'update_price', product )
+
+    return product
+}
+
+/**
+ * Update a product's stock by its ID
+ *
+ * @param _id - product id
+ */
+export const updateProductVariationStock = async ( _id: any, patch: any ): Promise<Product | null> => {
+
+    const stock = patch
+
+    const product = await updateVariationById( _id, { stock } )
+
+    product
+        ? log( `Update stock variation ${ _id }`, 'EVENT', getFunctionName() )
+        : log( `Could not update product`, 'EVENT', getFunctionName() )
+
+    productEventEmitter.emit( 'update_stock', product )
 
     return product
 }
@@ -166,20 +197,13 @@ export const updateProduct = async ( _id: any, patch: any ): Promise<Product | n
  */
 export const updateProductVariation = async ( _id: any, patch: any ): Promise<Product | null> => {
 
-    let isSotckUpdate = false
-
-    if ( patch.stock && !isNegativeNumber( patch.stock ) )
-        isSotckUpdate = true
-
     const product = await updateVariationById( _id, patch )
 
     product
-        ? log( `Update product ${ _id }`, 'EVENT', getFunctionName() )
+        ? log( `Update product variation ${ _id }`, 'EVENT', getFunctionName() )
         : log( `Could not update product`, 'EVENT', getFunctionName() )
 
     productEventEmitter.emit( 'update', product )
-
-    if ( isSotckUpdate ) productEventEmitter.emit( 'update_stock', product )
 
     return product
 }

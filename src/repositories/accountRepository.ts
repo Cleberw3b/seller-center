@@ -5,7 +5,7 @@
 import { ObjectID } from "bson"
 import { MongoError } from "mongodb"
 import { Address, BankInfo, ShopInfo, Contact, PersonalInfo } from "../models/account"
-import { addressCollection, bankInfoCollection, contactCollection, personalInfoColletion, shopInfoCollection } from "../utils/db/collections"
+import { addressCollection, bankInfoCollection, contactCollection, personalInfoCollection, shopInfoCollection } from "../utils/db/collections"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 
@@ -30,7 +30,7 @@ export const createOrUpdatePersonalInfo = async ( personalInfo: PersonalInfo ): 
             returnNewDocument: true
         }
 
-        const result = await personalInfoColletion.findOneAndReplace( query, replacement, options )
+        const result = await personalInfoCollection.findOneAndReplace( query, replacement, options )
 
         if ( !result.ok ) throw new MongoError( "Erro ao salvar no banco de dados." )
 
@@ -79,7 +79,7 @@ export const findPersonalInfoByUserID = async ( userId: string ): Promise<Person
             ...projectionPJ,
         }
 
-        const personalInfo = await personalInfoColletion.findOne( { userId }, { projection } )
+        const personalInfo = await personalInfoCollection.findOne( { userId }, { projection } )
 
         if ( !personalInfo ) return null
 
