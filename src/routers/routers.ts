@@ -11,6 +11,7 @@ import { accountRouter } from './accountRouter'
 import { productRouter } from './productRouter'
 import { categoryRouter } from './categoryRouter'
 import { bankRouter } from './bankRouter'
+import { orderRouter } from './orderRouter'
 
 export const root = rootRouter
 export const healthCheck = healthCheckRouter
@@ -19,3 +20,4 @@ export const account = accountRouter
 export const product = productRouter
 export const category = categoryRouter
 export const bank = bankRouter
+export const order = orderRouter
