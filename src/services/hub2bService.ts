@@ -3,12 +3,12 @@
 //
 
 import axios, { Method } from "axios"
-import { HUB2B_Invoice, HUB2B_Product, HUB2B_Status, HUB2B_Tracking } from "../models/hub2b"
+import { HUB2B_Invoice, HUB2B_Product, HUB2B_Status, HUB2B_Tracking, HUB2B_Order } from "../models/hub2b"
 import { Product } from "../models/product"
 import { SALES_CHANNEL_HUB2B } from "../models/salesChannelHub2b"
 import { HUB2B_ACCESS_KEY_V1, HUB2B_URL_V2, PROJECT_HOST, HUB2B_TENANT, HUB2B_URL_V1 } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
-import { getFunctionName, logAxiosError, logResponse, nowInSeconds, nowIsoDate } from "../utils/util"
+import { getFunctionName, logAxiosError, logResponse, nowIsoDate } from "../utils/util"
 import { HUB2B_CREDENTIALS, renewAccessTokenHub2b } from "./hub2bAuhService"
 
 // Default
@@ -402,7 +402,7 @@ export const listOrdersHub2bByTime = async ( purchaseFrom: string, purchaseTo: s
     return orders
 }
 
-export const listAllOrdersHub2b = async () => {
+export const listAllOrdersHub2b = async (): Promise<HUB2B_Order[] | null> => {
 
     await renewAccessTokenHub2b()
 

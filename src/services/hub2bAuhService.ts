@@ -19,11 +19,13 @@ export let HUB2B_CREDENTIALS: HUB2B_Credentials = {
 
 export const isAccessTokenValidHub2b = ( credentials: HUB2B_Credentials ) => {
 
+    const now = Math.floor( nowInSeconds() )
+
     if ( !credentials.access_token ) return false
 
     if ( !credentials.update_at ) return false
 
-    if ( credentials.update_at + credentials.expires_in < Math.floor( nowInSeconds() / 60 ) ) return false
+    if ( credentials.update_at + credentials.expires_in < now ) return false
 
     return true
 }
@@ -51,7 +53,7 @@ export const generateAccessTokenV2Hub2b = async () => {
         ? log( "Access Token obtido com sucesso", "EVENT", getFunctionName() )
         : log( "Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN" )
 
-    HUB2B_CREDENTIALS.update_at = Math.floor( nowInSeconds() / 60 )
+    HUB2B_CREDENTIALS.update_at = Math.floor( nowInSeconds() )
 
     await createCredential()
 
@@ -140,10 +142,13 @@ export const renewAccessTokenHub2b = async ( force = false ) => {
 }
 
 export const recoverLateCredential = async () => {
-    HUB2B_CREDENTIALS = await findValidCredential()
 
-    if ( !isAccessTokenValidHub2b( HUB2B_CREDENTIALS ) )
-        await renewAccessTokenHub2b( true )
+    const credential = await findValidCredential()
+
+    if ( isAccessTokenValidHub2b( credential ) )
+        HUB2B_CREDENTIALS = credential
+
+    await renewAccessTokenHub2b( true )
 }
 
 setInterval( async () => await renewAccessTokenHub2b( true ), 3600 * 60 * 1000 )

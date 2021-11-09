@@ -27,18 +27,18 @@ router.get( '/all', async ( req: Request, res: Response, next: NextFunction ) =>
 /**
  * POST -> Order from HUB2B
  */
-router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
+// router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
 
-    const body = req.body
+//     const body = req.body
 
-    if ( !body )
-        return res
-            .status( internalServerError.status )
-            .send( createHttpStatus( internalServerError ) )
+//     if ( !body )
+//         return res
+//             .status( internalServerError.status )
+//             .send( createHttpStatus( internalServerError ) )
 
-    return res
-        .status( ok.status )
-        .send( body )
-} )
+//     return res
+//         .status( ok.status )
+//         .send( body )
+// } )
 
-export { router as sizeRouter }
+export { router as orderRouter }

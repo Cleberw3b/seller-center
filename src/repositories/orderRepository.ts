@@ -2,9 +2,9 @@
 //      Order Repository
 //
 
-import { MongoError, ObjectID } from "mongodb"
+import { MongoError } from "mongodb"
 import { Order, OrderIntegration } from "../models/order"
-import { orderCollection, orderIntegrationCollection, userCollection } from "../utils/db/collections"
+import { orderCollection, orderIntegrationCollection } from "../utils/db/collections"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 
@@ -68,6 +68,30 @@ export const newOrderHub2b = async ( orderIntegration: Order ): Promise<Order | 
 
         if ( error instanceof MongoError || error instanceof Error )
             log( error.message, 'EVENT', `Order Repository - ${ getFunctionName() }`, 'ERROR' )
+
+        return null
+    }
+}
+
+/**
+ * Find orders by shop_id
+ * 
+ * @param _id
+ */
+export const findOrderByShopId = async ( shop_id: string ): Promise<Order[] | null> => {
+
+    try {
+
+        const result = await orderCollection.find( { shop_id } )
+
+        const orders = await result.toArray()
+
+        return orders
+
+    } catch ( error ) {
+
+        if ( error instanceof MongoError || error instanceof Error )
+            log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
 
         return null
     }
