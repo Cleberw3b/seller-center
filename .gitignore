@@ -20,6 +20,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.prod
 
 # TypeScript
 dist
@@ -28,4 +29,6 @@ dist
 .history
 .vscode
 
-.env.prod
+# local npm and yarn files
+yarn.lock
+package-lock.json 
