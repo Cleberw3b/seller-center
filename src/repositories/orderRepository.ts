@@ -72,3 +72,27 @@ export const newOrderHub2b = async ( orderIntegration: Order ): Promise<Order | 
         return null
     }
 }
+
+/**
+ * Find orders by shop_id
+ * 
+ * @param _id
+ */
+export const findOrderByShopId = async ( shop_id: string ): Promise<Order[] | null> => {
+
+    try {
+
+        const result = await orderCollection.find( { shop_id } )
+
+        const orders = await result.toArray()
+
+        return orders
+
+    } catch ( error ) {
+
+        if ( error instanceof MongoError || error instanceof Error )
+            log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
+        return null
+    }
+}
