@@ -4,7 +4,7 @@ import { AccessToken } from '../../models/token'
 import { Address, BankInfo, Contact, PersonalInfo, ShopInfo } from '../../models/account'
 import { Product, Variation } from '../../models/product'
 import { Order, OrderIntegration } from '../../models/order'
-import { HUB2B_Credentials } from '../../models/hub2b'
+import { HUB2B_Credentials, HUB2B_Tenants, HUB2B_Users } from '../../models/hub2b'
 
 export const USER_COLLECTION = 'user'
 export const ACTIVATION_TOKEN_COLLECTION = 'activation_token'
@@ -18,6 +18,8 @@ export const VARIATION_COLLECTION = 'variation'
 export const ORDER_COLLECTION = 'order'
 export const ORDER_INTEGRATION_COLLECTION = 'order_integration'
 export const HUB2B_AUTH_COLLECTION = 'hub2b_auth'
+export const HUB2B_TENANT_COLLECTION = 'hub2b_tenant'
+export const HUB2B_USER_COLLECTION = 'hub2b_user'
 
 let userCollection: Collection<User>
 let accessTokenCollection: Collection<AccessToken>
@@ -31,6 +33,8 @@ let variationCollection: Collection<Variation>
 let orderCollection: Collection<Order>
 let orderIntegrationCollection: Collection<OrderIntegration>
 let hub2bAuthCollection: Collection<HUB2B_Credentials>
+let hub2bTenantCollection: Collection<HUB2B_Tenants>
+let hub2bUserCollection: Collection<HUB2B_Users>
 
 export const createCollections = async ( database: Db ) => {
 
@@ -46,6 +50,8 @@ export const createCollections = async ( database: Db ) => {
     orderCollection = database.collection<Order>( ORDER_COLLECTION )
     orderIntegrationCollection = database.collection<OrderIntegration>( ORDER_INTEGRATION_COLLECTION )
     hub2bAuthCollection = database.collection<HUB2B_Credentials>( HUB2B_AUTH_COLLECTION )
+    hub2bTenantCollection = database.collection<HUB2B_Tenants>( HUB2B_TENANT_COLLECTION )
+    hub2bUserCollection = database.collection<HUB2B_Users>( HUB2B_USER_COLLECTION )
 
     await startIndexes()
 }
@@ -67,4 +73,6 @@ export {
     orderCollection,
     orderIntegrationCollection,
     hub2bAuthCollection,
+    hub2bTenantCollection,
+    hub2bUserCollection
 }
