@@ -163,6 +163,38 @@ export interface HUB2B_Tracking {
     shippingService: string
 }
 
+export interface HUB2B_Tenants {
+    idTenant: number,
+    name: string,
+    website: string,
+    documentNumber: string,
+    companyName: string,
+    ownerName: string,
+    ownerEmail: string,
+    ownerPhoneNumber: string,
+    idAgency: number,
+    stateInscription: string,
+    address: {
+        zipCode: string,
+        street: string,
+        neighborhood: string,
+        number: 0,
+        city: string,
+        state: string,
+        country: string,
+        reference: string
+    }
+}
+
+export interface HUB2B_Users {
+    idUser: number,
+    firstName: string,
+    lastName: string,
+    email: string,
+    hidden: boolean,
+    message: string
+}
+
 export const productExample = {
     "sku": "testeWithTemplate2",
     "parentSKU": "",
