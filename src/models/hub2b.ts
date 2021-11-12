@@ -195,6 +195,16 @@ export interface HUB2B_Users {
     message: string
 }
 
+export interface HUB2B_TenantCredentials {
+    apiV1: {
+        authToken: string
+    },
+    apiV2: {
+        userName: string,
+        password: string
+    }
+}
+
 export const productExample = {
     "sku": "testeWithTemplate2",
     "parentSKU": "",
