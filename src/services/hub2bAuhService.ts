@@ -40,7 +40,7 @@ export const generateAccessTokenV2Hub2b = async () => {
         username: HUB2B_USERNAME,
         password: HUB2B_PASSWORD,
         grant_type: "password",
-        scope: "inventory orders catalog"
+        scope: "inventory orders catalog agency"
     }
 
     const response = await requestHub2B( URL_OAUTH, 'POST', body )
