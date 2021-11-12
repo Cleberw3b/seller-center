@@ -4,7 +4,7 @@ import { AccessToken } from '../../models/token'
 import { Address, BankInfo, Contact, PersonalInfo, ShopInfo } from '../../models/account'
 import { Product, Variation } from '../../models/product'
 import { Order, OrderIntegration } from '../../models/order'
-import { HUB2B_Credentials, HUB2B_Tenants, HUB2B_Users } from '../../models/hub2b'
+import { HUB2B_Credentials, HUB2B_Tenants, HUB2B_Users, HUB2B_TenantCredentials } from '../../models/hub2b'
 
 export const USER_COLLECTION = 'user'
 export const ACTIVATION_TOKEN_COLLECTION = 'activation_token'
@@ -20,6 +20,7 @@ export const ORDER_INTEGRATION_COLLECTION = 'order_integration'
 export const HUB2B_AUTH_COLLECTION = 'hub2b_auth'
 export const HUB2B_TENANT_COLLECTION = 'hub2b_tenant'
 export const HUB2B_USER_COLLECTION = 'hub2b_user'
+export const HUB2B_TENANT_CREDENTIAL_COLLECTION = 'hub2b_tenant_credential'
 
 let userCollection: Collection<User>
 let accessTokenCollection: Collection<AccessToken>
@@ -35,6 +36,7 @@ let orderIntegrationCollection: Collection<OrderIntegration>
 let hub2bAuthCollection: Collection<HUB2B_Credentials>
 let hub2bTenantCollection: Collection<HUB2B_Tenants>
 let hub2bUserCollection: Collection<HUB2B_Users>
+let hub2bTenantCredentialCollection : Collection<HUB2B_TenantCredentials>
 
 export const createCollections = async ( database: Db ) => {
 
@@ -52,6 +54,7 @@ export const createCollections = async ( database: Db ) => {
     hub2bAuthCollection = database.collection<HUB2B_Credentials>( HUB2B_AUTH_COLLECTION )
     hub2bTenantCollection = database.collection<HUB2B_Tenants>( HUB2B_TENANT_COLLECTION )
     hub2bUserCollection = database.collection<HUB2B_Users>( HUB2B_USER_COLLECTION )
+    hub2bTenantCredentialCollection = database.collection<HUB2B_TenantCredentials>( HUB2B_TENANT_CREDENTIAL_COLLECTION )
 
     await startIndexes()
 }
@@ -74,5 +77,6 @@ export {
     orderIntegrationCollection,
     hub2bAuthCollection,
     hub2bTenantCollection,
-    hub2bUserCollection
+    hub2bUserCollection,
+    hub2bTenantCredentialCollection
 }
