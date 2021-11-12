@@ -17,9 +17,16 @@ export const saveTenantCredential = async ( tenantCredentials: HUB2B_TenantCrede
 
     try {
 
-        const result = await hub2bTenantCredentialCollection.insertOne( tenantCredentials )
+        const replacement = { ...tenantCredentials }
 
-        return result.ops[0] ? true : false
+        const options = {
+            upsert: true,
+            returnNewDocument: true
+        }
+
+        const result = await hub2bTenantCredentialCollection.findOneAndReplace( replacement, options )
+
+        return result.ok ? true : false
 
     } catch ( error ) {
         if ( error instanceof MongoError || error instanceof Error )
