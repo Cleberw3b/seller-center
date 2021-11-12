@@ -26,7 +26,7 @@ export const HUB2B_HEADERS_V1 = {
 
 export const optionsV2 = {
     grant_type: "password",
-    scope: "inventory orders catalog"
+    scope: "inventory orders catalog agency"
 }
 
 export const requestHub2B = async ( URL: string, type?: Method, body?: any, headers?: any ) => {
