@@ -8,7 +8,7 @@ import { saveUser } from "../repositories/hub2UserRepository"
 import { saveTenantCredential } from "../repositories/hub2TenantCredentialRepository"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
-import { HUB2B_URL_V2, HUB2B_TENANT } from "../utils/consts"
+import { HUB2B_URL_V2 } from "../utils/consts"
 import { HUB2B_CREDENTIALS, renewAccessTokenHub2b } from "./hub2bAuhService"
 import { requestHub2B } from "./hub2bService"
 
@@ -18,17 +18,6 @@ import { requestHub2B } from "./hub2bService"
  * @param body
  */
 export const createTenant = async ( body: any ): Promise<HUB2B_Tenants | null> => {
-
-    if ( !body.idAgency ) {
-        const agency = await getTenantInHub2b(HUB2B_TENANT)
-
-        if ( !agency ) {
-            log( `Agency ${ body.idAgency } not found in the hub2b`, 'EVENT', getFunctionName(), 'ERROR' )
-            return null
-        }
-
-        body.idAgency = agency.idAgency
-    }
 
     const newTenant = await setupTenantsHub2b( body )
 
@@ -57,29 +46,6 @@ export const createTenant = async ( body: any ): Promise<HUB2B_Tenants | null> =
     log( `Tenant ${ newTenant.name } has been created.`, 'EVENT', getFunctionName() )
 
     return newTenant
-}
-
-/**
- * Get Tenant
- * 
- * @returns 
- */
- export const getTenantInHub2b = async (idTenant: any): Promise<HUB2B_Tenants | null> => {
-    await renewAccessTokenHub2b()
-
-    const SETUP_URL = HUB2B_URL_V2 + 
-      "/Setup/Tenants/" + idTenant + "?access_token=" + HUB2B_CREDENTIALS.access_token
-    
-    const response = await requestHub2B( SETUP_URL, 'GET' )
-    if ( !response ) return null
-
-    const tenant = response.data
-
-    tenant
-        ? log( "GET Tenant in hub2b success", "EVENT", getFunctionName() )
-        : log( "GET Tenant in hub2b error", "EVENT", getFunctionName(), "WARN" )
-
-    return tenant
 }
 
 /**
@@ -136,17 +102,6 @@ export const setupTenantsHub2b = async (body: any) => {
  * @param body
  */
  export const updateHub2bTenant = async ( body: any ): Promise<HUB2B_Tenants | null> => {
-
-    if ( !body.idAgency ) {
-        const agency = await getTenantInHub2b(HUB2B_TENANT)
-
-        if ( !agency ) {
-            log( `Agency ${ body.idAgency } not found in the hub2b`, 'EVENT', getFunctionName(), 'ERROR' )
-            return null
-        }
-
-        body.idAgency = agency.idAgency
-    }
 
     const tenant = await updateTenantsInHub2b( body )
 
