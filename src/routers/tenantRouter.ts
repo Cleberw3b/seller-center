@@ -19,7 +19,7 @@ const tenantsController = new TenantsController();
       ownerName: Joi.string().required(),
       ownerEmail: Joi.string().required(),
       ownerPhoneNumber: Joi.string().required(),
-      idAgency: Joi.number().required(),
+      idAgency: Joi.number(),
       stateInscription: Joi.string().required(),
       address: {
           zipCode: Joi.string().required(),
@@ -53,7 +53,7 @@ const tenantsController = new TenantsController();
       ownerName: Joi.string().required(),
       ownerEmail: Joi.string().required(),
       ownerPhoneNumber: Joi.string().required(),
-      idAgency: Joi.number().required(),
+      idAgency: Joi.number(),
       stateInscription: Joi.string().required(),
       address: {
           zipCode: Joi.string().required(),
