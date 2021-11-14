@@ -16,17 +16,9 @@ import { getFunctionName } from "../utils/util"
 export const saveUser = async ( users: HUB2B_Users ): Promise<boolean> => {
 
     try {
+        const result = await hub2bUserCollection.insertOne( users )
 
-        const replacement = { ...users }
-
-        const options = {
-            upsert: true,
-            returnNewDocument: true
-        }
-
-        const result = await hub2bUserCollection.findOneAndReplace( replacement, options )
-
-        return result.ok ? true : false
+        return result.ops[0] ? true : false
 
     } catch ( error ) {
         if ( error instanceof MongoError || error instanceof Error )

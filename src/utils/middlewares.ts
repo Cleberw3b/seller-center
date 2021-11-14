@@ -29,7 +29,7 @@ export const errorMiddleware = ( error: HttpStatusResponse, req: Request, res: R
 
     try {
         return res
-            .status( error.status )
+            .status( error.status | 400 )
             .send( error )
 
     } catch ( error ) {
