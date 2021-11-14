@@ -164,6 +164,7 @@ export interface HUB2B_Tracking {
 }
 
 export interface HUB2B_Tenants {
+    _id?: any,
     idTenant: number,
     name: string,
     website: string,
@@ -187,6 +188,7 @@ export interface HUB2B_Tenants {
 }
 
 export interface HUB2B_Users {
+    _id?: any,
     idUser: number,
     firstName: string,
     lastName: string,
@@ -196,6 +198,7 @@ export interface HUB2B_Users {
 }
 
 export interface HUB2B_TenantCredentials {
+    _id?: any,
     apiV1: {
         authToken: string
     },
