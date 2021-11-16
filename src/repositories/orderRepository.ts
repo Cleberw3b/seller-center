@@ -2,9 +2,9 @@
 //      Order Repository
 //
 
-import { MongoError, ObjectID } from "mongodb"
+import { MongoError } from "mongodb"
 import { Order, OrderIntegration } from "../models/order"
-import { orderCollection, orderIntegrationCollection, userCollection } from "../utils/db/collections"
+import { orderCollection, orderIntegrationCollection } from "../utils/db/collections"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 

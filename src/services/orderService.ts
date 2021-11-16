@@ -7,17 +7,10 @@ import { Order, OrderIntegration } from "../models/order"
 import { findLastIntegrationOrder, findOrderByShopId, newIntegrationHub2b, newOrderHub2b } from "../repositories/orderRepository"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowIsoDateHub2b } from "../utils/util"
-import { getSKU, listAllOrdersHub2b, listOrdersHub2bByTime } from "./hub2bService"
+import { listAllOrdersHub2b, listOrdersHub2bByTime } from "./hub2bService"
 import { findProductByVariation } from "./productService"
 
-export const INTEGRATION_INTERVAL = 1000 * 13 //seconds
-
-const saveIntegration = ( orderIntegration: OrderIntegration, ordersList: [] ) => {
-
-    saveOrders( ordersList )
-
-    newIntegrationHub2b( orderIntegration )
-}
+export const INTEGRATION_INTERVAL = 1000 * 83 //seconds
 
 export const integrateHub2bOrders = async ( start?: string, end?: string ) => {
 
@@ -73,6 +66,15 @@ export const integrateHub2bOrders = async ( start?: string, end?: string ) => {
     }
 
     return saveIntegration( lastOrderIntegration, ordersList )
+}
+
+export const saveIntegration = async ( orderIntegration: OrderIntegration, ordersList: [] ) => {
+
+    log( `Integrating orders from ${ orderIntegration.updateFrom } to ${ orderIntegration.updateTo }`, 'EVENT', getFunctionName() )
+
+    await saveOrders( ordersList )
+
+    await newIntegrationHub2b( orderIntegration )
 }
 
 /**
