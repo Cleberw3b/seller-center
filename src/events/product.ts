@@ -9,26 +9,26 @@ import { log } from '../utils/loggerUtil'
 
 const productEventEmitter = new events.EventEmitter()
 
-productEventEmitter.on( 'create', ( product: Product ) => {
+productEventEmitter.on( 'create', ( product: Product, idTenant: any ) => {
 
     log( `Criando produto ${ product._id } na hub2b.`, 'EVENT', 'ProductEventEmitter' )
 
-    criarProdutoHub2b( parseProdutoToProdutoHub2( product ) )
+    criarProdutoHub2b( parseProdutoToProdutoHub2( product ), idTenant )
 } )
 
-productEventEmitter.on( 'update', ( product: Product ) => {
+productEventEmitter.on( 'update', ( product: Product, idTenant: any ) => {
 
     log( `Updating produto ${ product._id } na hub2b.`, 'EVENT', 'ProductEventEmitter' )
 
-    updateProdutoHub2b( parseProdutoToProdutoHub2( product ) )
+    updateProdutoHub2b( parseProdutoToProdutoHub2( product ), idTenant )
 
 } )
 
-productEventEmitter.on( 'delete', ( product: Product ) => {
+productEventEmitter.on( 'delete', ( product: Product, idTenant: any ) => {
 
     log( `Deletando produto ${ product._id } na hub2b.`, 'EVENT', 'ProductEventEmitter' )
 
-    deleteProdutoHub2b( product._id )
+    deleteProdutoHub2b( product._id, idTenant )
 
 } )
 
