@@ -20,7 +20,7 @@ import { requestHub2B } from "./hub2bService"
 export const createTenant = async ( body: any ): Promise<HUB2B_Tenants | null> => {
 
     if ( !body.idAgency ) {
-        const agency = await getAgencyInHub2b()
+        const agency = await getTenantInHub2b(HUB2B_TENANT)
 
         if ( !agency ) {
             log( `Agency ${ body.idAgency } not found in the hub2b`, 'EVENT', getFunctionName(), 'ERROR' )
@@ -60,26 +60,26 @@ export const createTenant = async ( body: any ): Promise<HUB2B_Tenants | null> =
 }
 
 /**
- * Get Agency
+ * Get Tenant
  * 
  * @returns 
  */
- export const getAgencyInHub2b = async (): Promise<HUB2B_Tenants | null> => {
+ export const getTenantInHub2b = async (idTenant: any): Promise<HUB2B_Tenants | null> => {
     await renewAccessTokenHub2b()
 
     const SETUP_URL = HUB2B_URL_V2 + 
-      "/Setup/Tenants/" + HUB2B_TENANT + "?access_token=" + HUB2B_CREDENTIALS.access_token
+      "/Setup/Tenants/" + idTenant + "?access_token=" + HUB2B_CREDENTIALS.access_token
     
     const response = await requestHub2B( SETUP_URL, 'GET' )
     if ( !response ) return null
 
-    const agency = response.data
+    const tenant = response.data
 
-    agency
-        ? log( "GET Agency success", "EVENT", getFunctionName() )
-        : log( "GET Agency error", "EVENT", getFunctionName(), "WARN" )
+    tenant
+        ? log( "GET Tenant in hub2b success", "EVENT", getFunctionName() )
+        : log( "GET Tenant in hub2b error", "EVENT", getFunctionName(), "WARN" )
 
-    return agency
+    return tenant
 }
 
 /**
@@ -138,7 +138,7 @@ export const setupTenantsHub2b = async (body: any) => {
  export const updateHub2bTenant = async ( body: any ): Promise<HUB2B_Tenants | null> => {
 
     if ( !body.idAgency ) {
-        const agency = await getAgencyInHub2b()
+        const agency = await getTenantInHub2b(HUB2B_TENANT)
 
         if ( !agency ) {
             log( `Agency ${ body.idAgency } not found in the hub2b`, 'EVENT', getFunctionName(), 'ERROR' )

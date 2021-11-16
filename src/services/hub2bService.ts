@@ -76,13 +76,13 @@ export const requestHub2B = async (URL: string, type?: Method, body?: any, heade
     }
 }
 
-export const setupIntegrationHub2b = async () => {
+export const setupIntegrationHub2b = async (idTenant: any) => {
 
     const SETUP_URL = HUB2B_URL_V2 + "/Setup/integration"
 
     const body = {
         system: "ERPOrdersNotification",
-        idTenant: HUB2B_TENANT,
+        idTenant: idTenant,
         responsibilities: [
             {
                 type: "Orders",
@@ -186,9 +186,9 @@ export const parseProdutoToProdutoHub2 = (produto: Product): HUB2B_Product[] => 
     return produtosHub2b
 }
 
-export const criarProdutoHub2b = async ( hub2productList: HUB2B_Product[] ) => {
+export const criarProdutoHub2b = async ( hub2productList: HUB2B_Product[], idTenant: any ) => {
 
-    const URL = HUB2B_URL_V1 + "/setsku/" + HUB2B_TENANT
+    const URL = HUB2B_URL_V1 + "/setsku/" + idTenant
 
     const response = await requestHub2B(URL, 'POST', hub2productList, HUB2B_HEADERS_V1)
 
@@ -204,9 +204,9 @@ export const criarProdutoHub2b = async ( hub2productList: HUB2B_Product[] ) => {
     response && logResponse(response)
 }
 
-export const updateProdutoHub2b = async ( patch: any[] ) => {
+export const updateProdutoHub2b = async ( patch: any[], idTenant: any ) => {
 
-    const URL = HUB2B_URL_V1 + "/setsku/" + HUB2B_TENANT
+    const URL = HUB2B_URL_V1 + "/setsku/" + idTenant
 
     const response = await requestHub2B(URL, 'POST', patch, HUB2B_HEADERS_V1)
 
@@ -225,9 +225,9 @@ export const updateProdutoHub2b = async ( patch: any[] ) => {
 
 }
 
-export const deleteProdutoHub2b = async ( product_id: string ) => {
+export const deleteProdutoHub2b = async ( product_id: string, idTenant: any ) => {
 
-    const URL = HUB2B_URL_V1 + "/removeproduct/" + HUB2B_TENANT
+    const URL = HUB2B_URL_V1 + "/removeproduct/" + idTenant
 
     const body = SALES_CHANNEL_HUB2B.map(channel => {
         return {
@@ -252,11 +252,11 @@ export const deleteProdutoHub2b = async ( product_id: string ) => {
     response && logResponse(response)
 }
 
-export const getSKU = async ( sku: string ) => {
+export const getSKU = async ( sku: string, idTenant: any ) => {
 
     await renewAccessTokenHub2b()
 
-    const URL_STOCK = `https://eb-api-sandbox.plataformahub.com.br/RestServiceImpl.svc/listskus/${ HUB2B_TENANT }?filter=sku:${ sku }`
+    const URL_STOCK = `https://eb-api-sandbox.plataformahub.com.br/RestServiceImpl.svc/listskus/${ idTenant }?filter=sku:${ sku }`
 
     const response = await requestHub2B(URL_STOCK)
 
@@ -588,7 +588,7 @@ const getTestTracking = () => {
 
 const homologHub2b = async () => {
 
-    const upProduct = await updateProdutoHub2b( [patch] )
+    const upProduct = await updateProdutoHub2b( [patch], HUB2B_TENANT )
 
     const upPrice = await updatePriceHub2b(sku, 50, 45)
 
