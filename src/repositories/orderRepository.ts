@@ -2,7 +2,7 @@
 //      Order Repository
 //
 
-import { MongoError } from "mongodb"
+import { MongoError, ObjectID } from "mongodb"
 import { Order, OrderIntegration } from "../models/order"
 import { orderCollection, orderIntegrationCollection } from "../utils/db/collections"
 import { log } from "../utils/loggerUtil"
@@ -82,7 +82,7 @@ export const findOrderByShopId = async ( shop_id: string ): Promise<Order[] | nu
 
     try {
 
-        const result = await orderCollection.find( { shop_id } )
+        const result = await orderCollection.find( { shop_id: new ObjectID( shop_id)  } )
 
         const orders = await result.toArray()
 
