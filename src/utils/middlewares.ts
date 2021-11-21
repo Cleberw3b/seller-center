@@ -9,6 +9,7 @@ import { decodeJWT, isJWTTokenValid } from './cryptUtil'
 import { invalidProductReference, invalidVariationReference } from './errors/errors'
 import { notFound, createHttpStatus, HttpStatusResponse, unauthorized, internalServerError } from './httpStatus'
 import { logger, log } from './loggerUtil'
+import { celebrate, Segments, Joi } from 'celebrate';
 
 /**
  * Middleware para capturar status 404 e criar error
@@ -188,4 +189,76 @@ export const isVariationFromProduct = async ( req: Request, res: Response, next:
     req.variation = variation
 
     next()
+}
+
+/**
+ * Middleware para validar payload de create tenant
+ */
+ export const validatePayloadCreateTenant = () => {
+    celebrate({
+        [Segments.BODY]: {
+          name: Joi.string().required(),
+          website: Joi.string().required(),
+          documentNumber: Joi.string().required(),
+          companyName: Joi.string().required(),
+          ownerName: Joi.string().required(),
+          ownerEmail: Joi.string().required(),
+          ownerPhoneNumber: Joi.string().required(),
+          idAgency: Joi.number(),
+          stateInscription: Joi.string().required(),
+          address: {
+              zipCode: Joi.string().required(),
+              street: Joi.string().required(),
+              neighborhood: Joi.string().required(),
+              number: Joi.number().required(),
+              city: Joi.string().required(),
+              state: Joi.string().required(),
+              country: Joi.string().required(),
+              reference: Joi.string()
+          }
+        },
+    })
+}
+
+/**
+ * Middleware para validar payload de update tenant
+ */
+ export const validatePayloadUpdateTenant = () => {
+    celebrate({
+        [Segments.PARAMS]: {
+          idTenant: Joi.number().required(),
+        },
+        [Segments.BODY]: {
+          name: Joi.string().required(),
+          website: Joi.string().required(),
+          documentNumber: Joi.string().required(),
+          companyName: Joi.string().required(),
+          ownerName: Joi.string().required(),
+          ownerEmail: Joi.string().required(),
+          ownerPhoneNumber: Joi.string().required(),
+          idAgency: Joi.number(),
+          stateInscription: Joi.string().required(),
+          address: {
+              zipCode: Joi.string().required(),
+              street: Joi.string().required(),
+              neighborhood: Joi.string().required(),
+              number: Joi.number().required(),
+              city: Joi.string().required(),
+              state: Joi.string().required(),
+              country: Joi.string().required(),
+              reference: Joi.string()
+          }
+        },
+    })
+}
+
+/**
+ * Middleware para validar payload de get tenant
+ */
+ export const validatePayloadGetTenant = () => {
+    celebrate({
+        [Segments.PARAMS]: {
+          idTenant: Joi.number().required(),
+        },
+    })
 }
