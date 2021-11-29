@@ -13,21 +13,27 @@ export const init = async () => {
 
     let end = '2021-09-30T23:59:59'
 
-    await integrateHub2bOrders( start, end )
+    await integrateHub2bOrders(start, end)
 
     start = '2021-10-01T00:00:00'
 
     end = '2021-10-31T23:59:59'
 
-    await integrateHub2bOrders( start, end )
+    await integrateHub2bOrders(start, end)
 
     start = '2021-11-01T00:00:00'
 
+    end = '2021-11-19T23:59:59'
+
+    await integrateHub2bOrders(start, end)
+
+    start = '2021-11-20T00:00:00'
+
     end = '2021-11-30T23:59:59'
 
-    await integrateHub2bOrders( start, nowIsoDateHub2b() )
+    await integrateHub2bOrders(start, nowIsoDateHub2b())
 
-    setInterval( async () => {
+    setInterval(async () => {
         await integrateHub2bOrders()
-    }, INTEGRATION_INTERVAL )
+    }, INTEGRATION_INTERVAL)
 }

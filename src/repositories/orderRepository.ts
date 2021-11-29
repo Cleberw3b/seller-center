@@ -13,18 +13,18 @@ import { getFunctionName } from "../utils/util"
  * 
  * @param orderIntegration -orderIntegration
  */
-export const newIntegrationHub2b = async ( orderIntegration: OrderIntegration ): Promise<boolean> => {
+export const newIntegrationHub2b = async (orderIntegration: OrderIntegration): Promise<boolean> => {
 
     try {
 
-        const result = await orderIntegrationCollection.insertOne( orderIntegration )
+        const result = await orderIntegrationCollection.insertOne(orderIntegration)
 
         return result.ops[0] ? true : false
 
-    } catch ( error ) {
+    } catch (error) {
 
-        if ( error instanceof MongoError || error instanceof Error )
-            log( error.message, 'EVENT', `Order Repository - ${ getFunctionName() }`, 'ERROR' )
+        if (error instanceof MongoError || error instanceof Error)
+            log(error.message, 'EVENT', `Order Repository - ${getFunctionName()}`, 'ERROR')
 
         return false
     }
@@ -38,14 +38,14 @@ export const findLastIntegrationOrder = async (): Promise<OrderIntegration | nul
 
     try {
 
-        const result = await orderIntegrationCollection.findOne( { $query: {}, $orderby: { $natural: -1 } } )
+        const result = await orderIntegrationCollection.find({}).sort({ _id: -1 }).limit(1).toArray();
 
-        return result
+        return result ? result[0] : null
 
-    } catch ( error ) {
+    } catch (error) {
 
-        if ( error instanceof MongoError || error instanceof Error )
-            log( error.message, 'EVENT', `Order Repository - ${ getFunctionName() }`, 'ERROR' )
+        if (error instanceof MongoError || error instanceof Error)
+            log(error.message, 'EVENT', `Order Repository - ${getFunctionName()}`, 'ERROR')
 
         return null
     }
@@ -56,18 +56,18 @@ export const findLastIntegrationOrder = async (): Promise<OrderIntegration | nul
  * 
  * @param user - new user
  */
-export const newOrderHub2b = async ( orderIntegration: Order ): Promise<Order | null> => {
+export const newOrderHub2b = async (orderIntegration: Order): Promise<Order | null> => {
 
     try {
 
-        const result = await orderCollection.insertOne( orderIntegration )
+        const result = await orderCollection.insertOne(orderIntegration)
 
         return result.ops[0] ? result.ops[0] : null
 
-    } catch ( error ) {
+    } catch (error) {
 
-        if ( error instanceof MongoError || error instanceof Error )
-            log( error.message, 'EVENT', `Order Repository - ${ getFunctionName() }`, 'ERROR' )
+        if (error instanceof MongoError || error instanceof Error)
+            log(error.message, 'EVENT', `Order Repository - ${getFunctionName()}`, 'ERROR')
 
         return null
     }
@@ -78,20 +78,20 @@ export const newOrderHub2b = async ( orderIntegration: Order ): Promise<Order | 
  * 
  * @param _id
  */
-export const findOrderByShopId = async ( shop_id: string ): Promise<Order[] | null> => {
+export const findOrderByShopId = async (shop_id: string): Promise<Order[] | null> => {
 
     try {
 
-        const result = await orderCollection.find( { shop_id: new ObjectID( shop_id)  } )
+        const result = await orderCollection.find({ shop_id: shop_id })
 
         const orders = await result.toArray()
 
         return orders
 
-    } catch ( error ) {
+    } catch (error) {
 
-        if ( error instanceof MongoError || error instanceof Error )
-            log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+        if (error instanceof MongoError || error instanceof Error)
+            log(error.message, 'EVENT', `User Repository - ${getFunctionName()}`, 'ERROR')
 
         return null
     }

@@ -12,15 +12,15 @@ import { findProductByVariation } from "./productService"
 
 export const INTEGRATION_INTERVAL = 1000 * 83 //seconds
 
-export const integrateHub2bOrders = async ( start?: string, end?: string ) => {
+export const integrateHub2bOrders = async (start?: string, end?: string) => {
 
     let ordersList
 
     let lastOrderIntegration: OrderIntegration | null = null
 
-    if ( start && end ) {
+    if (start && end) {
 
-        ordersList = await listOrdersHub2bByTime( start, end )
+        ordersList = await listOrdersHub2bByTime(start, end)
 
         lastOrderIntegration = {
             lastUpdate: end,
@@ -28,18 +28,18 @@ export const integrateHub2bOrders = async ( start?: string, end?: string ) => {
             updateTo: end,
         }
 
-        return saveIntegration( lastOrderIntegration, ordersList )
+        return saveIntegration(lastOrderIntegration, ordersList)
     }
 
     lastOrderIntegration = await findLastIntegrationOrder()
 
     const now = nowIsoDateHub2b()
 
-    if ( lastOrderIntegration ) {
+    if (lastOrderIntegration) {
 
-        ordersList = await listOrdersHub2bByTime( lastOrderIntegration.lastUpdate, now )
+        ordersList = await listOrdersHub2bByTime(lastOrderIntegration.lastUpdate, now)
 
-        if ( !ordersList || ordersList.length === 0 ) return
+        if (!ordersList || ordersList.length === 0) return
 
         lastOrderIntegration = {
             lastUpdate: now,
@@ -51,7 +51,7 @@ export const integrateHub2bOrders = async ( start?: string, end?: string ) => {
 
         ordersList = await listAllOrdersHub2b()
 
-        if ( !ordersList || ordersList.length === 0 ) return
+        if (!ordersList || ordersList.length === 0) return
 
         const firstDate = ordersList[0].createdDate
 
@@ -65,16 +65,18 @@ export const integrateHub2bOrders = async ( start?: string, end?: string ) => {
 
     }
 
-    return saveIntegration( lastOrderIntegration, ordersList )
+    return saveIntegration(lastOrderIntegration, ordersList)
 }
 
-export const saveIntegration = async ( orderIntegration: OrderIntegration, ordersList: [] ) => {
+export const saveIntegration = async (orderIntegration: OrderIntegration, ordersList: []) => {
 
-    log( `Integrating orders from ${ orderIntegration.updateFrom } to ${ orderIntegration.updateTo }`, 'EVENT', getFunctionName() )
+    if (!ordersList) return
 
-    await saveOrders( ordersList )
+    log(`Integrating orders from ${orderIntegration.updateFrom} to ${orderIntegration.updateTo}`, 'EVENT', getFunctionName())
 
-    await newIntegrationHub2b( orderIntegration )
+    saveOrders(ordersList)
+
+    newIntegrationHub2b(orderIntegration)
 }
 
 /**
@@ -82,13 +84,13 @@ export const saveIntegration = async ( orderIntegration: OrderIntegration, order
  * 
  * @param shop_id Shop ID
  */
-export const findOrdersByShop = async ( shop_id: any ): Promise<Order[] | null> => {
+export const findOrdersByShop = async (shop_id: string): Promise<Order[] | null> => {
 
-    const orders = await findOrderByShopId( shop_id )
+    const orders = await findOrderByShopId(shop_id)
 
     orders
-        ? log( `Listing orders from ` + shop_id, 'EVENT', getFunctionName() )
-        : log( `Could not retrieve orders.`, 'EVENT', getFunctionName() )
+        ? log(`Listing orders from ` + shop_id, 'EVENT', getFunctionName())
+        : log(`Could not retrieve orders.`, 'EVENT', getFunctionName())
 
     return orders
 }
@@ -98,20 +100,33 @@ export const findOrdersByShop = async ( shop_id: any ): Promise<Order[] | null> 
  * 
  * @param shop_id Shop ID
  */
-export const saveOrders = async ( orderList: HUB2B_Order[] ) => {
+export const saveOrders = async (orderList: HUB2B_Order[]) => {
 
-    for ( let i = 0; i < orderList.length; i++ ) {
+    for (let i = 0; i < orderList.length; i++) {
 
         const orderHub2 = orderList[i]
 
-        const product = await findProductByVariation( orderHub2.products[0].sku )
+        const product = await findProductByVariation(orderHub2.products[0].sku)
 
-        if ( !product ) break
+        let shop_id = 'limbo'
 
-        const order = await newOrderHub2b( { order: orderHub2, shop_id: product.shop_id } )
+        if (product && product.shop_id)
+            shop_id = product.shop_id.toString()
 
-        order
-            ? log( `Order with sku`, 'EVENT', getFunctionName() )
-            : log( `Could not retrieve category list.`, 'EVENT', getFunctionName(), 'ERROR' )
+        savNewOrder(shop_id, orderHub2)
+
     }
+}
+
+export const savNewOrder = async (shop_id: string, order: HUB2B_Order) => {
+
+    const shop_orders = await findOrderByShopId(shop_id)
+
+    if (Array.isArray(shop_orders) && shop_orders.filter(_order => _order.order.reference.id == order.reference.id)) return
+
+    const newOrder = await newOrderHub2b({ order, shop_id })
+
+    newOrder
+        ? log(`Order with sku`, 'EVENT', getFunctionName())
+        : log(`Could not retrieve category list.`, 'EVENT', getFunctionName(), 'ERROR')
 }
