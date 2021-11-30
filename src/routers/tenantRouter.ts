@@ -9,7 +9,7 @@ const router = Router()
 /**
  * POST -> Creates a tenant (Sellers)
  */
- router.post('/create', validatePayloadCreateTenant,
+ router.post('/create', validatePayloadCreateTenant(),
     async (request: Request, response: Response) => {
         const body = request.body
         const tenant = await createTenant( body )
@@ -28,7 +28,7 @@ const router = Router()
 /**
  * PUT -> Update a tenant (Seller)
  */
- router.put('/:idTenant', validatePayloadUpdateTenant,
+ router.put('/:idTenant', validatePayloadUpdateTenant(),
     async (request: Request, response: Response) => {
         const body = request.body
         body.idTenant = request.params.idTenant
@@ -48,7 +48,7 @@ const router = Router()
 /**
  * GET -> Retrieve tenant (Seller)
  */
- router.get('/:idTenant', validatePayloadGetTenant,
+ router.get('/:idTenant', validatePayloadGetTenant(),
     async (request: Request, response: Response) => {
         const idTenant = request.params.idTenant
         const tenant = await getHub2bTenant( idTenant )

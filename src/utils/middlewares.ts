@@ -195,7 +195,7 @@ export const isVariationFromProduct = async ( req: Request, res: Response, next:
  * Middleware para validar payload de create tenant
  */
  export const validatePayloadCreateTenant = () => {
-    celebrate({
+    return celebrate({
         [Segments.BODY]: {
           name: Joi.string().required(),
           website: Joi.string().required(),
@@ -224,7 +224,7 @@ export const isVariationFromProduct = async ( req: Request, res: Response, next:
  * Middleware para validar payload de update tenant
  */
  export const validatePayloadUpdateTenant = () => {
-    celebrate({
+    return celebrate({
         [Segments.PARAMS]: {
           idTenant: Joi.number().required(),
         },
@@ -256,7 +256,7 @@ export const isVariationFromProduct = async ( req: Request, res: Response, next:
  * Middleware para validar payload de get tenant
  */
  export const validatePayloadGetTenant = () => {
-    celebrate({
+    return celebrate({
         [Segments.PARAMS]: {
           idTenant: Joi.number().required(),
         },
