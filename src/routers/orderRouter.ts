@@ -10,19 +10,19 @@ const router = Router()
 /**
  * GET -> lista de tamanhos 
  */
-router.get( '/all', async ( req: Request, res: Response, next: NextFunction ) => {
+router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
 
-    const orders = await findOrdersByShop( req.shop?._id )
+    const orders = await findOrdersByShop(req.shop?._id.toString())
 
-    if ( !orders )
+    if (!orders)
         return res
-            .status( internalServerError.status )
-            .send( createHttpStatus( internalServerError ) )
+            .status(internalServerError.status)
+            .send(createHttpStatus(internalServerError))
 
     return res
-        .status( ok.status )
-        .send( orders )
-} )
+        .status(ok.status)
+        .send(orders)
+})
 
 /**
  * POST -> Order from HUB2B
