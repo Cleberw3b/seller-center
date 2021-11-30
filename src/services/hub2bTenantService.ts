@@ -8,11 +8,7 @@ import { saveUser } from "../repositories/hub2UserRepository"
 import { saveTenantCredential } from "../repositories/hub2TenantCredentialRepository"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
-<<<<<<< HEAD
 import { HUB2B_URL_V2, HUB2B_TENANT } from "../utils/consts"
-=======
-import { HUB2B_URL_V2 } from "../utils/consts"
->>>>>>> f21963ba373fb37c909a5959024ae5a3a9e62e3b
 import { HUB2B_CREDENTIALS, renewAccessTokenHub2b } from "./hub2bAuhService"
 import { requestHub2B } from "./hub2bService"
 
