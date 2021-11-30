@@ -2,8 +2,7 @@
 //      Account Repository
 //
 
-import { ObjectID } from "bson"
-import { MongoError } from "mongodb"
+import { MongoError, ObjectID } from "mongodb"
 import { Address, BankInfo, ShopInfo, Contact, PersonalInfo } from "../models/account"
 import { addressCollection, bankInfoCollection, contactCollection, personalInfoCollection, shopInfoCollection } from "../utils/db/collections"
 import { log } from "../utils/loggerUtil"
