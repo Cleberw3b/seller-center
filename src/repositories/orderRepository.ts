@@ -93,6 +93,6 @@ export const findOrderByShopId = async (shop_id: string): Promise<Order[] | null
         if (error instanceof MongoError || error instanceof Error)
             log(error.message, 'EVENT', `User Repository - ${getFunctionName()}`, 'ERROR')
 
-        return null
+        return []
     }
 }

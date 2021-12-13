@@ -122,7 +122,7 @@ export const savNewOrder = async (shop_id: string, order: HUB2B_Order) => {
 
     const shop_orders = await findOrderByShopId(shop_id)
 
-    if (Array.isArray(shop_orders) && shop_orders.filter(_order => _order.order.reference.id == order.reference.id)) return
+    if (shop_orders!.filter(_order => _order!.order!.reference!.id == order!.reference!.id).length) return
 
     const newOrder = await newOrderHub2b({ order, shop_id })
 
