@@ -317,20 +317,27 @@ export const deleteVariationById = async ( variation_id: string ): Promise<boole
                 })
 
                 if (productHub2b.attributes.length > 0) {
-                    const sizeAttributes = productHub2b.attributes.filter(attribute => 
-                        (attribute.name.indexOf("tamanho" || "size") != -1))
-                    const colorAtributes = productHub2b.attributes.filter(attribute => 
-                        (attribute.name.indexOf("cor" || "color") != -1))
-                    const variation: Variation = {
-                        size: sizeAttributes[0] ? sizeAttributes[0].value : '',
-                        voltage: null,
-                        stock: productHub2b.stocks.sourceStock,
-                        color: colorAtributes[0] ? colorAtributes[0].value : '',
-                        flavor: '',
-                        gluten_free: false,
-                        lactose_free: false,
-                    }
-                    variations.push(variation)
+                    let size: string = ''
+                    let color: string = ''
+
+                    productHub2b.attributes.forEach((attribute) => {
+                        if (attribute.name.indexOf("tamanho" || "size") != -1) {
+                            size = attribute.value
+                        }
+                        if (attribute.name.indexOf("cor" || "color") != -1) {
+                            size = attribute.value
+                        }
+                        const variation: Variation = {
+                            size,
+                            voltage: null,
+                            stock: productHub2b.stocks.sourceStock,
+                            color,
+                            flavor: '',
+                            gluten_free: false,
+                            lactose_free: false,
+                        }
+                        variations.push(variation)
+                    })
                 }
     
                 const product: Product = {
