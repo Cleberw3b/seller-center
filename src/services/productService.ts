@@ -363,6 +363,7 @@ export const deleteVariationById = async ( variation_id: string ): Promise<boole
                     weight: productHub2b.dimensions.weight,
                     price: productHub2b.destinationPrices.priceBase,
                     price_discounted: productHub2b.destinationPrices.priceSale,
+                    variations,
                     is_active: true
                 }
             
@@ -371,6 +372,7 @@ export const deleteVariationById = async ( variation_id: string ): Promise<boole
                     if (variations.length > 0) {
                         const productInserted = await createNewProduct( product, variations )
                         if (productInserted) {
+                            productEventEmitter.emit('update_stock', productInserted )
                             products.push(productInserted)
                         }
                     } else {
