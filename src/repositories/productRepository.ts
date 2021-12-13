@@ -61,6 +61,25 @@ export const createNewProduct = async ( product: Product, variations: Variation[
 }
 
 /**
+ * Save many products
+ * 
+ * @param products
+ */
+ export const createManyProducts = async ( products: Product[] ): Promise<boolean> => {
+
+    try {
+        const result = await productCollection.insertMany( products )
+
+        return result.ops[0] ? true : false
+
+    } catch ( error ) {
+        if ( error instanceof MongoError || error instanceof Error )
+            log( error.message, 'EVENT', `Prooduct Repository - ${ getFunctionName() }`, 'ERROR' )
+        return false
+    }
+}
+
+/**
  * Update a product
  * 
  * @param product 
@@ -189,6 +208,47 @@ export const findProductsByShopId = async ( shop_id: string ): Promise<Product[]
         const products = await productsCursor.toArray()
 
         return products
+
+    } catch ( error ) {
+
+        if ( error instanceof MongoError || error instanceof Error )
+            log( error.message, 'EVENT', `Product Repository - ${ getFunctionName() }`, 'ERROR' )
+
+        return null
+    }
+}
+
+/**
+ * Find product by shop and name
+ * 
+ * @param shopId 
+ * @param name 
+ * @returns Product
+ */
+ export const findProductByShopIdAndName = async ( shopId: string, name: string ): Promise<Product | null> => {
+
+    try {
+
+        const query = { shop_id: new ObjectID( shopId ), name }
+
+        const productsCursor = await productCollection.aggregate( [
+            {
+                $lookup:
+                {
+                    from: VARIATION_COLLECTION,
+                    localField: "_id",
+                    foreignField: "product_id",
+                    as: "variations"
+                }
+            },
+            { $match: query }
+        ] )
+
+        if ( !productsCursor ) throw new MongoError( "Could not retrieve product." )
+
+        const product = await productsCursor.toArray()
+
+        return product[0]
 
     } catch ( error ) {
 

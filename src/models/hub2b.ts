@@ -163,6 +163,105 @@ export interface HUB2B_Tracking {
     shippingService: string
 }
 
+export interface HUB2B_Catalog_Product {
+    id: number,
+    idTenant: number,
+    sourceId: string,
+    destinationId: string,
+    name: string,
+    idSystemSource: number,
+    idSystemDestination: number,
+    categorization: {
+      source: {
+        id: number,
+        name: string,
+        code: string,
+        parentCode: string,
+        structure: string,
+        completeStructure: string,
+        map: true
+      },
+      destination: {
+        id: number,
+        code: string,
+        parentCode: string,
+        systemCode: string,
+        name: string,
+        completeStructure: string,
+        active: true,
+        idSystem: number
+      }
+    },
+    description: {
+      sourceDescription: string,
+      description: string,
+      descriptionType: string,
+      idTemplate: number
+    },
+    idTypeBuying: number,
+    idTypeListing: number,
+    idTypeCondition: number,
+    storeId: string,
+    ean: string,
+    brand: string,
+    ncm: string,
+    dimensions: {
+      height: number,
+      width: number,
+      length: number,
+      weight: number
+    },
+    images: [
+      {
+        idImage: number,
+        idProduct: number,
+        url: string,
+        idTenant: number,
+        rank: number
+      }
+    ],
+    attributes: [
+      {
+        idAttribute: number,
+        idProduct: number,
+        idAttributeName: number,
+        idAttributeValue: number,
+        name: string,
+        value: string,
+        attributeType: string,
+        idTenant: number
+      }
+    ],
+    warranty: number,
+    productURL: string,
+    sourcePrices: {
+      priceBase: number,
+      priceSale: number,
+      isOutdated: boolean
+    },    
+    destinationPrices: {
+      priceBase: number
+      priceSale: number
+      isOutdated: boolean
+    },
+    stocks: {
+      sourceStock: number,
+      virtualStock: number,
+      isOutdated: true,
+      handlingTime: number
+    },
+    idProductType: 0,
+    metaData: {
+      createDate: "2021-12-11T01:55:35.528Z",
+      updateDate: "2021-12-11T01:55:35.528Z",
+      updateAction: string,
+      updateIdUser: string,
+      updateUserName: string,
+      idProductLoad: number,
+      idProductAction: number
+    }
+}
+
 export const productExample = {
     "sku": "testeWithTemplate2",
     "parentSKU": "",
