@@ -1,5 +1,5 @@
 //
-//      Rota de tamanhos
+//      Rota de pedidos
 //
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -8,7 +8,7 @@ import { createHttpStatus, internalServerError, ok } from '../utils/httpStatus'
 const router = Router()
 
 /**
- * GET -> lista de tamanhos 
+ * GET -> lista de pedidos 
  */
 router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
 
