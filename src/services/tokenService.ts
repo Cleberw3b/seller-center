@@ -56,15 +56,15 @@ export const removeAccessToken = async ( token: string ): Promise<boolean | null
 
 
 export const isTokenValid = async ( token: string ): Promise<AccessToken | null> => {
-
+    
     if ( !token ) return null
-
+    
     const activateToken = await findAccessTokenByToken( token )
-
+    
     if ( !activateToken ) return null
-
+    
     if ( nowInSeconds() > activateToken.expires_at ) return null
-
+    
     return activateToken
 
 }
@@ -75,8 +75,11 @@ export const deleteAllInvalid = async () => {
 
     if ( !tokens ) return
 
-    tokens.forEach( token => {
-        if ( !isTokenValid( token.token ) ) {
+    tokens.forEach( async token => {
+
+        const isValid = await isTokenValid( token.token )
+
+        if ( !isValid ) {
             removeAccessToken( token.token )
             deleteUser( token.user_id )
         }
