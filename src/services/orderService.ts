@@ -2,12 +2,12 @@
 //      Token Service
 //
 
-import { HUB2B_Order } from "../models/hub2b"
+import { HUB2B_Order, HUB2B_Tracking } from "../models/hub2b"
 import { Order, OrderIntegration } from "../models/order"
 import { findLastIntegrationOrder, findOrderByShopId, newIntegrationHub2b, newOrderHub2b } from "../repositories/orderRepository"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowIsoDateHub2b } from "../utils/util"
-import { listAllOrdersHub2b, listOrdersHub2bByTime } from "./hub2bService"
+import { listAllOrdersHub2b, listOrdersHub2bByTime, postTrackingHub2b, getTrackingHub2b } from "./hub2bService"
 import { findProductByVariation } from "./productService"
 
 export const INTEGRATION_INTERVAL = 1000 * 83 //seconds
@@ -129,4 +129,34 @@ export const savNewOrder = async (shop_id: string, order: HUB2B_Order) => {
     newOrder
         ? log(`Order with sku`, 'EVENT', getFunctionName())
         : log(`Could not retrieve category list.`, 'EVENT', getFunctionName(), 'ERROR')
+}
+
+export const sendTracking = async (order_id: string, data: any): Promise<HUB2B_Tracking | null> => {
+
+    const tracking: HUB2B_Tracking = {
+        code: data.code,
+        url: data.url,
+        shippingDate: data.shippingDate,
+        shippingProvider: data.shippingProvider,
+        shippingService: data.shippingService
+    }
+
+    const orderTracking = await postTrackingHub2b(order_id, tracking)
+
+    orderTracking
+        ? log(`Tracking sent`, 'EVENT', getFunctionName())
+        : log(`Could not send tracking`, 'EVENT', getFunctionName(), 'ERROR')
+    
+    return orderTracking
+}
+
+export const retrieveTracking = async (order_id: string): Promise<HUB2B_Tracking | null> => {
+
+    const orderTracking = await getTrackingHub2b(order_id)
+
+    orderTracking
+        ? log(`Tracking retrieved`, 'EVENT', getFunctionName())
+        : log(`Could not retrieve tracking`, 'EVENT', getFunctionName(), 'ERROR')
+
+    return orderTracking
 }
