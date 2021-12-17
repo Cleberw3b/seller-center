@@ -2,12 +2,12 @@
 //      Token Service
 //
 
-import { HUB2B_Order } from "../models/hub2b"
+import { HUB2B_Order, HUB2B_Invoice } from "../models/hub2b"
 import { Order, OrderIntegration } from "../models/order"
 import { findLastIntegrationOrder, findOrderByShopId, newIntegrationHub2b, newOrderHub2b } from "../repositories/orderRepository"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowIsoDateHub2b } from "../utils/util"
-import { listAllOrdersHub2b, listOrdersHub2bByTime } from "./hub2bService"
+import { listAllOrdersHub2b, listOrdersHub2bByTime, postInvoiceHub2b } from "./hub2bService"
 import { findProductByVariation } from "./productService"
 
 export const INTEGRATION_INTERVAL = 1000 * 83 //seconds
@@ -129,4 +129,24 @@ export const savNewOrder = async (shop_id: string, order: HUB2B_Order) => {
     newOrder
         ? log(`Order with sku`, 'EVENT', getFunctionName())
         : log(`Could not retrieve category list.`, 'EVENT', getFunctionName(), 'ERROR')
+}
+
+export const sendInvoice = async (order: any, data: any) : Promise<HUB2B_Invoice | null> => {
+
+    const invoice: HUB2B_Invoice = {
+        issueDate: data.issueDate || nowIsoDateHub2b(),
+        key: data.key,
+        number: data.number,
+        cfop: data.cfop,
+        series: data.series,
+        totalAmount: order.payment.totalAmount,
+    }
+
+    const res = await postInvoiceHub2b(order.reference.id, invoice)
+
+    res
+        ? log(`Invoice sent`, 'EVENT', getFunctionName())
+        : log(`Could not send invoice.`, 'EVENT', getFunctionName(), 'ERROR')
+    
+    return res
 }

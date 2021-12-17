@@ -5,6 +5,7 @@ import { findUserById } from '../repositories/userRepository'
 import { findShop } from '../services/accountService'
 import { findVariation } from '../services/productService'
 import { findById } from '../services/userService'
+import { getOrderHub2b } from '../services/hub2bService'
 import { decodeJWT, isJWTTokenValid } from './cryptUtil'
 import { invalidProductReference, invalidVariationReference } from './errors/errors'
 import { notFound, createHttpStatus, HttpStatusResponse, unauthorized, internalServerError } from './httpStatus'
@@ -187,5 +188,18 @@ export const isVariationFromProduct = async ( req: Request, res: Response, next:
 
     req.variation = variation
 
+    next()
+}
+
+export const isOrderInvoiceable = async (req: Request, res: Response, next: NextFunction) => {    
+
+    const order = await getOrderHub2b(req.params.id)
+
+    if ( !order ) return next( createHttpStatus( notFound ) )
+
+    if ( 'Approved' !== order.status.status ) return next( createHttpStatus( unauthorized ) )
+    
+    req.order = order
+    
     next()
 }

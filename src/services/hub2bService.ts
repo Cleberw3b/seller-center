@@ -360,6 +360,27 @@ export const postOrderHub2b = async () => {
     return orders
 }
 
+export const getOrderHub2b = async (order_id: string) => {
+
+    await renewAccessTokenHub2b()
+
+    const URL_ORDER = HUB2B_URL_V2 + "/Orders/" + order_id + "?access_token=" + HUB2B_CREDENTIALS.access_token
+
+    const body = {}
+
+    const response = await requestHub2B(URL_ORDER, 'GET', body)
+    
+    if (!response) return null
+
+    const order = response.data
+
+    order
+        ? log("GET Orders success", "EVENT", getFunctionName())
+        : log("GET Orders error", "EVENT", getFunctionName(), "WARN")
+
+    return order
+}
+
 export const listOrdersHub2bByOrderNumbers = async (ordersNumber: string[]) => {
 
     await renewAccessTokenHub2b()
