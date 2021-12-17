@@ -39,21 +39,4 @@ router.post('/:id/invoice', isOrderInvoiceable, async (req: Request, res: Respon
         .send(invoice)
 })
 
-/**
- * POST -> Order from HUB2B
- */
-// router.post( '/', async ( req: Request, res: Response, next: NextFunction ) => {
-
-//     const body = req.body
-
-//     if ( !body )
-//         return res
-//             .status( internalServerError.status )
-//             .send( createHttpStatus( internalServerError ) )
-
-//     return res
-//         .status( ok.status )
-//         .send( body )
-// } )
-
 export { router as orderRouter }
