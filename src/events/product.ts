@@ -9,54 +9,47 @@ import { log } from '../utils/loggerUtil'
 
 const productEventEmitter = new events.EventEmitter()
 
-productEventEmitter.on('create', (product: Product) => {
+productEventEmitter.on( 'create', ( product: Product, idTenant: any ) => {
 
-    log(`Criando produto ${product._id} na hub2b.`, 'EVENT', 'ProductEventEmitter')
+    log( `Criando produto ${ product._id } na hub2b.`, 'EVENT', 'ProductEventEmitter' )
 
-    criarProdutoHub2b(parseProdutoToProdutoHub2(product))
-})
+    criarProdutoHub2b( parseProdutoToProdutoHub2( product ), idTenant )
+} )
 
-productEventEmitter.on('update', (product: Product) => {
+productEventEmitter.on( 'update', ( product: Product, idTenant: any ) => {
 
-    log(`Updating produto ${product._id} na hub2b.`, 'EVENT', 'ProductEventEmitter')
+    log( `Updating produto ${ product._id } na hub2b.`, 'EVENT', 'ProductEventEmitter' )
 
-    updateProdutoHub2b(parseProdutoToProdutoHub2(product))
+    updateProdutoHub2b( parseProdutoToProdutoHub2( product ), idTenant )
 
-})
+} )
 
-productEventEmitter.on('delete', (product: Product) => {
+productEventEmitter.on( 'delete', ( product: Product, idTenant: any ) => {
 
-    log(`Deletando produto ${product._id} na hub2b.`, 'EVENT', 'ProductEventEmitter')
+    log( `Deletando produto ${ product._id } na hub2b.`, 'EVENT', 'ProductEventEmitter' )
 
-    deleteProdutoHub2b(product._id)
+    deleteProdutoHub2b( product._id, idTenant )
 
-})
+} )
 
-productEventEmitter.on('update_images', (product: Product, idTenant: any) => {
+productEventEmitter.on( 'update_stock', ( product: Product ) => {
 
-    log(`Updating imagens do produto ${product._id} na hub2b.`, 'EVENT', 'ProductEventEmitter')
+    log( `Updating stock produto ${ product._id } na hub2b.`, 'EVENT', 'ProductEventEmitter' )
 
-    updateProdutoHub2b(parseProdutoToProdutoHub2(product))
-})
+    product.variations && Array.isArray( product.variations ) && product.variations.forEach( variation => {
+        updateStockHub2b( variation._id, variation.stock )
+    } )
 
-productEventEmitter.on('update_stock', (product: Product) => {
+} )
 
-    log(`Updating stock produto ${product._id} na hub2b.`, 'EVENT', 'ProductEventEmitter')
+productEventEmitter.on( 'update_price', ( product: Product ) => {
 
-    product.variations && Array.isArray(product.variations) && product.variations.forEach(variation => {
-        updateStockHub2b(variation._id, variation.stock)
-    })
+    log( `Updating price produto ${ product._id } na hub2b.`, 'EVENT', 'ProductEventEmitter' )
 
-})
+    product.variations && Array.isArray( product.variations ) && product.variations.forEach( variation => {
+        updatePriceHub2b( variation._id, product.price, product.price_discounted )
+    } )
 
-productEventEmitter.on('update_price', (product: Product) => {
-
-    log(`Updating price produto ${product._id} na hub2b.`, 'EVENT', 'ProductEventEmitter')
-
-    product.variations && Array.isArray(product.variations) && product.variations.forEach(variation => {
-        updatePriceHub2b(variation._id, product.price, product.price_discounted)
-    })
-
-})
+} )
 
 export default productEventEmitter
