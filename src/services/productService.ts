@@ -291,8 +291,6 @@ export const deleteVariationById = async ( variation_id: string, patch: any ): P
 
     const idTenant = patch.idTenant | Number(HUB2B_TENANT)
 
-    const idTenant = patch.idTenant | Number(HUB2B_TENANT)
-
     productEventEmitter.emit( 'update', await findProductByVariation( variation_id ), idTenant )
 
     return result
