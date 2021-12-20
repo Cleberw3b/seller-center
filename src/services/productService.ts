@@ -11,10 +11,10 @@ import { HUB2B_TENANT } from "../utils/consts"
 
 /**
  * Save a new product
- * 
+ *
  * @param body - valid product
  */
-export const createProduct = async ( body: any ): Promise<Product | null> => {
+export const createProduct = async (body: any): Promise<Product | null> => {
 
     const {
         images,
@@ -61,14 +61,14 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
         is_active: true
     }
 
-    const product = await createNewProduct( ref_product, variations )
+    const product = await createNewProduct(ref_product, variations)
 
-    if ( !product ) {
-        log( `Product ${ product } has been created.`, 'EVENT', getFunctionName() )
+    if (!product) {
+        log(`Product ${product} has been created.`, 'EVENT', getFunctionName())
         return null
     }
 
-    log( `Product ${ product.name } has been created.`, 'EVENT', getFunctionName() )
+    log(`Product ${product.name} has been created.`, 'EVENT', getFunctionName())
 
     const idTenant = body.idTenant | Number(HUB2B_TENANT)
 
@@ -79,40 +79,40 @@ export const createProduct = async ( body: any ): Promise<Product | null> => {
 
 /**
  * Find a product by its id
- * 
+ *
  * @param product_id - product_id
  */
-export const findProduct = async ( product_id: any ): Promise<Product | null> => {
+export const findProduct = async (product_id: any): Promise<Product | null> => {
 
-    let product = await findProductById( product_id )
+    let product = await findProductById(product_id)
 
     product
-        ? log( `Product ${ product.name } has been found.`, 'EVENT', getFunctionName() )
-        : log( `Product ${ product_id } does not exist.`, 'EVENT', getFunctionName() )
+        ? log(`Product ${product.name} has been found.`, 'EVENT', getFunctionName())
+        : log(`Product ${product_id} does not exist.`, 'EVENT', getFunctionName())
 
     return product
 }
 
 /**
  * Find a product by variation id
- * 
+ *
  * @param variation_id - variation_id
  */
-export const findProductByVariation = async ( variation_id: any ): Promise<Product | null> => {
+export const findProductByVariation = async (variation_id: any): Promise<Product | null> => {
 
-    const variation = await findVariationById( variation_id )
+    const variation = await findVariationById(variation_id)
 
     variation
-        ? log( `Variation ${ variation._id } has been found.`, 'EVENT', getFunctionName() )
-        : log( `Variation ${ variation_id } could not be found.`, 'EVENT', getFunctionName() )
+        ? log(`Variation ${variation._id} has been found.`, 'EVENT', getFunctionName())
+        : log(`Variation ${variation_id} could not be found.`, 'EVENT', getFunctionName())
 
-    if ( !variation ) return null
+    if (!variation) return null
 
-    const product = await findProductById( variation.product_id )
+    const product = await findProductById(variation.product_id)
 
     product
-        ? log( `Product ${ product._id } has been found.`, 'EVENT', getFunctionName() )
-        : log( `Product ${ variation.product_id } could not be found.`, 'EVENT', getFunctionName() )
+        ? log(`Product ${product._id} has been found.`, 'EVENT', getFunctionName())
+        : log(`Product ${variation.product_id} could not be found.`, 'EVENT', getFunctionName())
 
     return product
 }
@@ -122,13 +122,13 @@ export const findProductByVariation = async ( variation_id: any ): Promise<Produ
  *
  * @param shop_id - shop_id
  */
-export const findProductsByShop = async ( shop_id: any ): Promise<Product[] | null> => {
+export const findProductsByShop = async (shop_id: any): Promise<Product[] | null> => {
 
-    const products = await findProductsByShopId( shop_id )
+    const products = await findProductsByShopId(shop_id)
 
     products
-        ? log( `Found ${ products.length } products for shop ${ shop_id }`, 'EVENT', getFunctionName() )
-        : log( `Could not find any products`, 'EVENT', getFunctionName() )
+        ? log(`Found ${products.length} products for shop ${shop_id}`, 'EVENT', getFunctionName())
+        : log(`Could not find any products`, 'EVENT', getFunctionName())
 
     return products
 }
@@ -138,17 +138,37 @@ export const findProductsByShop = async ( shop_id: any ): Promise<Product[] | nu
  *
  * @param _id - product id
  */
-export const updateProduct = async ( _id: any, patch: any ): Promise<Product | null> => {
+export const updateProduct = async (_id: any, patch: any): Promise<Product | null> => {
 
-    if ( patch.images ) delete patch.images
+    if (patch.images) delete patch.images
 
-    const product = await updateProductById( _id, patch )
+    const product = await updateProductById(_id, patch)
 
     product
-        ? log( `Update product ${ _id }`, 'EVENT', getFunctionName() )
-        : log( `Could not update product`, 'EVENT', getFunctionName() )
+        ? log(`Update product ${_id}`, 'EVENT', getFunctionName())
+        : log(`Could not update product`, 'EVENT', getFunctionName())
 
-    productEventEmitter.emit( 'update', product )
+    productEventEmitter.emit('update', product)
+
+    return product
+}
+
+/**
+ * Update a product's images by its ID
+ *
+ * @param _id - product id
+ */
+export const updateProductImgaes = async (_id: any, patch: any): Promise<Product | null> => {
+
+    const { images } = patch
+
+    const product = await updateProductById(_id, { images })
+
+    product
+        ? log(`Update product ${_id}`, 'EVENT', getFunctionName())
+        : log(`Could not update product`, 'EVENT', getFunctionName())
+
+    productEventEmitter.emit('update', product)
 
     return product
 }
@@ -158,17 +178,17 @@ export const updateProduct = async ( _id: any, patch: any ): Promise<Product | n
  *
  * @param _id - product id
  */
-export const updateProductPrice = async ( _id: any, patch: any ): Promise<Product | null> => {
+export const updateProductPrice = async (_id: any, patch: any): Promise<Product | null> => {
 
     const { price, price_discounted } = patch
 
-    const product = await updateProductById( _id, { price, price_discounted } )
+    const product = await updateProductById(_id, { price, price_discounted })
 
     product
-        ? log( `Update product ${ _id }`, 'EVENT', getFunctionName() )
-        : log( `Could not update product`, 'EVENT', getFunctionName() )
+        ? log(`Update product ${_id}`, 'EVENT', getFunctionName())
+        : log(`Could not update product`, 'EVENT', getFunctionName())
 
-    productEventEmitter.emit( 'update_price', product )
+    productEventEmitter.emit('update_price', product)
 
     return product
 }
@@ -178,17 +198,17 @@ export const updateProductPrice = async ( _id: any, patch: any ): Promise<Produc
  *
  * @param _id - product id
  */
-export const updateProductVariationStock = async ( _id: any, patch: any ): Promise<Product | null> => {
+export const updateProductVariationStock = async (_id: any, patch: any): Promise<Product | null> => {
 
     const stock = patch
 
-    const product = await updateVariationById( _id, { stock } )
+    const product = await updateVariationById(_id, { stock })
 
     product
-        ? log( `Update stock variation ${ _id }`, 'EVENT', getFunctionName() )
-        : log( `Could not update product`, 'EVENT', getFunctionName() )
+        ? log(`Update stock variation ${_id}`, 'EVENT', getFunctionName())
+        : log(`Could not update product`, 'EVENT', getFunctionName())
 
-    productEventEmitter.emit( 'update_stock', product )
+    productEventEmitter.emit('update_stock', product)
 
     return product
 }
@@ -198,14 +218,14 @@ export const updateProductVariationStock = async ( _id: any, patch: any ): Promi
  *
  * @param _id - variation id
  */
-export const updateProductVariation = async ( _id: any, patch: any ): Promise<Product | null> => {
+export const updateProductVariation = async (_id: any, patch: any): Promise<Product | null> => {
 
-    const product = await updateVariationById( _id, patch )
+    const product = await updateVariationById(_id, patch)
 
     product
         ? log( `Update product variation ${ _id }`, 'EVENT', getFunctionName() )
         : log( `Could not update product`, 'EVENT', getFunctionName() )
-    
+
     const idTenant = patch.idTenant | Number(HUB2B_TENANT)
 
     productEventEmitter.emit( 'update', product, idTenant )
@@ -218,42 +238,42 @@ export const updateProductVariation = async ( _id: any, patch: any ): Promise<Pr
  *
  * @param variation_id - variation_id
  */
-export const findVariation = async ( variation_id: any ): Promise<Variation | null> => {
+export const findVariation = async (variation_id: any): Promise<Variation | null> => {
 
 
-    let variation = await findVariationById( variation_id )
+    let variation = await findVariationById(variation_id)
 
     variation
-        ? log( `Variation ${ variation._id } has been found.`, 'EVENT', getFunctionName() )
-        : log( `Variation ${ variation_id } does not exist.`, 'EVENT', getFunctionName() )
+        ? log(`Variation ${variation._id} has been found.`, 'EVENT', getFunctionName())
+        : log(`Variation ${variation_id} does not exist.`, 'EVENT', getFunctionName())
 
     return variation
 }
 
-export const createNewVariation = async ( body: any ): Promise<Variation | null> => {
+export const createNewVariation = async (body: any): Promise<Variation | null> => {
 
     const { product_id, stock, color, size, voltage, flavor, gluten_free, lactose_free } = body
 
     let ref_variation: Variation = { product_id, stock }
 
-    if ( color ) ref_variation = Object.assign( ref_variation, { color } )
+    if (color) ref_variation = Object.assign(ref_variation, { color })
 
-    if ( size ) ref_variation = Object.assign( ref_variation, { size } )
+    if (size) ref_variation = Object.assign(ref_variation, { size })
 
-    if ( voltage ) ref_variation = Object.assign( ref_variation, { voltage } )
+    if (voltage) ref_variation = Object.assign(ref_variation, { voltage })
 
-    if ( flavor ) ref_variation = Object.assign( ref_variation, { flavor } )
+    if (flavor) ref_variation = Object.assign(ref_variation, { flavor })
 
-    if ( gluten_free ) ref_variation = Object.assign( ref_variation, { gluten_free } )
+    if (gluten_free) ref_variation = Object.assign(ref_variation, { gluten_free })
 
-    if ( lactose_free ) ref_variation = Object.assign( ref_variation, { lactose_free } )
+    if (lactose_free) ref_variation = Object.assign(ref_variation, { lactose_free })
 
-    let variation = await createVariation( ref_variation )
+    let variation = await createVariation(ref_variation)
 
     variation
         ? log( `Variation ${ variation._id } has been created.`, 'EVENT', getFunctionName() )
         : log( `Variation could not be created.`, 'EVENT', getFunctionName() )
-    
+
     const idTenant = body.idTenant | Number(HUB2B_TENANT)
 
     productEventEmitter.emit( 'update', await findProductByVariation( variation?._id ), idTenant )
@@ -263,11 +283,13 @@ export const createNewVariation = async ( body: any ): Promise<Variation | null>
 
 export const deleteVariationById = async ( variation_id: string, patch: any ): Promise<boolean> => {
 
-    let result = await deleteVariation( variation_id )
+    let result = await deleteVariation(variation_id)
 
     result
-        ? log( `Variation has been deleted.`, 'EVENT', getFunctionName() )
-        : log( `Variation could not be deleted.`, 'EVENT', getFunctionName() )
+        ? log(`Variation has been deleted.`, 'EVENT', getFunctionName())
+        : log(`Variation could not be deleted.`, 'EVENT', getFunctionName())
+
+    const idTenant = patch.idTenant | Number(HUB2B_TENANT)
 
     const idTenant = patch.idTenant | Number(HUB2B_TENANT)
 

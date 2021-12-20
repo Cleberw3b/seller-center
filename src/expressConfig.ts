@@ -43,6 +43,7 @@ app.use( '/category', routers.category )
 app.use( '/bank', routers.bank )
 app.use( '/order', routers.order )
 app.use( '/tenant', routers.tenant )
+app.use( '/order', userCanAccessShop, routers.order )
 
 // Middleware to catch 404 and forward to error handler
 app.use( notFountMiddleware )
