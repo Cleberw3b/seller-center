@@ -8,6 +8,7 @@ import { findLastIntegrationOrder, findOrderByShopId, newIntegrationHub2b, newOr
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowIsoDateHub2b } from "../utils/util"
 import { listAllOrdersHub2b, listOrdersHub2bByTime } from "./hub2bService"
+import { sendOrderEmailToSeller } from "./mailService"
 import { findProductByVariation } from "./productService"
 
 export const INTEGRATION_INTERVAL = 1000 * 83 //seconds
@@ -125,6 +126,8 @@ export const savNewOrder = async (shop_id: string, order: HUB2B_Order) => {
     if (Array.isArray(shop_orders) && shop_orders!.filter(_order => _order!.order!.reference!.id == order!.reference!.id).length) return
 
     const newOrder = await newOrderHub2b({ order, shop_id })
+
+    if(newOrder) sendOrderEmailToSeller(shop_id)
 
     newOrder
         ? log(`Order with sku`, 'EVENT', getFunctionName())
