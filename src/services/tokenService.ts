@@ -8,6 +8,7 @@ import { createAccessToken, deleteAccessToken, findAccessTokenByToken, retrieveA
 import { log } from "../utils/loggerUtil"
 import { create_UUID, getFunctionName, nowInSeconds } from "../utils/util"
 import { deleteUser } from "./userService"
+import { sendOrderEmailToSeller } from "./mailService"
 
 const ONE_DAY_IN_SECONDS = 86400
 const TWO_DAYS_IN_SECONDS = 172800
@@ -86,4 +87,4 @@ export const deleteAllInvalid = async () => {
     } )
 }
 
-setInterval( deleteAllInvalid, 2 * 60 * 1000 )
+// setInterval( deleteAllInvalid, 2 * 60 * 1000 )

@@ -54,7 +54,7 @@ export const orderEmailContent = () => `
                                                                         <table cellpadding="0" cellspacing="0" width="100%">
                                                                             <tbody>
                                                                                 <tr>
-                                                                                    <td align="center" class="esd-block-image" style="font-size: 0px;"><a target="_blank"><img src="https://demo.stripocdn.email/content/guids/e41d6264-9cbf-4186-ae7e-e8897e03cc8a/images/79771619559954234.jpg" alt style="display: block;" width="130"></a></td>
+                                                                                    <td align="center" class="esd-block-image" style="font-size: 0px;"><a target="_blank"><img class="adapt-img" src="https://raw.githubusercontent.com/Cleberw3b/seller-center/main/src/assets/mail/mail-header.png" alt style="display: block;" width="600"></a></td>
                                                                                 </tr>
                                                                             </tbody>
                                                                         </table>
@@ -86,26 +86,20 @@ export const orderEmailContent = () => `
                                                                             <tbody>
                                                                                 <tr>
                                                                                     <td align="center" class="esd-block-text es-p10b">
-                                                                                        <h1>Olá! Tudo bem?</h1>
+                                                                                        <h3>Olá! Tudo bem?</h3>
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
-                                                                                    <td align="center" class="esd-block-text es-p10b">
-                                                                                        <h3>Tivemos uma venda!</h3>
-                                                                                    </td>
-                                                                                </tr>
                                                                                 <tr>
                                                                                     <td align="center" class="esd-block-text es-p10t es-p10b">
-                                                                                        <p>lembre-se de dar o <bold>OK</bold> se recebeu
-                                                                                        esse e-mail e <bold>enviar o comprovante</bold>
-                                                                                        junto com o <bold>código de rastreio</bold>para o
-                                                                                        reembolso do frete!</p>
+                                                                                        <p>Hora de comemorar porque tivemos uma nova venda!<br />
+                                                                                        Acesse  <a href="http://brandzcenter.ozllo.com.br">aqui o nosso Brandz Center</a> para ver todos os detalhes da sua venda.<br />
+                                                                                        Não se esqueça de despachar<strong> em até 2 dias!</strong></p>
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <td align="center" class="esd-block-text es-p10b">
-                                                                                        <h3>Obrigado e</h3>
-                                                                                        <h3>até a próxima venda!</h3>
+                                                                                        <h3>Obrigado e até a próxima venda!</h3>
                                                                                     </td>
                                                                                 </tr>
                                                                             </tbody>
@@ -125,7 +119,7 @@ export const orderEmailContent = () => `
                                                                         <table cellpadding="0" cellspacing="0" width="100%">
                                                                             <tbody>
                                                                                 <tr>
-                                                                                    <td align="center" class="esd-block-image" style="font-size: 0px;"><a target="_blank"><img class="adapt-img" src="https://hpy.stripocdn.email/content/guids/CABINET_1ce849b9d6fc2f13978e163ad3c663df/images/3991592481152831.png" alt style="display: block;" width="600"></a></td>
+                                                                                    <td align="center" class="esd-block-image" style="font-size: 0px;"><a target="_blank"><img class="adapt-img" src="https://raw.githubusercontent.com/Cleberw3b/seller-center/main/src/assets/mail/mail-footer.png" alt style="display: block;" width="600"></a></td>
                                                                                 </tr>
                                                                             </tbody>
                                                                         </table>
