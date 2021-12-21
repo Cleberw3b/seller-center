@@ -86,4 +86,4 @@ export const deleteAllInvalid = async () => {
     } )
 }
 
-setInterval( deleteAllInvalid, 2 * 60 * 1000 )
+//setInterval( deleteAllInvalid, 2 * 60 * 1000 )
