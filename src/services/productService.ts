@@ -372,8 +372,12 @@ export const deleteVariationById = async ( variation_id: string ): Promise<boole
                     if (variations.length > 0) {
                         const productInserted = await createNewProduct( product, variations )
                         if (productInserted) {
-                            productEventEmitter.emit('update_stock', productInserted )
-                            products.push(productInserted)
+                            const productId = productInserted._id
+                            const productUpdated = await updateProductById(productId, { sku: productId })
+                            if (productUpdated) {
+                                productEventEmitter.emit('update', productUpdated )
+                                products.push(productUpdated)
+                            }
                         }
                     } else {
                         productsWithoutVariation.push(product)
