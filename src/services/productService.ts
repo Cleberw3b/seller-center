@@ -5,8 +5,14 @@
 import { Product, Variation } from "../models/product"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
-import { createNewProduct, createVariation, deleteVariation, findProductById, findProductsByShopId, findVariationById, updateProductById, updateVariationById } from "../repositories/productRepository"
+import { createNewProduct, createVariation, deleteVariation, findProductByShopIdAndName, findProductById, findProductsByShopId, findVariationById, updateProductById, updateVariationById, createManyProducts } from "../repositories/productRepository"
 import productEventEmitter from "../events/product"
+import { HUB2B_CREDENTIALS, renewAccessTokenHub2b } from "./hub2bAuhService"
+import { requestHub2B } from "./hub2bService"
+import { HUB2B_URL_V2, HUB2B_MARKETPLACE } from "../utils/consts"
+import { HUB2B_Catalog_Product } from "../models/hub2b"
+import { ObjectID } from "mongodb"
+import { CATEGORIES, SUBCATEGORIES } from "../models/category"
 import { HUB2B_TENANT } from "../utils/consts"
 
 /**
@@ -294,4 +300,135 @@ export const deleteVariationById = async ( variation_id: string, patch: any ): P
     productEventEmitter.emit( 'update', await findProductByVariation( variation_id ), idTenant )
 
     return result
+}
+
+/**
+ * Import products hub2b
+ * 
+ * @param idTenant
+ */
+ export const importProduct = async (idTenant: any, shop_id: any): Promise<Product[] | null> => {
+
+    const products: Product[] = []
+    const productsWithoutVariation: Product[] = []
+    const productsInHub2b = await getProductsInHub2b(idTenant)
+
+    if (productsInHub2b) {
+
+        for await (let productHub2b of productsInHub2b) {
+            const variations: Variation[] = []
+            const productExists = await findProductByShopIdAndName(shop_id, productHub2b.name)
+            if (!productExists) {
+                const images: string[] = []
+    
+                productHub2b.images.forEach((imageHub2b) => {
+                    images.push(imageHub2b.url)
+                })
+
+                if (productHub2b.attributes.length > 0) {
+                    let size: string = ''
+                    let color: string = ''
+
+                    productHub2b.attributes.forEach((attribute) => {
+                        if (attribute.name.indexOf("tamanho" || "size") != -1) {
+                            size = attribute.value
+                        }
+                        if (attribute.name.indexOf("cor" || "color") != -1) {
+                            size = attribute.value
+                        }
+                        const variation: Variation = {
+                            size,
+                            voltage: null,
+                            stock: productHub2b.stocks.sourceStock,
+                            color,
+                            flavor: '',
+                            gluten_free: false,
+                            lactose_free: false,
+                        }
+                        variations.push(variation)
+                    })
+                }
+    
+                const product: Product = {
+                    shop_id: new ObjectID(shop_id),
+                    images,
+                    category: productHub2b.categorization ? 
+                        CATEGORIES.filter( category => 
+                            category.value === productHub2b.categorization.source.name )[0].code : 0,
+                    subcategory: productHub2b.categorization ? 
+                        SUBCATEGORIES.filter( 
+                            subcategory => subcategory.value === productHub2b.categorization.destination.name )[0].code : 0,
+                    nationality: 0,
+                    name: productHub2b.name,
+                    description: productHub2b.description.description,
+                    brand: productHub2b.brand,
+                    more_info: '',
+                    ean: productHub2b.ean,
+                    sku: '',
+                    gender: 'U',
+                    height: productHub2b.dimensions.height,
+                    width: productHub2b.dimensions.width,
+                    length: productHub2b.dimensions.length,
+                    weight: productHub2b.dimensions.weight,
+                    price: productHub2b.destinationPrices.priceBase,
+                    price_discounted: productHub2b.destinationPrices.priceSale,
+                    variations,
+                    is_active: true
+                }
+            
+                if(product) {
+                    log(`Product ${product.name} has been created.`, 'EVENT', getFunctionName())
+                    if (variations.length > 0) {
+                        const productInserted = await createNewProduct( product, variations )
+                        if (productInserted) {
+                            const productId = productInserted._id
+                            const productUpdated = await updateProductById(productId, { sku: productId })
+                            if (productUpdated) {
+                                productEventEmitter.emit('update', productUpdated )
+                                products.push(productUpdated)
+                            }
+                        }
+                    } else {
+                        productsWithoutVariation.push(product)
+                    }
+                }
+            }
+        }
+        
+        if (productsWithoutVariation.length > 0) {
+            const createdProducts = await createManyProducts( productsWithoutVariation )
+    
+            if ( !createdProducts ) {
+                log( 'Could not create Products', 'EVENT', getFunctionName(), 'ERROR' )
+            } else {
+                products.push.apply(products, productsWithoutVariation)
+            }
+        }
+    }
+
+    return products
+}
+
+/**
+ * Get Products
+ * 
+ * @returns 
+ */
+ export const getProductsInHub2b = async (idTenant: any): Promise<HUB2B_Catalog_Product[] | null> => {
+    await renewAccessTokenHub2b()
+
+    const CATALOG_URL = HUB2B_URL_V2 + 
+      "/catalog/product/" + HUB2B_MARKETPLACE + "/" + idTenant + 
+      "?onlyWithDestinationSKU=true&onlyActiveProducts=true&getAdditionalInfo=false&access_token=" + HUB2B_CREDENTIALS.access_token
+    
+    const response = await requestHub2B( CATALOG_URL, 'GET' )
+    if ( !response ) return null
+
+    const productsHub2b: HUB2B_Catalog_Product[] = response.data
+
+    productsHub2b
+        ? log( "GET Products in hub2b success", "EVENT", getFunctionName() )
+        : log( "GET Products in hub2b error", "EVENT", getFunctionName(), "WARN" )
+
+    return productsHub2b
 }
