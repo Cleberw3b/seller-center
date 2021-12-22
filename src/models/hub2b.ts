@@ -261,6 +261,50 @@ export interface HUB2B_Catalog_Product {
       idProductAction: number
     }
 }
+export interface HUB2B_Tenants {
+    _id?: any,
+    idTenant: number,
+    name: string,
+    website: string,
+    documentNumber: string,
+    companyName: string,
+    ownerName: string,
+    ownerEmail: string,
+    ownerPhoneNumber: string,
+    idAgency: number,
+    stateInscription: string,
+    address: {
+        zipCode: string,
+        street: string,
+        neighborhood: string,
+        number: 0,
+        city: string,
+        state: string,
+        country: string,
+        reference: string
+    }
+}
+
+export interface HUB2B_Users {
+    _id?: any,
+    idUser: number,
+    firstName: string,
+    lastName: string,
+    email: string,
+    hidden: boolean,
+    message: string
+}
+
+export interface HUB2B_TenantCredentials {
+    _id?: any,
+    apiV1: {
+        authToken: string
+    },
+    apiV2: {
+        userName: string,
+        password: string
+    }
+}
 
 export const productExample = {
     "sku": "testeWithTemplate2",

@@ -13,10 +13,11 @@ import { HUB2B_URL_V2, HUB2B_MARKETPLACE } from "../utils/consts"
 import { HUB2B_Catalog_Product } from "../models/hub2b"
 import { ObjectID } from "mongodb"
 import { CATEGORIES, SUBCATEGORIES } from "../models/category"
+import { HUB2B_TENANT } from "../utils/consts"
 
 /**
  * Save a new product
- * 
+ *
  * @param body - valid product
  */
 export const createProduct = async (body: any): Promise<Product | null> => {
@@ -75,14 +76,16 @@ export const createProduct = async (body: any): Promise<Product | null> => {
 
     log(`Product ${product.name} has been created.`, 'EVENT', getFunctionName())
 
-    productEventEmitter.emit( 'create', product )
+    const idTenant = body.idTenant | Number(HUB2B_TENANT)
+
+    productEventEmitter.emit( 'create', product, idTenant )
 
     return product
 }
 
 /**
  * Find a product by its id
- * 
+ *
  * @param product_id - product_id
  */
 export const findProduct = async (product_id: any): Promise<Product | null> => {
@@ -98,7 +101,7 @@ export const findProduct = async (product_id: any): Promise<Product | null> => {
 
 /**
  * Find a product by variation id
- * 
+ *
  * @param variation_id - variation_id
  */
 export const findProductByVariation = async (variation_id: any): Promise<Product | null> => {
@@ -229,7 +232,9 @@ export const updateProductVariation = async (_id: any, patch: any): Promise<Prod
         ? log( `Update product variation ${ _id }`, 'EVENT', getFunctionName() )
         : log( `Could not update product`, 'EVENT', getFunctionName() )
 
-    productEventEmitter.emit( 'update', product )
+    const idTenant = patch.idTenant | Number(HUB2B_TENANT)
+
+    productEventEmitter.emit( 'update', product, idTenant )
 
     return product
 }
@@ -275,12 +280,14 @@ export const createNewVariation = async (body: any): Promise<Variation | null> =
         ? log( `Variation ${ variation._id } has been created.`, 'EVENT', getFunctionName() )
         : log( `Variation could not be created.`, 'EVENT', getFunctionName() )
 
-    productEventEmitter.emit( 'update', await findProductByVariation( variation?._id ) )
+    const idTenant = body.idTenant | Number(HUB2B_TENANT)
+
+    productEventEmitter.emit( 'update', await findProductByVariation( variation?._id ), idTenant )
 
     return variation
 }
 
-export const deleteVariationById = async ( variation_id: string ): Promise<boolean> => {
+export const deleteVariationById = async ( variation_id: string, patch: any ): Promise<boolean> => {
 
     let result = await deleteVariation(variation_id)
 
@@ -288,7 +295,9 @@ export const deleteVariationById = async ( variation_id: string ): Promise<boole
         ? log(`Variation has been deleted.`, 'EVENT', getFunctionName())
         : log(`Variation could not be deleted.`, 'EVENT', getFunctionName())
 
-    productEventEmitter.emit( 'update', await findProductByVariation( variation_id ) )
+    const idTenant = patch.idTenant | Number(HUB2B_TENANT)
+
+    productEventEmitter.emit( 'update', await findProductByVariation( variation_id ), idTenant )
 
     return result
 }

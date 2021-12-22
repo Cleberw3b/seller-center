@@ -6,6 +6,7 @@ import { Account, Address, BankInfo, Contact, PersonalInfo, ShopInfo } from "../
 import { createOrUpdateAddress, createOrUpdateBankInfo, createOrUpdatePersonalInfo, createOrUpdateShopInfo, createOrUpdateContact, findAddressByUserID, findBankInfoByUserID, findContactByUserID, findPersonalInfoByUserID, findShopInfoByID, findShopInfoByUserID } from "../repositories/accountRepository"
 import { log } from "../utils/loggerUtil"
 import { formatDate, getFunctionName, parseDate } from "../utils/util"
+import { createTenant } from '../services/hub2bTenantService'
 
 /**
  * Creates new Personal Information
@@ -77,9 +78,32 @@ export const createShopInfo = async ( body: any ): Promise<ShopInfo | null> => {
 
     const newShopInfo = await createOrUpdateShopInfo( shopInfo )
 
-    newShopInfo
-        ? log( `Shop Info for ${ userId } added.`, 'EVENT', getFunctionName() )
-        : log( `Could not set shop information for ${ userId }`, 'EVENT', getFunctionName() )
+    if (newShopInfo) {
+        log( `Shop Info for ${ userId } added.`, 'EVENT', getFunctionName() )
+
+        // Criação do Tenant após criação do shop
+        /* await createTenant( {
+            name: newShopInfo.name,
+            website: "",
+            documentNumber: "",
+            companyName: "",
+            ownerName: "",
+            ownerEmail: "",
+            ownerPhoneNumber: "",
+            stateInscription: "",
+            address: {
+                zipCode: "",
+                street: "",
+                neighborhood: "",
+                number: 0,
+                city: "",
+                state: "",
+                country: ""
+            }
+        })*/
+    } else {
+        log( `Could not set shop information for ${ userId }`, 'EVENT', getFunctionName() )
+    }
 
     return newShopInfo
 }
