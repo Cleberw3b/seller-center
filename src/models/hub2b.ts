@@ -149,10 +149,10 @@ export interface HUB2B_Invoice {
     number: string,
     cfop: string,
     series: string,
-    totalAmount: 1,
+    totalAmount: number,
     issueDate: string,
-    xmlReference: string,
-    packages: number
+    xmlReference?: string,
+    packages?: number
 }
 
 export interface HUB2B_Tracking {
