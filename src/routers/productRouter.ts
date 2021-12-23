@@ -4,7 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { deleteVariation } from '../repositories/productRepository'
-import { createNewVariation, createProduct, findProductsByShop, updateProduct, updateProductImgaes, updateProductPrice, updateProductVariation, updateProductVariationStock } from '../services/productService'
+import { createNewVariation, createProduct, findProductsByShop, updateProduct, updateProductImgaes, updateProductPrice, updateProductVariation, updateProductVariationStock, importProduct } from '../services/productService'
 import { uploadProductPicture } from '../services/uploadService'
 import { badRequest, createHttpStatus, internalServerError, noContent, ok } from '../utils/httpStatus'
 import { log } from '../utils/loggerUtil'
@@ -302,6 +302,31 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
     return res
         .status(products.length > 0 ? ok.status : noContent.status)
+        .send(products)
+})
+
+/**
+ * POST -> importa produtos cadastrados na hub2b
+ */
+ router.post('/import/hub2b/:shop_id/:tenant_id', async (req: Request, res: Response, next: NextFunction) => {
+
+    const tenant_id = req.params.tenant_id
+    const shop_id = req.params.shop_id
+
+    if (!tenant_id || !shop_id)
+        return res
+            .status(badRequest.status)
+            .send(createHttpStatus(badRequest))
+
+    const products = await importProduct(tenant_id, shop_id)
+
+    if (!products)
+        return res
+            .status(internalServerError.status)
+            .send(createHttpStatus(internalServerError))
+
+    return res
+        .status(ok.status)
         .send(products)
 })
 

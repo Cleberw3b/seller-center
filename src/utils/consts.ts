@@ -77,3 +77,5 @@ export const HUB2B_CLIENT_SECRET = process.env.HUB2B_CLIENT_SECRET || ''
 export const HUB2B_USERNAME = process.env.HUB2B_USERNAME || ''
 
 export const HUB2B_PASSWORD = process.env.HUB2B_PASSWORD || ''
+
+export const HUB2B_MARKETPLACE  = 'enjoei'
