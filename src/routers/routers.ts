@@ -13,6 +13,7 @@ import { categoryRouter } from './categoryRouter'
 import { bankRouter } from './bankRouter'
 import { orderRouter } from './orderRouter'
 import { tenantRouter } from './tenantRouter'
+import { integrationRouter } from './integrationRouter'
 
 export const root = rootRouter
 export const healthCheck = healthCheckRouter
@@ -23,3 +24,4 @@ export const category = categoryRouter
 export const bank = bankRouter
 export const order = orderRouter
 export const tenant = tenantRouter
+export const integration = integrationRouter

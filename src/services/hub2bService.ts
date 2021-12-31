@@ -3,7 +3,7 @@
 //
 
 import axios, { Method } from "axios"
-import { HUB2B_Invoice, HUB2B_Product, HUB2B_Status, HUB2B_Tracking, HUB2B_Order } from "../models/hub2b"
+import { HUB2B_Invoice, HUB2B_Product, HUB2B_Status, HUB2B_Tracking, HUB2B_Order, HUB2B_Integration } from "../models/hub2b"
 import { Product } from "../models/product"
 import { SALES_CHANNEL_HUB2B } from "../models/salesChannelHub2b"
 import { HUB2B_ACCESS_KEY_V1, HUB2B_URL_V2, PROJECT_HOST, HUB2B_TENANT, HUB2B_URL_V1 } from "../utils/consts"
@@ -76,40 +76,11 @@ export const requestHub2B = async (URL: string, type?: Method, body?: any, heade
     }
 }
 
-export const setupIntegrationHub2b = async (idTenant: any) => {
+export const setupIntegrationHub2b = async (integration: HUB2B_Integration) => {
 
-    const SETUP_URL = HUB2B_URL_V2 + "/Setup/integration"
+    const SETUP_URL = HUB2B_URL_V2 + "/Setup/integration" + "?access_token=" + HUB2B_CREDENTIALS.access_token
 
-    const body = {
-        system: "ERPOrdersNotification",
-        idTenant: idTenant,
-        responsibilities: [
-            {
-                type: "Orders",
-                flow: "HubTo"
-            }
-        ],
-        apiKeys: [
-            {
-                key: "URL_ERPOrdersNotification",
-                value: PROJECT_HOST + "/order"
-            },
-            {
-                key: "authToken_ERPOrdersNotification",
-                value: "Bearer dslfkskdjhfjkhsakdhkjsdavsdn64567sdvjdf"
-            },
-            {
-                key: "AuthKey_ERPOrdersNotification",
-                value: "ApiKey"
-            },
-            {
-                key: "HUB_ID_ERPOrdersNotification",
-                value: "2032"
-            }
-        ]
-    }
-
-    const response = await requestHub2B(SETUP_URL, 'POST', body)
+    const response = await requestHub2B(SETUP_URL, 'PUT', integration)
 
     if (!response) return null
 
@@ -119,6 +90,7 @@ export const setupIntegrationHub2b = async (idTenant: any) => {
         ? log("Setup realizado com sucesso", "EVENT", getFunctionName())
         : log("Não foi passível obter o token de acesso", "EVENT", getFunctionName(), "WARN")
 
+    return setup
 }
 
 
@@ -369,7 +341,7 @@ export const getOrderHub2b = async (order_id: string) => {
     const body = {}
 
     const response = await requestHub2B(URL_ORDER, 'GET', body)
-    
+
     if (!response) return null
 
     const order = response.data

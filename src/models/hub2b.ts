@@ -351,3 +351,26 @@ export const productExample = {
         }
     ]
 }
+
+export interface HUB2B_Integration {
+    system:           string;
+    idTenant:         number;
+    responsibilities: HUB2B_Responsibility[];
+    apiKeys:          HUB2B_APIKey[];
+}
+
+export interface HUB2B_APIKey {
+    key:   string;
+    value: string;
+}
+
+export interface HUB2B_Responsibility {
+    type: string;
+    flow: string;
+}
+
+export interface HUB2B_Order_Webhook {
+    idTenant:    number;
+    idOrder:     string;
+    OrderStatus: string;
+}

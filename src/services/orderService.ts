@@ -1,14 +1,16 @@
 //
-//      Token Service
+//      Order Service
 //
 
-import { HUB2B_Order, HUB2B_Invoice, HUB2B_Tracking } from "../models/hub2b"
+import { HUB2B_Order, HUB2B_Invoice, HUB2B_Tracking, HUB2B_Integration, HUB2B_Order_Webhook } from "../models/hub2b"
 import { Order, OrderIntegration } from "../models/order"
 import { findLastIntegrationOrder, findOrderByShopId, newIntegrationHub2b, newOrderHub2b } from "../repositories/orderRepository"
+import { HUB2B_TENANT, PROJECT_HOST } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowIsoDateHub2b } from "../utils/util"
-import { listAllOrdersHub2b, listOrdersHub2bByTime, postInvoiceHub2b, postTrackingHub2b, getTrackingHub2b } from "./hub2bService"
+import { listAllOrdersHub2b, listOrdersHub2bByTime, postInvoiceHub2b, postTrackingHub2b, getTrackingHub2b, setupIntegrationHub2b } from "./hub2bService"
 import { findProductByVariation } from "./productService"
+import { getToken } from "../utils/cryptUtil"
 
 export const INTEGRATION_INTERVAL = 1000 * 83 //seconds
 
@@ -179,4 +181,37 @@ export const retrieveTracking = async (order_id: string): Promise<HUB2B_Tracking
         : log(`Could not retrieve tracking`, 'EVENT', getFunctionName(), 'ERROR')
 
     return orderTracking
+}
+
+export const setupWebhookIntegration = async(): Promise<HUB2B_Order_Webhook | null> => {
+    const integration : HUB2B_Integration = {
+        system: "ERPOrdersNotification",
+        idTenant: Number(HUB2B_TENANT),
+        responsibilities: [
+            {
+                type: "Orders",
+                flow: "HubTo"
+            }
+        ],
+        apiKeys: [
+            {
+                key: "URL_ERPOrdersNotification",
+                value: PROJECT_HOST + "/integration/order"
+            },
+            {
+                key: "authToken_ERPOrdersNotification",
+                value: getToken('hub2b')
+            },
+            {
+                key: "AuthKey_ERPOrdersNotification",
+                value: "Authorization"
+            },
+            {
+                key: "HUB_ID_ERPOrdersNotification",
+                value: HUB2B_TENANT
+            }
+        ]
+    }
+
+    return await setupIntegrationHub2b(integration)
 }

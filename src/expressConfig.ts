@@ -34,6 +34,9 @@ app.use( '/', routers.root )
 app.use( '/healthcheck', routers.healthCheck )
 app.use( '/auth', routers.auth )
 
+// TODO: secure integration routes asap!!!
+app.use( '/integration', routers.integration )
+
 app.use( authMiddleware )
 
 // Define Secure routers here
