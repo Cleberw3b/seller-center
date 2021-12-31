@@ -9,8 +9,8 @@ import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
 
 /**
- * Save a new hub2b integration 
- * 
+ * Save a new hub2b integration
+ *
  * @param orderIntegration -orderIntegration
  */
 export const newIntegrationHub2b = async (orderIntegration: OrderIntegration): Promise<boolean> => {
@@ -32,7 +32,7 @@ export const newIntegrationHub2b = async (orderIntegration: OrderIntegration): P
 
 /**
  * Find last hub2b integration
- * 
+ *
  */
 export const findLastIntegrationOrder = async (): Promise<OrderIntegration | null> => {
 
@@ -52,8 +52,8 @@ export const findLastIntegrationOrder = async (): Promise<OrderIntegration | nul
 }
 
 /**
- * Save orders 
- * 
+ * Save orders
+ *
  * @param user - new user
  */
 export const newOrderHub2b = async (orderIntegration: Order): Promise<Order | null> => {
@@ -75,7 +75,7 @@ export const newOrderHub2b = async (orderIntegration: Order): Promise<Order | nu
 
 /**
  * Find orders by shop_id
- * 
+ *
  * @param _id
  */
 export const findOrderByShopId = async (shop_id: string): Promise<Order[] | null> => {
@@ -87,6 +87,27 @@ export const findOrderByShopId = async (shop_id: string): Promise<Order[] | null
         const orders = await result.toArray()
 
         return orders
+
+    } catch (error) {
+
+        if (error instanceof MongoError || error instanceof Error)
+            log(error.message, 'EVENT', `User Repository - ${getFunctionName()}`, 'ERROR')
+
+        return null
+    }
+}
+
+export const findOneOrderAndModify = async (where: any, by: any, fields: {}): Promise<{}|null> => {
+
+    try {
+
+        const filter = { [where]: Number(by) }
+
+        const result = await orderCollection.findOneAndUpdate(filter, {$set: fields})
+
+        if (result.ok) log(`Order  updated`, 'EVENT', `Order Repository - ${getFunctionName()}`, 'INFO')
+
+        return result
 
     } catch (error) {
 

@@ -4,7 +4,7 @@
 
 import { HUB2B_Order, HUB2B_Invoice, HUB2B_Tracking, HUB2B_Integration, HUB2B_Order_Webhook } from "../models/hub2b"
 import { Order, OrderIntegration } from "../models/order"
-import { findLastIntegrationOrder, findOrderByShopId, newIntegrationHub2b, newOrderHub2b } from "../repositories/orderRepository"
+import { findLastIntegrationOrder, findOrderByShopId, newIntegrationHub2b, newOrderHub2b, findOneOrderAndModify } from "../repositories/orderRepository"
 import { HUB2B_TENANT, PROJECT_HOST } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowIsoDateHub2b } from "../utils/util"
@@ -214,4 +214,13 @@ export const setupWebhookIntegration = async(): Promise<HUB2B_Order_Webhook | nu
     }
 
     return await setupIntegrationHub2b(integration)
+}
+
+export const updateStatus = async (order_id: string, status: string) => {
+
+    const fields = { "order.status.status": status, "order.status.updatedDate": nowIsoDateHub2b() }
+
+    const update = await findOneOrderAndModify("order.reference.id", order_id, fields)
+
+    return update
 }

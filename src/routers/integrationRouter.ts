@@ -1,16 +1,22 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { createHttpStatus, internalServerError, ok } from '../utils/httpStatus'
 import { setupWebhookIntegration } from "../services/orderService";
+import { updateStatus } from '../services/orderService';
 
 const router = Router()
 
 router.post('/order', async (req: Request, res: Response, next: NextFunction) => {
 
-    console.log(`statusCode: ${res.statusCode}`)
-    console.log(req.body)
+    const result = await updateStatus(req.body.IdOrder, req.body.OrderStatus)
 
-    // Call update database service.
-    return res.status(ok.status).send(req.body)
+    if (!result)
+        return res
+            .status(internalServerError.status)
+            .send(createHttpStatus(internalServerError))
+
+    return res
+        .status(ok.status)
+        .send(req.body)
 })
 
 router.post('/order/webhook', async (req: Request, res: Response, next: NextFunction) => {
