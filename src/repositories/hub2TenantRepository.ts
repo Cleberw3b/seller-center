@@ -10,7 +10,7 @@ import { getFunctionName } from "../utils/util"
 
 /**
  * Save hub2b tenants
- * 
+ *
  * @param tenants
  */
 export const saveTenant = async ( tenants: HUB2B_Tenants ): Promise<boolean> => {
@@ -29,13 +29,13 @@ export const saveTenant = async ( tenants: HUB2B_Tenants ): Promise<boolean> => 
 
 /**
  * Update hub2b tenants
- * 
+ *
  * @param tenants
  */
  export const updateTenant = async ( tenants: HUB2B_Tenants ): Promise<HUB2B_Tenants | null> => {
 
     try {
-        const result = await hub2bTenantCollection.updateOne( 
+        const result = await hub2bTenantCollection.updateOne(
             { idTenant: tenants.idTenant },
             { $set: tenants },
             { upsert: true } )
@@ -44,14 +44,14 @@ export const saveTenant = async ( tenants: HUB2B_Tenants ): Promise<boolean> => 
 
         if ( result.upsertedCount )
             id = result.upsertedId._id
-    
+
         if ( result.matchedCount )
             return await findHub2bTenantByIdTenant( tenants.idTenant )
-    
+
         if ( !id ) throw new MongoError( "Não gerou id" )
-    
+
         tenants._id = id
-    
+
         return tenants
 
     } catch ( error ) {
@@ -63,7 +63,7 @@ export const saveTenant = async ( tenants: HUB2B_Tenants ): Promise<boolean> => 
 
 /**
  * Find hub2b Tenant by idTenant
- * 
+ *
  * @param idTenant
  */
  export const findHub2bTenantByIdTenant = async ( idTenant: number ): Promise<HUB2B_Tenants | null> => {
@@ -85,7 +85,7 @@ export const saveTenant = async ( tenants: HUB2B_Tenants ): Promise<boolean> => 
 
 /**
  * Retrieve tenants
- * 
+ *
  * @param token
  */
 export const retrieveTenants = async (): Promise<HUB2B_Tenants[] | null> => {
@@ -107,7 +107,7 @@ export const retrieveTenants = async (): Promise<HUB2B_Tenants[] | null> => {
 
 /**
  * Deleta tenant
- * 
+ *
  * @param access_token
  */
 export const deleteTenant = async ( access_token: string ): Promise<boolean> => {

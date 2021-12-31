@@ -10,7 +10,7 @@ import { getFunctionName } from "../utils/util"
 
 /**
  * Save hub2b credentials
- * 
+ *
  * @param credentials
  */
 export const saveCredential = async ( credentials: HUB2B_Credentials ): Promise<boolean> => {
@@ -39,7 +39,7 @@ export const saveCredential = async ( credentials: HUB2B_Credentials ): Promise<
 
 /**
  * Retrieve credentials
- * 
+ *
  * @param token
  */
 export const retrieveCredentials = async (): Promise<HUB2B_Credentials[] | null> => {
@@ -61,7 +61,7 @@ export const retrieveCredentials = async (): Promise<HUB2B_Credentials[] | null>
 
 /**
  * Deleta credential
- * 
+ *
  * @param access_token
  */
 export const deleteCredential = async ( access_token: string ): Promise<boolean> => {
@@ -78,5 +78,25 @@ export const deleteCredential = async ( access_token: string ): Promise<boolean>
             log( error.message, 'EVENT', `HUB2B credential Repository - ${ getFunctionName() }`, 'ERROR' )
 
         return false
+    }
+}
+
+/**
+ * Retrieve credentials by Tenant
+ *
+ * @param idTenant
+ */
+export const findAuthByTenant = async (idTenant: any): Promise<HUB2B_Credentials | null> => {
+
+    try {
+
+        return hub2bAuthCollection.findOne({ tenant_id: idTenant })
+
+    } catch (error) {
+
+        if (error instanceof MongoError || error instanceof Error)
+            log(error.message, 'EVENT', `HUB2B credential Repository - ${getFunctionName()}`, 'ERROR')
+
+        return null
     }
 }

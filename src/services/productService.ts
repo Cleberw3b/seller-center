@@ -304,7 +304,7 @@ export const deleteVariationById = async ( variation_id: string, patch: any ): P
 
 /**
  * Import products hub2b
- * 
+ *
  * @param idTenant
  */
  export const importProduct = async (idTenant: any, shop_id: any): Promise<Product[] | null> => {
@@ -320,7 +320,7 @@ export const deleteVariationById = async ( variation_id: string, patch: any ): P
             const productExists = await findProductByShopIdAndName(shop_id, productHub2b.name)
             if (!productExists) {
                 const images: string[] = []
-    
+
                 productHub2b.images.forEach((imageHub2b) => {
                     images.push(imageHub2b.url)
                 })
@@ -348,15 +348,15 @@ export const deleteVariationById = async ( variation_id: string, patch: any ): P
                         variations.push(variation)
                     })
                 }
-    
+
                 const product: Product = {
                     shop_id: new ObjectID(shop_id),
                     images,
-                    category: productHub2b.categorization ? 
-                        CATEGORIES.filter( category => 
+                    category: productHub2b.categorization ?
+                        CATEGORIES.filter( category =>
                             category.value === productHub2b.categorization.source.name )[0].code : 0,
-                    subcategory: productHub2b.categorization ? 
-                        SUBCATEGORIES.filter( 
+                    subcategory: productHub2b.categorization ?
+                        SUBCATEGORIES.filter(
                             subcategory => subcategory.value === productHub2b.categorization.destination.name )[0].code : 0,
                     nationality: 0,
                     name: productHub2b.name,
@@ -375,7 +375,7 @@ export const deleteVariationById = async ( variation_id: string, patch: any ): P
                     variations,
                     is_active: true
                 }
-            
+
                 if(product) {
                     log(`Product ${product.name} has been created.`, 'EVENT', getFunctionName())
                     if (variations.length > 0) {
@@ -394,10 +394,10 @@ export const deleteVariationById = async ( variation_id: string, patch: any ): P
                 }
             }
         }
-        
+
         if (productsWithoutVariation.length > 0) {
             const createdProducts = await createManyProducts( productsWithoutVariation )
-    
+
             if ( !createdProducts ) {
                 log( 'Could not create Products', 'EVENT', getFunctionName(), 'ERROR' )
             } else {
@@ -411,16 +411,19 @@ export const deleteVariationById = async ( variation_id: string, patch: any ): P
 
 /**
  * Get Products
- * 
- * @returns 
+ *
+ * @returns
  */
  export const getProductsInHub2b = async (idTenant: any): Promise<HUB2B_Catalog_Product[] | null> => {
-    await renewAccessTokenHub2b()
 
-    const CATALOG_URL = HUB2B_URL_V2 + 
-      "/catalog/product/" + HUB2B_MARKETPLACE + "/" + idTenant + 
+    const access = await renewAccessTokenHub2b(false, idTenant)
+
+    if (!access) return null
+
+    const CATALOG_URL = HUB2B_URL_V2 +
+      "/catalog/product/" + HUB2B_MARKETPLACE + "/" + idTenant +
       "?onlyWithDestinationSKU=true&onlyActiveProducts=true&getAdditionalInfo=false&access_token=" + HUB2B_CREDENTIALS.access_token
-    
+
     const response = await requestHub2B( CATALOG_URL, 'GET' )
     if ( !response ) return null
 

@@ -2,6 +2,7 @@
 
 export interface HUB2B_Credentials {
     _id?: any,
+    tenant_id: string,
     access_token: string,
     expires_in: number,
     refresh_token: string,
@@ -238,7 +239,7 @@ export interface HUB2B_Catalog_Product {
       priceBase: number,
       priceSale: number,
       isOutdated: boolean
-    },    
+    },
     destinationPrices: {
       priceBase: number
       priceSale: number
