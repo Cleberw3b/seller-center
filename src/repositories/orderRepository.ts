@@ -105,7 +105,7 @@ export const findOneOrderAndModify = async (where: any, by: any, fields: {}): Pr
 
         const result = await orderCollection.findOneAndUpdate(filter, {$set: fields})
 
-        if (result.ok) log(`Order  updated`, 'EVENT', `Order Repository - ${getFunctionName()}`, 'INFO')
+        if (result.value) log(`Order status updated`, 'EVENT', `Order Repository - ${getFunctionName()}`, 'INFO')
 
         return result
 
