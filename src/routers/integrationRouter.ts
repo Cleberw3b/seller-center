@@ -7,6 +7,7 @@ const router = Router()
 
 router.post('/order', async (req: Request, res: Response, next: NextFunction) => {
 
+    // TODO: checar também se o pedido notificado é novo (Pending) e inserir no banco de dados.
     const result = await updateStatus(req.body.IdOrder, req.body.OrderStatus)
 
     if (!result)
@@ -26,11 +27,11 @@ router.post('/order/webhook', async (req: Request, res: Response, next: NextFunc
     if (!webhookIntegration)
         return res
             .status(internalServerError.status)
-            .send(createHttpStatus(internalServerError))
+            .send(webhookIntegration)
 
     return res
         .status(ok.status)
-        .send(req.body)
+        .send(webhookIntegration)
 })
 
 export { router as integrationRouter }

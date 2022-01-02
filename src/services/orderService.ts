@@ -124,7 +124,24 @@ export const savNewOrder = async (shop_id: string, order: HUB2B_Order) => {
 
     const shop_orders = await findOrderByShopId(shop_id)
 
-    if (Array.isArray(shop_orders) && shop_orders!.filter(_order => _order!.order!.reference!.id == order!.reference!.id).length) return
+    if (!Array.isArray(shop_orders)) return
+
+    for (let i = 0; i < shop_orders.length; i++) {
+
+        const orderStatus = order.status.status
+
+        const orderId = order.reference.id
+
+        const shopOrderStatus = shop_orders[i].order.status.status
+
+        const shopOrderId = shop_orders[i].order.reference.id
+
+        if (orderId == shopOrderId && orderStatus != shopOrderStatus) {
+            updateStatus(shopOrderId.toString(), orderStatus)
+        }
+    }
+
+    if (shop_orders.filter(_order => _order.order.reference.id == order.reference.id).length) return
 
     const newOrder = await newOrderHub2b({ order, shop_id })
 
