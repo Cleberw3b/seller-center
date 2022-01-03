@@ -94,7 +94,7 @@ export interface HUB2B_Payment {
 }
 
 export interface HUB2B_Status {
-    status: 'pending' | 'approved' | 'invoiced' | 'shipped' | 'delivered' | 'canceled' | 'completed',
+    status: 'Pending' | 'Approved' | 'Invoiced' | 'Shipped' | 'Delivered' | 'Canceled' | 'Completed',
     updatedDate: string,
     active: boolean,
     message: string

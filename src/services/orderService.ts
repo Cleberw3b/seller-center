@@ -2,15 +2,16 @@
 //      Order Service
 //
 
-import { HUB2B_Order, HUB2B_Invoice, HUB2B_Tracking, HUB2B_Integration, HUB2B_Order_Webhook } from "../models/hub2b"
+import { HUB2B_Order, HUB2B_Invoice, HUB2B_Tracking, HUB2B_Integration, HUB2B_Order_Webhook, HUB2B_Status } from "../models/hub2b"
 import { Order, OrderIntegration } from "../models/order"
 import { findLastIntegrationOrder, findOrderByShopId, newIntegrationHub2b, newOrderHub2b, findOneOrderAndModify } from "../repositories/orderRepository"
 import { HUB2B_TENANT, PROJECT_HOST } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowIsoDateHub2b } from "../utils/util"
-import { listAllOrdersHub2b, listOrdersHub2bByTime, postInvoiceHub2b, postTrackingHub2b, getTrackingHub2b, setupIntegrationHub2b } from "./hub2bService"
+import { listAllOrdersHub2b, listOrdersHub2bByTime, postInvoiceHub2b, postTrackingHub2b, getTrackingHub2b, setupIntegrationHub2b, getInvoiceHub2b } from "./hub2bService"
 import { findProductByVariation } from "./productService"
 import { getToken } from "../utils/cryptUtil"
+import orderEventEmitter from "../events/orders"
 
 export const INTEGRATION_INTERVAL = 1000 * 83 //seconds
 
@@ -137,6 +138,7 @@ export const savNewOrder = async (shop_id: string, order: HUB2B_Order) => {
         const shopOrderId = shop_orders[i].order.reference.id
 
         if (orderId == shopOrderId && orderStatus != shopOrderStatus) {
+
             updateStatus(shopOrderId.toString(), orderStatus)
         }
     }
@@ -237,7 +239,39 @@ export const updateStatus = async (order_id: string, status: string) => {
 
     const fields = { "order.status.status": status, "order.status.updatedDate": nowIsoDateHub2b() }
 
-    const update = await findOneOrderAndModify("order.reference.id", order_id, fields)
+    const update = await findOneOrderAndModify("order.reference.id", order_id, fields) // update.value = Order
+
+    if (update?.value) orderEventEmitter.emit('updated', order_id, status)
+
+    if (update?.value && "Approved" == status) orderEventEmitter.emit('approved', order_id)
+
+    // TODO: check if order is from an agency subaccount. If not, it can be only from the main account. So, do nothing.
+
+    if (update?.value && "Invoiced" == status) {
+
+        const invoice = await getInvoiceHub2b(order_id)
+
+        if (invoice) orderEventEmitter.emit('invoiced', order_id, invoice)
+    }
+
+    if (update?.value && "Shipped" == status) {
+
+        const tracking = await getTrackingHub2b(order_id)
+
+        if (tracking) orderEventEmitter.emit('shipped', order_id, tracking)
+    }
+
+    if (update?.value && "Delivered" == status) {
+
+        const status: HUB2B_Status = {
+            active: true,
+            message: '',
+            status: 'Completed',
+            updatedDate: nowIsoDateHub2b()
+        }
+
+        orderEventEmitter.emit('delivered', order_id, status)
+    }
 
     return update
 }

@@ -97,7 +97,7 @@ export const findOrderByShopId = async (shop_id: string): Promise<Order[] | null
     }
 }
 
-export const findOneOrderAndModify = async (where: any, by: any, fields: {}): Promise<{}|null> => {
+export const findOneOrderAndModify = async (where: any, by: any, fields: {}) => {
 
     try {
 

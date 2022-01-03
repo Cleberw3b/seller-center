@@ -420,7 +420,7 @@ export const listAllOrdersHub2b = async (): Promise<HUB2B_Order[] | null> => {
     return orders
 }
 
-export const postInvoiceHub2b = async (order_id: string, _invoice: HUB2B_Invoice) => {
+export const postInvoiceHub2b = async (order_id: string, _invoice: any) => {
 
     await renewAccessTokenHub2b()
 
@@ -568,7 +568,7 @@ const rastreio: HUB2B_Tracking = {
 const status: HUB2B_Status = {
     active: true,
     message: 'Mensagem de teste',
-    status: 'delivered',
+    status: 'Delivered',
     updatedDate: nowIsoDate()
 }
 
