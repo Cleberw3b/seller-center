@@ -2,12 +2,14 @@
 //      User Repository
 //
 
+import { String } from "aws-sdk/clients/apigateway"
 import { MongoError, ObjectID } from "mongodb"
 import { User } from "../models/user"
 import { IS_PRODUCTION_ENV } from "../utils/consts"
 import { userCollection } from "../utils/db/collections"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName } from "../utils/util"
+import { findShopInfoByID } from "./accountRepository"
 
 /**
  * Save a new user and creates account
@@ -60,6 +62,33 @@ export const findOneUser = async ( { username, email }: FindOne ): Promise<User 
 
         else if ( username )
             result = await userCollection.findOne( { username }, { projection } )
+
+        return result
+
+    } catch ( error ) {
+
+        if ( error instanceof MongoError || error instanceof Error )
+            log( error.message, 'EVENT', `User Repository - ${ getFunctionName() }`, 'ERROR' )
+
+        return null
+    }
+}
+
+/**
+ * Find user by email or username
+ * 
+ * @param user
+ */
+ export const findUserByShopId = async ( shop_id: String ): Promise<User | null> => {
+
+    try {
+
+        const shop = await findShopInfoByID(shop_id)
+
+        let result = null
+
+        if( shop )
+            result = await userCollection.findOne( {_id: shop.userId } )
 
         return result
 

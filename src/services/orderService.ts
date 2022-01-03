@@ -9,6 +9,7 @@ import { HUB2B_TENANT, PROJECT_HOST } from "../utils/consts"
 import { log } from "../utils/loggerUtil"
 import { getFunctionName, nowIsoDateHub2b } from "../utils/util"
 import { listAllOrdersHub2b, listOrdersHub2bByTime, postInvoiceHub2b, postTrackingHub2b, getTrackingHub2b, setupIntegrationHub2b, getInvoiceHub2b } from "./hub2bService"
+import { sendOrderEmailToSeller } from "./mailService"
 import { findProductByVariation } from "./productService"
 import { getToken } from "../utils/cryptUtil"
 import orderEventEmitter from "../events/orders"
@@ -146,6 +147,8 @@ export const savNewOrder = async (shop_id: string, order: HUB2B_Order) => {
     if (shop_orders.filter(_order => _order.order.reference.id == order.reference.id).length) return
 
     const newOrder = await newOrderHub2b({ order, shop_id })
+
+    if(newOrder) sendOrderEmailToSeller(shop_id)
 
     newOrder
         ? log(`Order with sku`, 'EVENT', getFunctionName())

@@ -10,6 +10,8 @@ import { activationEmailContent } from "../models/emails/activationEmail"
 import { User } from "../models/user"
 import { generateAccessToken } from "./tokenService"
 import { resetPasswordContent } from "../models/emails/resetPassword"
+import { findUserByShopId } from "../repositories/userRepository"
+import { orderEmailContent } from "../models/emails/orderEmail"
 
 const transporter = nodemailer.createTransport( {
     service: 'gmail',
@@ -91,3 +93,25 @@ export const sendEmailToResetPassword = async ( user: User ): Promise<any> => {
 
     return result
 }
+
+export const sendOrderEmailToSeller = async ( shop_id: string ): Promise<any> => {
+
+    const user = await findUserByShopId( shop_id )
+
+    if ( !user ) {
+        log( `Could not send order email. User not found.`, 'EVENT', getFunctionName(), 'ERROR' )
+        return
+    }
+
+    const content = orderEmailContent()
+
+    const result = await sendEmail( user.email, 'OZLLO360 | Boas notícias: você vendeu!', content )
+
+    result
+        ? log( `Order  email sent to ${ user.email }`, 'EVENT', getFunctionName() )
+        : log( `Could not order email to ${ user.email }`, 'EVENT', getFunctionName(), 'ERROR' )
+
+    return result
+}
+
+
