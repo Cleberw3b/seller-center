@@ -80,27 +80,7 @@ export const createShopInfo = async ( body: any ): Promise<ShopInfo | null> => {
 
     if (newShopInfo) {
         log( `Shop Info for ${ userId } added.`, 'EVENT', getFunctionName() )
-
-        // Criação do Tenant após criação do shop
-        /* await createTenant( {
-            name: newShopInfo.name,
-            website: "",
-            documentNumber: "",
-            companyName: "",
-            ownerName: "",
-            ownerEmail: "",
-            ownerPhoneNumber: "",
-            stateInscription: "",
-            address: {
-                zipCode: "",
-                street: "",
-                neighborhood: "",
-                number: 0,
-                city: "",
-                state: "",
-                country: ""
-            }
-        })*/
+        // TODO: Create user tenant with shopInfo data.
     } else {
         log( `Could not set shop information for ${ userId }`, 'EVENT', getFunctionName() )
     }
