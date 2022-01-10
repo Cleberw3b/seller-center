@@ -416,9 +416,7 @@ export const deleteVariationById = async ( variation_id: string, patch: any ): P
  */
  export const getProductsInHub2b = async (idTenant: any): Promise<HUB2B_Catalog_Product[] | null> => {
 
-    const access = await renewAccessTokenHub2b(false, idTenant)
-
-    if (!access) return null
+    await renewAccessTokenHub2b(false, idTenant)
 
     const CATALOG_URL = HUB2B_URL_V2 +
       "/catalog/product/" + HUB2B_MARKETPLACE + "/" + idTenant +
